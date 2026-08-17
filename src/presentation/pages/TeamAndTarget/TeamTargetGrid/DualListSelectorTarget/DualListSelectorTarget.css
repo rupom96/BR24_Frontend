@@ -1,0 +1,4 @@
+.duelListSelectorCustom .MuiList-root {
+    /* Target the List components only inside duelListSelect */
+    z-index: 0 !important;
+  }

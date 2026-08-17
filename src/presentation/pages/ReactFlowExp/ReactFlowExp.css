@@ -1,0 +1,29 @@
+.sticky {
+    position: sticky;
+    top: 0;
+    left: 0;
+    background: white;
+    z-index: 10;
+  }
+  
+  .overflow-x-scroll {
+    overflow-x: auto;
+    display: flex;
+  }
+
+  .horizontal-controls {
+    /* display: flex !important;
+    flex-direction: row; */
+  }
+  .react-flow__controls-interactive{
+    display: none;
+  }
+  .react-flow__attribution{
+    display: none !important;
+  }
+  /* .horizontal-cntrl >Children-Container   upPathSimplifications %}
+  better cl-range      .newSimplifications !!
+  customSimplifications  >validate-HorizontalBranch
+  
+  
+  .%VERTICAL_SIMPLIFICATIONS-THEMS */

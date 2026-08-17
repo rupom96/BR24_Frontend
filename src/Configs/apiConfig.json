@@ -1,0 +1,6 @@
+{
+    "API_BASE_URL": "https://localhost:44389/api",
+    "BR2_URL": "http://localhost:3322",
+    "BR3_API_URL": "http://localhost:44313",
+    "BR3_FN_URL": "http://localhost:3000"
+}
