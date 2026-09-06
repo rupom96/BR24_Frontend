@@ -87,24 +87,6 @@ const EXCEL_BLUE_600 = 'FF2563EB';
 // NEW: grey for "(10)" in Excel (close to Tailwind gray-500)
 const EXCEL_GREY_500 = 'FF6B7280';
 
-// columns to grand-total (grid footer + Excel last row)
-const TOTAL_COLUMN_IDS = ['quantity', 'cost'];
-
-//  sums a numeric column over leaf rows, treating null/NaN as 0
-const sumNullSafe = (columnId: string, leafRows: any[]) =>
-  leafRows.reduce((acc: number, r: any) => {
-    const v = r?.original?.[columnId];
-    const n = Number(v ?? 0);
-    return acc + (Number.isFinite(n) ? n : 0);
-  }, 0);
-
-//  2 decimals + thousand separators; also kills float noise from summing costs
-const fmt2 = (n: number) =>
-  Number(n ?? 0).toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-
 /** -------------- COMPONENT -------------- */
 const CurrentStockPreview = () => {
   const navigate = useNavigate();
@@ -440,6 +422,13 @@ const CurrentStockPreview = () => {
 
   /** --------------------- GRID COLUMNS --------------------- */
   const columns = useMemo<MRT_ColumnDef<ICurrentStockPreviewRow>[]>(() => {
+    const sumNullSafe = (columnId: string, leafRows: any[]) =>
+      leafRows.reduce((acc: number, r: any) => {
+        const v = r?.original?.[columnId];
+        const n = Number(v ?? 0);
+        return acc + (Number.isFinite(n) ? n : 0);
+      }, 0);
+
     const getFirstOriginal = (row: any): ICurrentStockPreviewRow | undefined =>
       (row?.subRows?.[0] as any)?.original;
 
@@ -564,20 +553,11 @@ const CurrentStockPreview = () => {
           const value = cell.getValue<number>() ?? 0;
           return (
             <span style={{ fontWeight: 600 }}>
-              {label}: <span className="text-blue-600">{fmt2(value)}</span>
+              {label}: <span className="text-blue-600">{value}</span>
             </span>
           );
         },
         Cell: ({ row }) => <span>{row.original.quantity ?? ''}</span>,
-        //  grand total of every filtered leaf row (grouping-safe)
-        Footer: ({ table: t }) => (
-          <span style={{ fontWeight: 800 }}>
-            Total:{' '}
-            <span className="text-blue-600">
-              {fmt2(sumNullSafe('quantity', t.getFilteredRowModel().rows))}
-            </span>
-          </span>
-        ),
       },
       {
         accessorKey: 'measuringUnitName',
@@ -603,20 +583,11 @@ const CurrentStockPreview = () => {
           const value = cell.getValue<number>() ?? 0;
           return (
             <span style={{ fontWeight: 600 }}>
-              {label}: <span className="text-blue-600">{fmt2(value)}</span>
+              {label}: <span className="text-blue-600">{value}</span>
             </span>
           );
         },
         Cell: ({ row }) => <span>{row.original.cost ?? ''}</span>,
-        //  grand total of every filtered leaf row (grouping-safe)
-        Footer: ({ table: t }) => (
-          <span style={{ fontWeight: 800 }}>
-            Total:{' '}
-            <span className="text-blue-600">
-              {fmt2(sumNullSafe('cost', t.getFilteredRowModel().rows))}
-            </span>
-          </span>
-        ),
       },
       {
         accessorKey: 'serialAvailable',
@@ -701,21 +672,6 @@ const CurrentStockPreview = () => {
         },
       },
       muiTableContainerProps: { sx: { maxHeight: '60vh' } },
-
-      //  grand total row (MRT sets position/bottom/zIndex itself when sticky)
-      enableStickyFooter: true,
-      muiTableFooterProps: {
-        sx: { backgroundColor: '#F6F7FF', opacity: 1 },
-      },
-      muiTableFooterCellProps: {
-        align: 'center',
-        sx: {
-          backgroundColor: '#F6F7FF',
-          fontSize: '13px',
-          borderTop: '1px solid #e0e0e0',
-          borderRight: '1px solid #e0e0e0',
-        },
-      },
 
       renderToolbarInternalActions: ({ table: t }) => (
         <>
@@ -862,10 +818,7 @@ const CurrentStockPreview = () => {
       const makeRichTotal = (label: string, num: number | string) => ({
         richText: [
           { text: `${label} Total: `, font: { italic: true } },
-          {
-            text: fmt2(Number(num ?? 0)),
-            font: { color: { argb: EXCEL_BLUE_600 } },
-          },
+          { text: String(num ?? 0), font: { color: { argb: EXCEL_BLUE_600 } } },
         ],
       });
 
@@ -979,44 +932,6 @@ const CurrentStockPreview = () => {
 
       setExportProgress({ done: rows.length, total: rows.length });
       await yieldToUI();
-
-      //  grand total row — same row model as the grid footer, so they agree
-      if (
-        visibleCols.some((c) => TOTAL_COLUMN_IDS.includes(String(c.id))) &&
-        !exportAbortRef.current.aborted
-      ) {
-        const filteredRows = table.getFilteredRowModel().rows;
-
-        const grandValues = visibleCols.map((col) => {
-          const colId = String(col.id);
-          if (!TOTAL_COLUMN_IDS.includes(colId)) return null;
-          return {
-            richText: [
-              { text: 'Grand Total: ', font: { bold: true } },
-              {
-                text: fmt2(sumNullSafe(colId, filteredRows)),
-                font: { bold: true, color: { argb: EXCEL_BLUE_600 } },
-              },
-            ],
-          };
-        });
-
-        const grandRow = ws.addRow(grandValues);
-        grandRow.alignment = {
-          horizontal: 'center',
-          vertical: 'middle',
-          wrapText: true,
-        };
-        // border only: richText runs carry their own bold/colour fonts
-        grandRow.border = { top: { style: 'thin' } };
-
-        for (let c = 0; c < grandValues.length; c++) {
-          const v = grandValues[c];
-          if (v) {
-            bumpColWidth(c + 1, v.richText.map((x) => x.text).join(''));
-          }
-        }
-      }
 
       if (exportAbortRef.current.aborted) {
         toast.info('Excel download canceled.');
