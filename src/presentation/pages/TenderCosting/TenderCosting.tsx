@@ -74,7 +74,18 @@ type TenderCostingDetailRow = GetTenderCostingDetailDto & {
   // Tax & VAT Three + final pricing
   taxAndVATThreePerProduct: number; // percentage driven from Tax&VATThreeP
   totalAmountTwoPerProduct: number; // virtual
+
+  /** DB Price at load — used on save when productSource is not FOB/LOCAL/STOCK */
+  originalPrice: number | null;
+
+  /** Per-row % (virtual) — drives Dist/Profit values */
+  distMarginPercent: number;
+  profitPercent: number;
 };
+
+const isFobSource = (s?: string | null): boolean => s === 'FOB';
+const isLpSource = (s?: string | null): boolean =>
+  s === 'LOCAL' || s === 'STOCK';
 
 export type TenderCostingState = Omit<
   GetTenderCostingDto,
@@ -124,8 +135,6 @@ const round2 = (n: number): number =>
 // ===== Recompute all (single source of truth) =====
 
 const recomputeAll = (state: TenderCostingState): TenderCostingState => {
-  const distPct = state.distMarginP ?? 0;
-  const profitPct = state.profitP ?? 0;
   const taxAndVATOnePct = state.taxAndVATOneP ?? 0;
   const salesExpensePct = state.salesExpenseP ?? 0;
   const agExpensePct = state.agExpenseP ?? 0;
@@ -135,8 +144,10 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
   let sumOfUnit = 0;
   let sumOfTotalFOB = 0;
   let distMarginT = 0;
+  let sumDistMarginPercent = 0;
   let sumLP = 0;
   let sumProfit = 0;
+  let sumProfitPercent = 0;
   let sumDP = 0;
   let sumUnitCost = 0;
 
@@ -178,8 +189,15 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
 
       const totalFob = quantity && price ? round2(quantity * price) : 0;
 
-      const distMarginPerProduct =
-        price && distPct ? round2(price * (distPct / 100)) : 0;
+      const distMarginPercent = row.distMarginPercent ?? 0;
+      const profitPercent = row.profitPercent ?? 0;
+
+      // FOB: Dist value from row %; non-FOB: keep stored Dist cost
+      const distMarginPerProduct = isFobSource(row.productSource)
+        ? price && distMarginPercent
+          ? round2(price * (distMarginPercent / 100))
+          : 0
+        : row.distMarginPerProduct ?? 0;
 
       const lpPerProduct = row.lpPerProduct ?? 0;
 
@@ -188,7 +206,9 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
 
       const profitBase = (lc || 0) + (lpPerProduct || 0);
       const profitPerProduct =
-        profitPct && profitBase ? round2(profitBase * (profitPct / 100)) : 0;
+        profitPercent && profitBase
+          ? round2(profitBase * (profitPercent / 100))
+          : 0;
 
       const dpPerProduct = row.dpPerProduct ?? 0;
 
@@ -275,8 +295,10 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
       sumOfUnit += quantity || 0;
       sumOfTotalFOB += totalFob || 0;
       distMarginT += distMarginPerProduct || 0;
+      sumDistMarginPercent += distMarginPercent || 0;
       sumLP += lpPerProduct || 0;
       sumProfit += profitPerProduct || 0;
+      sumProfitPercent += profitPercent || 0;
       sumDP += dpPerProduct || 0;
       sumUnitCost += unitCostPerProduct || 0;
 
@@ -306,9 +328,11 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
       return {
         ...row,
         totalFob,
+        distMarginPercent,
         distMarginPerProduct,
         lpPerProduct,
         lc,
+        profitPercent,
         profitPerProduct,
         dpPerProduct,
         unitCostPerProduct,
@@ -429,8 +453,10 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
     getTenderCostingDetailDtos: finalRows,
     sumOfUnit: round2(sumOfUnit),
     sumOfTotalFOB: round2(sumOfTotalFOB),
+    distMarginP: round2(sumDistMarginPercent),
     distMarginT: round2(distMarginT),
     lpt: round2(sumLP),
+    profitP: round2(sumProfitPercent),
     profitT: round2(sumProfit),
     dpt: round2(sumDP),
     unitCostT: round2(sumUnitCost),
@@ -494,25 +520,73 @@ const buildInitialStateFromDto = (
   dto: GetTenderCostingDto
 ): TenderCostingState => {
   const rows: TenderCostingDetailRow[] = dto.getTenderCostingDetailDtos.map(
-    (d) => ({
-      ...d,
-      totalFob: 0,
-      lc: 0,
-      // seed from DTO; will be overwritten by recomputeAll based on profitP
-      profitPerProduct: d.profitPerProduct ?? 0,
-      unitCostPerProduct: 0,
-      unitPriceWithoutVTOtherExpPerProduct: 0,
-      unitPriceWithVTPerProduct: 0,
-      unitPriceWithSePerProduct: 0,
-      unitPriceWithAgPerProduct: 0,
-      unitPriceWithTv2SeAgPerProduct: 0,
-      totalAmountOnePerProduct: 0,
-      totalVatTaxPerProduct: 0,
-      taxAndVATThreePerProduct: d.taxAndVATThreePerProduct ?? 0,
-      calculatedPrice: d.calculatedPrice ?? 0,
-      totalAmountTwoPerProduct: 0,
-      calculatedProfit: d.calculatedProfit ?? 0,
-    })
+    (d) => {
+      const originalPrice = d.price ?? null;
+      const productSource = d.productSource ?? null;
+      const apiPrice = d.price ?? 0;
+      const distCost = d.distMarginPerProduct ?? 0;
+      const profitCost = d.profitPerProduct ?? 0;
+      const factor = d.initialFactor ?? 0;
+
+      // LOCAL/STOCK: Price displays & calculates as LP; FOB-side price = 0
+      // FOB: Price stays in FOB; LP from AdditionalCost as returned
+      // other: leave as returned; both columns read-only later
+      let price = apiPrice;
+      let lpPerProduct = d.lpPerProduct ?? 0;
+      if (isLpSource(productSource)) {
+        lpPerProduct = originalPrice ?? 0;
+        price = 0;
+      }
+
+      // Dist %: reverse from Cost/price when price > 0 (API price before LOCAL remap)
+      let distMarginPercent = 0;
+      if (apiPrice > 0 && distCost) {
+        distMarginPercent = round2((distCost / apiPrice) * 100);
+      }
+      if (isLpSource(productSource)) {
+        distMarginPercent = 0;
+      }
+
+      // Provisional Dist for Profit % reverse (FOB uses %; else keep API cost)
+      const provisionalDist = isFobSource(productSource)
+        ? price && distMarginPercent
+          ? round2(price * (distMarginPercent / 100))
+          : 0
+        : distCost;
+      const provisionalLc =
+        price && factor ? round2((price + provisionalDist) * factor) : 0;
+      const profitBase = (provisionalLc || 0) + (lpPerProduct || 0);
+      let profitPercent = dto.profitP ?? 0;
+      if (profitBase > 0 && profitCost) {
+        profitPercent = round2((profitCost / profitBase) * 100);
+      }
+
+      return {
+        ...d,
+        productSource,
+        price,
+        lpPerProduct,
+        originalPrice,
+        distMarginPercent,
+        distMarginPerProduct: distCost,
+        profitPercent,
+        totalFob: 0,
+        lc: 0,
+        profitPerProduct: profitCost,
+        unitCostPerProduct: 0,
+        unitPriceWithoutVTOtherExpPerProduct: 0,
+        unitPriceWithVTPerProduct: 0,
+        unitPriceWithSePerProduct: 0,
+        unitPriceWithAgPerProduct: 0,
+        unitPriceWithTv2SeAgPerProduct: 0,
+        totalAmountOnePerProduct: 0,
+        totalVatTaxPerProduct: 0,
+        taxAndVATThreePerProduct: d.taxAndVATThreePerProduct ?? 0,
+        calculatedPrice: d.calculatedPrice ?? 0,
+        totalAmountTwoPerProduct: 0,
+        calculatedProfit: d.calculatedProfit ?? 0,
+      };
+    }
   );
 
   const baseState: TenderCostingState = {
@@ -596,12 +670,6 @@ const handleExportAllData = (
     subHeaderRow[col.id] = ownHeader;
 
     switch (parentHeader) {
-      case 'Dist Margin':
-        subHeaderRow[col.id] = `${state?.distMarginP ?? 0}%`;
-        break;
-      case 'Profit':
-        subHeaderRow[col.id] = `${state?.profitP ?? 0}%`;
-        break;
       case 'Tax & VAT ': // 'Tax & VAT ' here, it was 'Tax & VAT One', but cant show that 'One' to client, so name 'One' has been replaced by a space
         subHeaderRow[col.id] = `${state?.taxAndVATOneP ?? 0}%`;
         break;
@@ -676,11 +744,17 @@ const handleExportAllData = (
       case 'totalFob':
         val = state.sumOfTotalFOB ?? 0;
         break;
+      case 'distMarginPercent':
+        val = (state as any).distMarginP ?? 0;
+        break;
       case 'distMarginPerProduct':
         val = (state as any).distMarginT ?? 0;
         break;
       case 'lpPerProduct':
         val = (state as any).lpt ?? 0;
+        break;
+      case 'profitPercent':
+        val = state.profitP ?? 0;
         break;
       case 'profitPerProduct':
         val = state.profitT ?? 0;
@@ -1058,25 +1132,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
 
   const rows = tenderCostingState?.getTenderCostingDetailDtos ?? [];
 
-  // ---- handlers for header % fields ----
-
-  const handleDistMarginPercentBlur = (raw: string) => {
-    if (!tenderCostingState) return;
-    const val = Number(raw);
-    const next = !raw || Number.isNaN(val) ? 0 : Math.max(0, val);
-    setTenderCostingState((prev) =>
-      prev ? recomputeAll({ ...prev, distMarginP: next }) : prev
-    );
-  };
-
-  const handleProfitPercentBlur = (raw: string) => {
-    if (!tenderCostingState) return;
-    const val = Number(raw);
-    const next = !raw || Number.isNaN(val) ? 0 : Math.max(0, val);
-    setTenderCostingState((prev) =>
-      prev ? recomputeAll({ ...prev, profitP: next }) : prev
-    );
-  };
+  // ---- handlers for header % fields (Tax/SE/AG still header-level) ----
 
   const handleTaxAndVATOnePercentBlur = (raw: string) => {
     if (!tenderCostingState) return;
@@ -1206,6 +1262,162 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
       </div>
     );
 
+  // FOB: editable only when productSource === FOB; otherwise empty read-only
+  const fobCell = ({ row }: any) => {
+    const detail = rows[row.index];
+    const editable = isFobSource(detail?.productSource);
+    if (!editable) {
+      return (
+        <div className="w-full py-1 flex justify-between items-center">
+          <span style={{ fontSize: 13 }} />
+        </div>
+      );
+    }
+    const val = detail?.price;
+    return (
+      <div className="w-full py-1 flex justify-between items-center">
+        <TextField
+          key={`fob-${row.index}-${val ?? ''}`}
+          type="number"
+          variant="standard"
+          size="small"
+          sx={{ width: '100%' }}
+          InputProps={{ style: { fontSize: 13 }, disableUnderline: true }}
+          defaultValue={val ?? ''}
+          onBlur={(e) => {
+            const v = e.target.value;
+            const num =
+              v === '' || Number.isNaN(Number(v)) ? null : Math.abs(Number(v));
+            updateCell(row.index, 'price', num);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              (e.target as HTMLInputElement).blur();
+            }
+          }}
+        />
+      </div>
+    );
+  };
+
+  // LP: editable only when LOCAL/STOCK; otherwise read-only display
+  const lpCell = ({ row }: any) => {
+    const detail = rows[row.index];
+    const editable = isLpSource(detail?.productSource);
+    const val = detail?.lpPerProduct;
+    if (!editable) {
+      return (
+        <div className="w-full py-1 flex justify-between items-center">
+          <span style={{ fontSize: 13 }}>
+            {val == null ? '' : Number(val).toFixed(2)}
+          </span>
+        </div>
+      );
+    }
+    return (
+      <div className="w-full py-1 flex justify-between items-center">
+        <TextField
+          key={`lp-${row.index}-${val ?? ''}`}
+          type="number"
+          variant="standard"
+          size="small"
+          sx={{ width: '100%' }}
+          InputProps={{ style: { fontSize: 13 }, disableUnderline: true }}
+          defaultValue={val ?? ''}
+          onBlur={(e) => {
+            const v = e.target.value;
+            const num =
+              v === '' || Number.isNaN(Number(v)) ? null : Math.abs(Number(v));
+            updateCell(row.index, 'lpPerProduct', num);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              (e.target as HTMLInputElement).blur();
+            }
+          }}
+        />
+      </div>
+    );
+  };
+
+  // Dist Margin %: editable only when productSource === FOB
+  const distMarginPercentCell = ({ row }: any) => {
+    const detail = rows[row.index];
+    const editable = isFobSource(detail?.productSource);
+    const val = detail?.distMarginPercent;
+    if (!editable) {
+      return (
+        <div className="w-full py-1 flex justify-between items-center">
+          <span style={{ fontSize: 13 }}>
+            {val == null || val === 0 ? '' : Number(val).toFixed(2)}
+          </span>
+        </div>
+      );
+    }
+    return (
+      <div className="w-full py-1 flex justify-between items-center">
+        <TextField
+          key={`distPct-${row.index}-${val ?? ''}`}
+          type="number"
+          variant="standard"
+          size="small"
+          sx={{ width: '100%' }}
+          InputProps={{
+            style: { fontSize: 13 },
+            disableUnderline: true,
+            endAdornment: <span style={{ marginLeft: 4 }}>%</span>,
+          }}
+          defaultValue={val ?? ''}
+          onBlur={(e) => {
+            const v = e.target.value;
+            const num =
+              v === '' || Number.isNaN(Number(v)) ? 0 : Math.max(0, Number(v));
+            updateCell(row.index, 'distMarginPercent', num);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              (e.target as HTMLInputElement).blur();
+            }
+          }}
+        />
+      </div>
+    );
+  };
+
+  // Profit %: editable on all rows
+  const profitPercentCell = ({ row }: any) => {
+    const detail = rows[row.index];
+    const val = detail?.profitPercent;
+    return (
+      <div className="w-full py-1 flex justify-between items-center">
+        <TextField
+          key={`profitPct-${row.index}-${val ?? ''}`}
+          type="number"
+          variant="standard"
+          size="small"
+          sx={{ width: '100%' }}
+          InputProps={{
+            style: { fontSize: 13 },
+            disableUnderline: true,
+            endAdornment: <span style={{ marginLeft: 4 }}>%</span>,
+          }}
+          defaultValue={val ?? ''}
+          onBlur={(e) => {
+            const v = e.target.value;
+            const num =
+              v === '' || Number.isNaN(Number(v)) ? 0 : Math.max(0, Number(v));
+            updateCell(row.index, 'profitPercent', num);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              (e.target as HTMLInputElement).blur();
+            }
+          }}
+        />
+      </div>
+    );
+  };
+
   const readonlyNumberCell =
     (key: keyof TenderCostingDetailRow) =>
     ({ row }: any) => {
@@ -1251,7 +1463,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
         accessorKey: 'price',
         header: 'FOB',
         size: 110,
-        Cell: numberCell('price'),
+        Cell: fobCell,
         Footer: () => null,
       },
       {
@@ -1263,46 +1475,21 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
         Footer: () => (tenderCostingState?.sumOfTotalFOB ?? 0).toFixed(2),
       },
       {
+        accessorKey: 'distMarginPercent',
+        header: 'Dist Margin %',
+        size: 120,
+        Cell: distMarginPercentCell,
+        Footer: () =>
+          ((tenderCostingState as any)?.distMarginP ?? 0).toFixed(2),
+      },
+      {
+        accessorKey: 'distMarginPerProduct',
         header: 'Dist Margin',
-        columns: [
-          {
-            accessorKey: 'distMarginPerProduct',
-            header: '',
-            Header: (
-              <div
-                onClick={(e) => e.stopPropagation()}
-                onMouseDown={(e) => e.stopPropagation()}
-                onPointerDown={(e) => e.stopPropagation()}
-                style={{ width: '100%' }}
-              >
-                <TextField
-                  key={tenderCostingState?.distMarginP ?? 0}
-                  defaultValue={tenderCostingState?.distMarginP ?? 0}
-                  type="number"
-                  variant="standard"
-                  size="small"
-                  InputProps={{
-                    disableUnderline: true,
-                    endAdornment: <span style={{ marginLeft: 4 }}>%</span>,
-                    style: { fontSize: 13 },
-                  }}
-                  sx={{ width: '100%' }}
-                  onBlur={(e) => handleDistMarginPercentBlur(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      (e.target as HTMLInputElement).blur();
-                    }
-                  }}
-                />
-              </div>
-            ),
-            size: 130,
-            Cell: readonlyNumberCell('distMarginPerProduct' as any),
-            enableEditing: false,
-            Footer: () =>
-              ((tenderCostingState as any)?.distMarginT ?? 0).toFixed(2),
-          },
-        ],
+        size: 120,
+        Cell: readonlyNumberCell('distMarginPerProduct' as any),
+        enableEditing: false,
+        Footer: () =>
+          ((tenderCostingState as any)?.distMarginT ?? 0).toFixed(2),
       },
       {
         accessorKey: 'initialFactor',
@@ -1323,50 +1510,24 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
         accessorKey: 'lpPerProduct',
         header: 'LP',
         size: 110,
-        Cell: numberCell('lpPerProduct'),
+        Cell: lpCell,
         enableEditing: true,
         Footer: () => ((tenderCostingState as any)?.lpt ?? 0).toFixed(2),
       },
       {
+        accessorKey: 'profitPercent',
+        header: 'Profit %',
+        size: 110,
+        Cell: profitPercentCell,
+        Footer: () => (tenderCostingState?.profitP ?? 0).toFixed(2),
+      },
+      {
+        accessorKey: 'profitPerProduct',
         header: 'Profit',
-        columns: [
-          {
-            accessorKey: 'profitPerProduct',
-            header: '',
-            Header: (
-              <div
-                onClick={(e) => e.stopPropagation()}
-                onMouseDown={(e) => e.stopPropagation()}
-                onPointerDown={(e) => e.stopPropagation()}
-                style={{ width: '100%' }}
-              >
-                <TextField
-                  key={tenderCostingState?.profitP ?? 0}
-                  defaultValue={tenderCostingState?.profitP ?? 0}
-                  type="number"
-                  variant="standard"
-                  size="small"
-                  InputProps={{
-                    disableUnderline: true,
-                    endAdornment: <span style={{ marginLeft: 4 }}>%</span>,
-                    style: { fontSize: 13 },
-                  }}
-                  sx={{ width: '100%' }}
-                  onBlur={(e) => handleProfitPercentBlur(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      (e.target as HTMLInputElement).blur();
-                    }
-                  }}
-                />
-              </div>
-            ),
-            size: 130,
-            Cell: readonlyNumberCell('profitPerProduct'),
-            enableEditing: false,
-            Footer: () => (tenderCostingState?.profitT ?? 0).toFixed(2),
-          },
-        ],
+        size: 120,
+        Cell: readonlyNumberCell('profitPerProduct'),
+        enableEditing: false,
+        Footer: () => (tenderCostingState?.profitT ?? 0).toFixed(2),
       },
       {
         accessorKey: 'dpPerProduct',
@@ -1922,8 +2083,28 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
             totalAmountOnePerProduct,
             totalVatTaxPerProduct,
             totalAmountTwoPerProduct,
+            originalPrice,
+            distMarginPercent,
+            profitPercent,
             ...detailDtoPart
-          }) => detailDtoPart
+          }) => {
+            const source = detailDtoPart.productSource;
+            let price = detailDtoPart.price;
+
+            if (isLpSource(source)) {
+              // LOCAL/STOCK: Price column in DB follows edited LP
+              price = detailDtoPart.lpPerProduct ?? 0;
+            } else if (!isFobSource(source)) {
+              // Neither FOB nor LOCAL/STOCK: keep loaded Price unchanged
+              price = originalPrice;
+            }
+            // FOB: price stays as edited FOB value
+
+            return {
+              ...detailDtoPart,
+              price,
+            };
+          }
         );
 
       mappedGetTenderCostingDto = {

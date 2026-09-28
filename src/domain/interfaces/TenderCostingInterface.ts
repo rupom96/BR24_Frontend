@@ -4,8 +4,9 @@ export interface GetTenderCostingDetailDto {
   procurementTenderDetailId: number;
   productId?: number | null;
   productName?: string | null;
+  productSource?: string | null; // FOB | LOCAL | STOCK | other
   quantity?: number | null; // Unit
-  price?: number | null; // FOB
+  price?: number | null; // FOB (when productSource === FOB); also DB Price
   initialFactor?: number | null; // Factor
 
   distMarginPerProduct?: number | null;

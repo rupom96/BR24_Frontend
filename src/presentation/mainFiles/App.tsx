@@ -657,8 +657,17 @@ const App = () => {
                         /> */}
                         <Route
                           path="tenderRequisition"
-                          // element={<ChequeBookRegistration />}
-                          element={<TenderRequisiton />}
+                          element={
+                            <TenderRequisiton
+                              clickedCardInfo={{
+                                biznessEventName: 'ProcurementTender',
+                                extendedBiznessEventName: [
+                                  'ProcurementTenderDetail',
+                                  'ProcurementTenderAdditionalCost',
+                                ],
+                              }}
+                            />
+                          }
                         />
                         <Route
                           path="salesOrderAdditionalCost"

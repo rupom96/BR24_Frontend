@@ -312,21 +312,7 @@ const Sidebar = () => {
         {
           title: 'Bizness Roots',
           links: [
-            // {
-            //   name: 'BizEvent Process Config',
-            //   path: 'bizEventProcConfig',
-            //   icon: <FiShoppingBag />,
-            // },
-            // {
-            //   name: 'FreshenedUp Page',
-            //   path: 'structuredPage',
-            //   icon: <FiShoppingBag />,
-            // },
-            // {
-            //   name: 'Laboratory',
-            //   path: 'laboratory',
-            //   icon: <FiShoppingBag />,
-            // },
+            
             {
               name: 'Cost Sheet Detail',
               path: 'costSheetDetail',
@@ -352,6 +338,11 @@ const Sidebar = () => {
               path: 'tenderWonStatic',
               icon: <FiShoppingBag />,
             },
+            {
+              name: 'Tender Requisition',
+              path: 'tenderRequisition',
+              icon: <FiShoppingBag />,
+            },
 
             {
               name: 'Purchase Comparative',
@@ -363,11 +354,7 @@ const Sidebar = () => {
               path: 'chainConfiguration',
               icon: <FiShoppingBag />,
             },
-            // {
-            //   name: 'Chain Configuration Test',
-            //   path: 'chainConfigurationTest',
-            //   icon: <FiShoppingBag />,
-            // },
+           
             {
               name: 'Team and Target',
               path: 'teamAndTarget',
@@ -404,11 +391,6 @@ const Sidebar = () => {
               icon: <FiShoppingBag />,
             },
 
-            // {
-            //   name: 'React Flow Exp',
-            //   path: 'reactFlowExp',
-            //   icon: <FiShoppingBag />,
-            // },
             {
               name: 'Availiable Chain Status',
               path: 'reactFlowExp2',
@@ -426,22 +408,11 @@ const Sidebar = () => {
               path: 'currentStockPreview',
               icon: <FiShoppingBag />,
             },
-
-            // {
-            //   name: 'Dynamic Report',
-            //   path: 'DynamicReport',
-            //   icon: <FiShoppingBag />,
-            // },
-            // {
-            //   name: 'Tender Requisition',
-            //   path: 'tenderRequisition',
-            //   icon: <FiShoppingBag />,
-            // },
-            // {
-            //   name: 'Transaction Event Voucher',
-            //   path: 'transactionalEventVoucher',
-            //   icon: <FiShoppingBag />,
-            // },
+            {
+              name: 'Current Stock View',
+              path: 'currentStockPreview',
+              icon: <FiShoppingBag />,
+            },
           ],
         },
 
