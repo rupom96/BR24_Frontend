@@ -44,6 +44,76 @@ function toPickerHex(value: string): string {
   return normalizeHex(value) ?? '#0d9488';
 }
 
+function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  const n = toPickerHex(hex).slice(1);
+  return {
+    r: parseInt(n.slice(0, 2), 16),
+    g: parseInt(n.slice(2, 4), 16),
+    b: parseInt(n.slice(4, 6), 16),
+  };
+}
+
+function rgbToHex(r: number, g: number, b: number): string {
+  const clamp = (v: number) => Math.max(0, Math.min(255, Math.round(v)));
+  return `#${[clamp(r), clamp(g), clamp(b)]
+    .map((v) => v.toString(16).padStart(2, '0'))
+    .join('')}`;
+}
+
+function rgbToHsv(
+  r: number,
+  g: number,
+  b: number
+): { h: number; s: number; v: number } {
+  const rn = r / 255;
+  const gn = g / 255;
+  const bn = b / 255;
+  const max = Math.max(rn, gn, bn);
+  const min = Math.min(rn, gn, bn);
+  const d = max - min;
+  let h = 0;
+  if (d !== 0) {
+    if (max === rn) h = ((gn - bn) / d) % 6;
+    else if (max === gn) h = (bn - rn) / d + 2;
+    else h = (rn - gn) / d + 4;
+    h *= 60;
+    if (h < 0) h += 360;
+  }
+  const s = max === 0 ? 0 : d / max;
+  return { h, s, v: max };
+}
+
+function hsvToRgb(
+  h: number,
+  s: number,
+  v: number
+): { r: number; g: number; b: number } {
+  const c = v * s;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = v - c;
+  let rp = 0;
+  let gp = 0;
+  let bp = 0;
+  if (h < 60) [rp, gp, bp] = [c, x, 0];
+  else if (h < 120) [rp, gp, bp] = [x, c, 0];
+  else if (h < 180) [rp, gp, bp] = [0, c, x];
+  else if (h < 240) [rp, gp, bp] = [0, x, c];
+  else if (h < 300) [rp, gp, bp] = [x, 0, c];
+  else [rp, gp, bp] = [c, 0, x];
+  return {
+    r: Math.round((rp + m) * 255),
+    g: Math.round((gp + m) * 255),
+    b: Math.round((bp + m) * 255),
+  };
+}
+
+function clampChannel(value: string): number | null {
+  if (value.trim() === '') return null;
+  const n = Number(value);
+  if (!Number.isFinite(n)) return null;
+  return Math.max(0, Math.min(255, Math.round(n)));
+}
+
 function readRecentColor(): string | null {
   try {
     return normalizeHex(localStorage.getItem(RECENT_COLOR_KEY) || '');
@@ -67,22 +137,39 @@ const ThemeSettings = () => {
   const currentColor = useAppSelector((state) => state.currentColor.color);
   const dispatch = useAppDispatch();
   const isDark = currentMode === 'Dark';
-  const colorInputId = useId();
   const hexId = useId();
+  const rId = useId();
+  const gId = useId();
+  const bId = useId();
 
   const [hexDraft, setHexDraft] = useState(toPickerHex(currentColor));
+  const [rgbDraft, setRgbDraft] = useState(() => hexToRgb(currentColor));
+  const [hsvDraft, setHsvDraft] = useState(() => {
+    const rgb = hexToRgb(currentColor);
+    return rgbToHsv(rgb.r, rgb.g, rgb.b);
+  });
   const [recentColor, setRecentColor] = useState<string | null>(readRecentColor);
   const [pickerOpen, setPickerOpen] = useState(false);
   const pickerWrapRef = useRef<HTMLDivElement>(null);
+  const svBoardRef = useRef<HTMLDivElement>(null);
 
   const pickerHex = toPickerHex(currentColor);
+  const hueColor = `hsl(${hsvDraft.h}, 100%, 50%)`;
+
+  const syncDrafts = (hex: string) => {
+    const next = toPickerHex(hex);
+    const rgb = hexToRgb(next);
+    setHexDraft(next);
+    setRgbDraft(rgb);
+    setHsvDraft(rgbToHsv(rgb.r, rgb.g, rgb.b));
+  };
 
   useEffect(() => {
     if (!open) {
       setPickerOpen(false);
       return;
     }
-    setHexDraft(toPickerHex(currentColor));
+    syncDrafts(currentColor);
     setRecentColor(readRecentColor());
   }, [open, currentColor]);
 
@@ -112,17 +199,45 @@ const ThemeSettings = () => {
     const next = normalizeHex(raw);
     if (!next) return;
     setPickerOpen(false);
-    setHexDraft(next);
+    syncDrafts(next);
     dispatch(changeThemeColor({ color: next }));
   };
 
-  const applyCustom = (raw: string) => {
+  const applyCustom = (
+    raw: string,
+    hsvOverride?: { h: number; s: number; v: number }
+  ) => {
     const next = normalizeHex(raw);
     if (!next) return;
+    const rgb = hexToRgb(next);
     setHexDraft(next);
+    setRgbDraft(rgb);
+    setHsvDraft(hsvOverride ?? rgbToHsv(rgb.r, rgb.g, rgb.b));
     setRecentColor(next);
     writeRecentColor(next);
     dispatch(changeThemeColor({ color: next }));
+  };
+
+  const commitHsv = (next: { h: number; s: number; v: number }) => {
+    const rgb = hsvToRgb(next.h, next.s, next.v);
+    applyCustom(rgbToHex(rgb.r, rgb.g, rgb.b), next);
+  };
+
+  const pickFromSvBoard = (clientX: number, clientY: number) => {
+    const el = svBoardRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const s = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    const v = Math.max(0, Math.min(1, 1 - (clientY - rect.top) / rect.height));
+    commitHsv({ ...hsvDraft, s, v });
+  };
+
+  const onRgbChange = (channel: 'r' | 'g' | 'b', raw: string) => {
+    const channelValue = clampChannel(raw);
+    if (channelValue === null) return;
+    const updated = { ...rgbDraft, [channel]: channelValue };
+    setRgbDraft(updated);
+    applyCustom(rgbToHex(updated.r, updated.g, updated.b));
   };
 
   const panelTransition = reduceMotion
@@ -315,7 +430,7 @@ const ThemeSettings = () => {
                       }`}
                       {...swatchMotion(themeColors.length + 1)}
                       onClick={() => {
-                        setHexDraft(pickerHex);
+                        syncDrafts(pickerHex);
                         setPickerOpen((v) => !v);
                       }}
                     >
@@ -345,22 +460,87 @@ const ThemeSettings = () => {
                         onClick={(e) => e.stopPropagation()}
                       >
                         <p className="br24-theme-picker-popover-title">
-                          Pick a color
+                          Custom color
                         </p>
-                        <label
-                          htmlFor={colorInputId}
-                          className="br24-theme-picker-spectrum"
-                          style={{ backgroundColor: toPickerHex(hexDraft) }}
+
+                        <div
+                          ref={svBoardRef}
+                          className="br24-theme-picker-sv"
+                          style={{ backgroundColor: hueColor }}
+                          role="slider"
+                          tabIndex={0}
+                          aria-label="Saturation and brightness"
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                          aria-valuenow={Math.round(hsvDraft.s * 100)}
+                          onPointerDown={(e) => {
+                            e.currentTarget.setPointerCapture(e.pointerId);
+                            pickFromSvBoard(e.clientX, e.clientY);
+                          }}
+                          onPointerMove={(e) => {
+                            if (!e.currentTarget.hasPointerCapture(e.pointerId))
+                              return;
+                            pickFromSvBoard(e.clientX, e.clientY);
+                          }}
                         >
+                          <span
+                            className="br24-theme-picker-sv-thumb"
+                            style={{
+                              left: `${hsvDraft.s * 100}%`,
+                              top: `${(1 - hsvDraft.v) * 100}%`,
+                              backgroundColor: toPickerHex(hexDraft),
+                            }}
+                          />
+                        </div>
+
+                        <label className="br24-theme-picker-hue">
+                          <span className="br24-theme-picker-label">Hue</span>
                           <input
-                            id={colorInputId}
-                            type="color"
-                            className="br24-theme-picker-input"
-                            value={toPickerHex(hexDraft)}
-                            aria-label="Color spectrum"
-                            onChange={(e) => applyCustom(e.target.value)}
+                            type="range"
+                            min={0}
+                            max={360}
+                            step={1}
+                            value={Math.round(hsvDraft.h)}
+                            aria-label="Hue"
+                            className="br24-theme-picker-hue-input"
+                            onChange={(e) =>
+                              commitHsv({
+                                ...hsvDraft,
+                                h: Number(e.target.value),
+                              })
+                            }
                           />
                         </label>
+
+                        <div className="br24-theme-picker-rgb">
+                          {(
+                            [
+                              ['r', rId, 'R'],
+                              ['g', gId, 'G'],
+                              ['b', bId, 'B'],
+                            ] as const
+                          ).map(([channel, id, label]) => (
+                            <label
+                              key={channel}
+                              htmlFor={id}
+                              className="br24-theme-picker-channel"
+                            >
+                              <span>{label}</span>
+                              <input
+                                id={id}
+                                type="number"
+                                min={0}
+                                max={255}
+                                inputMode="numeric"
+                                className="br24-theme-picker-channel-input"
+                                value={rgbDraft[channel]}
+                                onChange={(e) =>
+                                  onRgbChange(channel, e.target.value)
+                                }
+                              />
+                            </label>
+                          ))}
+                        </div>
                         <label
                           htmlFor={hexId}
                           className="br24-theme-picker-label"
@@ -385,10 +565,9 @@ const ThemeSettings = () => {
                           onBlur={() => {
                             const normalized = normalizeHex(hexDraft);
                             if (normalized) {
-                              setHexDraft(normalized);
                               applyCustom(normalized);
                             } else {
-                              setHexDraft(pickerHex);
+                              syncDrafts(pickerHex);
                             }
                           }}
                           onKeyDown={(e) => {
