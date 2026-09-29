@@ -1,7 +1,7 @@
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, type CSSProperties } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useAppSelector } from '../../application/Redux/store/store';
-import { adjustHex, applyAccentCssVars } from '../Utils/colorUtils';
+import { adjustHex, applyAccentCssVars, accentCssVars } from '../Utils/colorUtils';
 
 type LoginShellProps = {
   title: string;
@@ -43,11 +43,7 @@ export function LoginShell({
   return (
     <div
       className={`br24-login-stage ${isDark ? 'dark' : 'light'}`}
-      style={
-        {
-          '--br24-accent': currentColor,
-        } as React.CSSProperties
-      }
+      style={accentCssVars(currentColor, isDark) as CSSProperties}
     >
       <div
         className="br24-login-glow"

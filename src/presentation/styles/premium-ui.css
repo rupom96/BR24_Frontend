@@ -5,6 +5,17 @@
  * Prefer rem in this file so layout tracks that root (no transform scale).
  */
 
+/* Accent defaults live on :root only — ThemeSettings / applyAccentCssVars overrides.
+ * Do NOT put accent/glow on `.light`: LoginShell uses that class and would pin teal. */
+:root {
+  --br24-accent: #0d9488;
+  --br24-accent-hover: #0f766e;
+  --br24-accent-strong: #115e59;
+  --br24-accent-soft-fill: #ccfbf1;
+  --br24-accent-soft: rgba(13, 148, 136, 0.12);
+  --br24-glow: rgba(13, 148, 136, 0.22);
+}
+
 :root,
 .light {
   --br24-bg: #f1f5f9;
@@ -18,13 +29,6 @@
   /* Soft neutrals — avoid pure #fff / #000 (UI readability) */
   --br24-white: #f8f9fb;
   --br24-black: #0f172a;
-  /* Accent defaults — runtime ThemeSettings overrides via applyAccentCssVars */
-  --br24-accent: #0d9488;
-  --br24-accent-hover: #0f766e;
-  --br24-accent-strong: #115e59;
-  --br24-accent-soft-fill: #ccfbf1;
-  --br24-accent-soft: rgba(13, 148, 136, 0.12);
-  --br24-glow: rgba(13, 148, 136, 0.22);
   --br24-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.16);
   --br24-navbar-bg: color-mix(
     in srgb,
@@ -43,8 +47,8 @@
   --br24-login-stage-bg: linear-gradient(
     145deg,
     #f8fafc 0%,
-    #eef2ff 42%,
-    #ecfeff 100%
+    color-mix(in srgb, var(--br24-accent) 6%, #eef2ff) 42%,
+    color-mix(in srgb, var(--br24-accent) 10%, #f8fafc) 100%
   );
 }
 
@@ -422,7 +426,8 @@
 .br24-page-transition {
   min-height: inherit;
   width: 100%;
-  will-change: opacity, transform;
+  /* opacity only — avoid transform/will-change:transform (traps MRT fullscreen) */
+  will-change: opacity;
 }
 
 .br24-nav-link {

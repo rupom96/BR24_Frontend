@@ -41,6 +41,11 @@ function injectRoutesLocation(node: ReactNode, location: Location): ReactNode {
 /**
  * Soft route enter/exit. Routes must receive the same `location` as the
  * motion key — otherwise the old panel flashes the new page before exit.
+ *
+ * Opacity-only (no transform/y): a parent `transform` makes
+ * position:fixed descendants (e.g. material-react-table fullscreen)
+ * bind to this box instead of the viewport — navbar/sidebar then cover
+ * the table and 100dvw causes a horizontal scrollbar.
  */
 export default function PageTransition({ children }: PageTransitionProps) {
   const location = useLocation();
@@ -53,11 +58,11 @@ export default function PageTransition({ children }: PageTransitionProps) {
       <motion.div
         key={location.pathname}
         className="br24-page-transition"
-        initial={reduceMotion ? false : { opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={reduceMotion ? undefined : { opacity: 0, y: -8 }}
+        initial={reduceMotion ? false : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={reduceMotion ? undefined : { opacity: 0 }}
         transition={
-          reduceMotion ? { duration: 0 } : { duration: 0.28, ease }
+          reduceMotion ? { duration: 0 } : { duration: 0.22, ease }
         }
       >
         {content}

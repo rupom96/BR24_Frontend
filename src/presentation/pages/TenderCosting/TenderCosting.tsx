@@ -1958,9 +1958,15 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
       enablePagination: false,
       enableColumnResizing: true,
       enableColumnPinning: true,
-      muiTableContainerProps: {
-        sx: { maxHeight: '25rem', overflow: 'auto', position: 'relative' },
-      },
+      muiTableContainerProps: ({ table: t }) => ({
+        sx: {
+          maxHeight: t.getState().isFullScreen
+            ? 'calc(100dvh - 6.5rem)'
+            : '25rem',
+          overflow: 'auto',
+          position: 'relative',
+        },
+      }),
       muiTableFooterProps: {
         sx: {
           position: 'sticky',

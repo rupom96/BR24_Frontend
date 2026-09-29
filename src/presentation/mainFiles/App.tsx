@@ -246,6 +246,11 @@ const App = () => {
           fontSize: 11.2,
           fontFamily: '"Open Sans", sans-serif',
         },
+        // MRT fullscreen uses theme.zIndex.modal. Shell chrome is higher
+        // (.navbar: 10000, mobile .sidebar: 1e7) — keep modal above both.
+        zIndex: {
+          modal: 10000050,
+        },
         palette: {
           mode: currentMode === 'Dark' ? 'dark' : 'light',
           common: {

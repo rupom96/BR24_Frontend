@@ -13,6 +13,21 @@
     }
 }
 
+/*
+ * material-react-table fullscreen paper uses position:fixed + 100dvh and
+ * theme.zIndex.modal. Hard-guarantee it sits above shell chrome even if a
+ * page overrides paper style (navbar 10000 / mobile sidebar 1e7).
+ */
+.MuiPaper-root[style*="100dvh"] {
+    z-index: 10000050 !important;
+}
+
+/* Fullscreen MRT: kill page scrollbars (extra X scroll from 100dvw). */
+html:has(.MuiPaper-root[style*="100dvh"]),
+body:has(.MuiPaper-root[style*="100dvh"]) {
+    overflow: hidden !important;
+}
+
 .e-dlg-center-center,
 .e-quick-popup-wrapper.e-device {
     z-index: 1000000 !important;
