@@ -216,7 +216,7 @@ const PreviewEditModal = ({
           backgroundColor: 'white',
           overflow: 'hidden',
           '@media (max-width:600px)': {
-            top: '70px',
+            top: '4.375rem',
           },
           // borderRadius: '20px 20px 20px 20px',
           // transition: 'transform 0.9s ease-in', // Add a transition for the transform property
@@ -229,7 +229,7 @@ const PreviewEditModal = ({
           sx={{
             width: '100%', // Adjust the width as needed
             backgroundColor: '#383838',
-            padding: '10px',
+            padding: '0.625rem',
             transition: 'background-color 700ms ease', // Transition for background color
             '&:hover': {
               backgroundColor: '#383838', // Background color on hover
@@ -241,8 +241,8 @@ const PreviewEditModal = ({
           }}
           // style={{ borderRight: '1px solid white' }}
         >
-          <i className="fas fa-eye text-[20px] mr-2 text-white" />
-          <span className="text-white text-[10px]">Previewing task</span>
+          <i className="fas fa-eye text-[1.25rem] mr-2 text-white" />
+          <span className="text-white text-[0.625rem]">Previewing task</span>
         </Button>
         {previewPageData?.controllerPathType === 'url' ? (
           <iframe
@@ -269,7 +269,7 @@ const PreviewEditModal = ({
           sx={{
             position: 'absolute',
             top: '1px',
-            right: '8px',
+            right: '0.5rem',
             color: 'white',
           }}
         >
@@ -887,25 +887,25 @@ const ReactFlowExp2 = (props: Props) => {
               console.log(data);
             }}
             style={{
-              width: '250px', // Set fixed width
+              width: '15.625rem', // Set fixed width
               height: 'auto', // Auto height based on text
-              padding: '10px',
+              padding: '0.625rem',
               whiteSpace: 'normal', // Allow text wrapping
               wordWrap: 'break-word', // Break long words
               overflowWrap: 'break-word', // Ensure word breaking
               textAlign: 'center',
             }}
           >
-            <div className="text-[13px] font-bold text-slate-800">
+            <div className="text-[0.8125rem] font-bold text-slate-800">
               {(dataCopy.biznessEventName || '')
                 .replace(/([A-Z])/g, ' $1')
                 .trim()}{' '}
             </div>
-            <div className="text-[11px]">
+            <div className="text-[0.6875rem]">
               Event:{' '}
               <span className="text-cyan-700">{dataCopy.eventNo || ''}</span>
             </div>
-            <div className="text-[9px]">
+            <div className="text-[0.5625rem]">
               Done By: {dataCopy.performedByName || ''}
             </div>
 
@@ -990,9 +990,9 @@ const ReactFlowExp2 = (props: Props) => {
                 console.log(data);
               }}
               style={{
-                width: '250px', // Set fixed width
+                width: '15.625rem', // Set fixed width
                 height: 'auto', // Auto height based on text
-                padding: '10px',
+                padding: '0.625rem',
                 whiteSpace: 'normal', // Allow text wrapping
                 wordWrap: 'break-word', // Break long words
                 overflowWrap: 'break-word', // Ensure word breaking
@@ -1088,7 +1088,9 @@ const ReactFlowExp2 = (props: Props) => {
               <div className="p-4">
                 <Typography>Permitted Users:</Typography>
                 {(permittedUsersIsLoading || permittedUsersIsFetching) && (
-                  <div>Loading.....</div>
+                  <div className="br24-anim-fade-in flex justify-center py-6">
+                    <div className="br24-spinner" aria-label="Loading" />
+                  </div>
                 )}
                 {permittedUsersIsError && <div>Error while fetching data</div>}
                 {permittedUsersIsSuccess &&
@@ -1498,11 +1500,11 @@ const ReactFlowExp2 = (props: Props) => {
                             helperText={error ? error.message : null}
                             InputLabelProps={{
                               ...params.InputLabelProps,
-                              style: { fontSize: 14 },
+                              style: { fontSize: '0.875rem' },
                             }}
                             InputProps={{
                               ...params.InputProps,
-                              style: { fontSize: 13 },
+                              style: { fontSize: '0.8125rem' },
                               // endAdornment: (
                               //   <>
                               //     {buyerOptionsAutoCompLoading ? (
@@ -1569,11 +1571,11 @@ const ReactFlowExp2 = (props: Props) => {
                             helperText={error ? error.message : null}
                             InputLabelProps={{
                               ...params.InputLabelProps,
-                              style: { fontSize: 14 },
+                              style: { fontSize: '0.875rem' },
                             }}
                             InputProps={{
                               ...params.InputProps,
-                              style: { fontSize: 13 },
+                              style: { fontSize: '0.8125rem' },
                               // endAdornment: (
                               //   <>
                               //     {buyerOptionsAutoCompLoading ? (
@@ -1638,11 +1640,11 @@ const ReactFlowExp2 = (props: Props) => {
                             helperText={error ? error.message : null}
                             InputLabelProps={{
                               ...params.InputLabelProps,
-                              style: { fontSize: 14 },
+                              style: { fontSize: '0.875rem' },
                             }}
                             InputProps={{
                               ...params.InputProps,
-                              style: { fontSize: 13 },
+                              style: { fontSize: '0.8125rem' },
                               // endAdornment: (
                               //   <>
                               //     {buyerOptionsAutoCompLoading ? (
@@ -1660,25 +1662,25 @@ const ReactFlowExp2 = (props: Props) => {
                     )}
                   />
                 </div>
-                <div className="h-[600px] w-[100%] overflow-scroll">
+                <div className="h-[37.5rem] w-[100%] overflow-scroll">
                   {chainDataState?.map((event) => (
                     <div key={uuid()} className=" box-border border m-4">
                       <div className="">
-                        <div className=" text-[13px]">
+                        <div className=" text-[0.8125rem]">
                           First Event No.:{' '}
                           <span className=" font-bold">
                             {event.firstEventNo}
                           </span>
                         </div>
 
-                        <div className=" text-[13px]">
+                        <div className=" text-[0.8125rem]">
                           Chain Type: {event.fixedTaskTemplateName}
                         </div>
                       </div>
 
                       <div
                         key={event.fixedTaskTemplateId + event.firstEventNo}
-                        className="w-[100%] h-[150px] mt-4"
+                        className="w-[100%] h-[9.375rem] mt-4"
                       >
                         <ReactFlow
                           nodes={generateNodes(event.tasks)}

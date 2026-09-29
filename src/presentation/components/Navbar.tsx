@@ -1,8 +1,5 @@
 import { useEffect } from 'react';
 import { AiOutlineMenu } from 'react-icons/ai';
-import { FiShoppingCart } from 'react-icons/fi';
-import { BsChatLeft } from 'react-icons/bs';
-import { RiNotification3Line } from 'react-icons/ri';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 
 import { Tooltip } from '@mui/material';
@@ -26,8 +23,8 @@ import { toggleACertainFeatureClick } from '../../application/Redux/slices/IsCli
 
 interface NavButtonProps {
   title?: string;
-  customFunc?: () => void; // Custom function, optional
-  icon?: React.ReactNode; // Material-UI icon component
+  customFunc?: () => void;
+  icon?: React.ReactNode;
   color?: string;
   dotColor?: string;
 }
@@ -44,11 +41,11 @@ const NavButton: React.FC<NavButtonProps> = ({
       type="button"
       onClick={customFunc}
       style={{ color }}
-      className="relative text-xl rounded-full p-3 hover:bg-light-gray hover:scale-110 transform-gpu focus:shadow-lg focus:outline-none focus:ring-0 active:-translate-y-2 active:shadow-lg tranform-all duration-300"
+      className="relative rounded-xl p-2.5 text-xl transition-all duration-300 hover:scale-105 hover:bg-slate-100/90 focus:outline-none focus:ring-2 focus:ring-teal-500/30 active:scale-95 dark:hover:bg-slate-800/80"
     >
       <span
         style={{ background: dotColor }}
-        className="absolute inline-flex rounded-full h2 w-2 right-2 top-2"
+        className="absolute right-2 top-2 inline-flex h-2 w-2 rounded-full"
       />
       {icon}
     </button>
@@ -56,22 +53,6 @@ const NavButton: React.FC<NavButtonProps> = ({
 );
 
 const Navbar = () => {
-  // const {
-  //   activeMenu,
-  //   setActiveMenu,
-  //   isClicked,
-  //   setIsClicked,
-  //   handleClick,
-  //   screenSize,
-  //   setScreenSize,
-  //   currentColor,
-  // } = useStateContext();
-
-  // const activeMenu = useAppSelector((state) => state.activeMenu.active);
-  // const showPanel = useAppSelector((state) => state.showPanel.bool);
-  // const showNavbar = useAppSelector((state) => state.showNavbar.bool);
-  // const currentMode = useAppSelector((state) => state.currentMode.mode);
-  // const themeSettings = useAppSelector((state) => state.themeSettings.bool);
   const screenSize = useAppSelector((state) => state.screenSize.size);
   const isClicked = useAppSelector((state) => state.isClicked);
   const currentColor = useAppSelector((state) => state.currentColor.color);
@@ -92,24 +73,21 @@ const Navbar = () => {
     handleResize();
 
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     if (screenSize && screenSize <= 900) {
-      // setActiveMenu(false);
       dispatch(falsifyActiveMenu());
     } else {
-      // setActiveMenu(true);
       dispatch(truthifyActiveMenu());
     }
-  }, [screenSize]);
+  }, [screenSize, dispatch]);
 
   return (
-    <div className="flex justify-between p-2 md:mx-6 relative">
+    <div className="br24-shell-navbar br24-anim-fade-in relative flex justify-between px-3 py-2 md:mx-4 md:mt-2 md:rounded-2xl">
       <NavButton
         title="Menu"
         customFunc={() => {
-          // setActiveMenu((prevActiveMenu) => !prevActiveMenu)
           dispatch(toggleActiveMenu());
         }}
         color={currentColor}
@@ -117,65 +95,25 @@ const Navbar = () => {
         icon={<AiOutlineMenu />}
       />
 
-      <div className="flex">
-        {/* <NavButton
-          title="Cart"
-          customFunc={() => {
-            // handleClick('cart')
-            dispatch(toggleACertainFeatureClick({ propertyName: 'cart' }));
-          }}
-          color={currentColor}
-          dotColor=""
-          icon={<FiShoppingCart />}
-        />
-        <NavButton
-          title="Chat"
-          dotColor="#03C9D7"
-          customFunc={() => {
-            // handleClick('chat')
-            dispatch(toggleACertainFeatureClick({ propertyName: 'chat' }));
-          }}
-          color={currentColor}
-          icon={<BsChatLeft />}
-        />
-        <NavButton
-          title="Notification"
-          dotColor="#03C9D7"
-          customFunc={() => {
-            // handleClick('notification')
-            dispatch(
-              toggleACertainFeatureClick({ propertyName: 'notification' })
-            );
-          }}
-          color={currentColor}
-          icon={<RiNotification3Line />}
-        /> */}
-
-        <div className="flex justify-center items-center mx-6">
-          <div>
-            <p className="text-[10px] text-stone-600">Verison: 2.2.3.5</p>
-            <p className="text-[10px] text-stone-600">Date: 26 May, 2025</p>
-          </div>
+      <div className="flex items-center gap-3">
+        <div className="hidden text-right sm:block">
+          <p className="text-[0.625rem] font-medium uppercase tracking-wider text-slate-400">
+            Version 2.2.3.5
+          </p>
+          <p className="text-[0.625rem] text-slate-400">26 May, 2025</p>
         </div>
 
-        <Tooltip
-          title="Profile"
-          placement="bottom"
-          // style={{ zIndex: 9999 }}
-          arrow
-        >
+        <Tooltip title="Profile" placement="bottom" arrow>
           <div
-            className="flex items-center gap-2 cursor-pointer p-1 focus:shadow-lg focus:outline-none focus:ring-0 active:-translate-y-1 active:shadow-lg hover:bg-light-gray hover:scale-105 transform-gpu tranform-all duration-300 rounded-lg"
+            className="flex cursor-pointer items-center gap-2 rounded-xl p-1.5 transition-all duration-300 hover:scale-[1.02] hover:bg-slate-100/90 focus:outline-none active:scale-95 dark:hover:bg-slate-800/80"
             role="button"
             tabIndex={0}
             onKeyDown={() => {
-              // handleClick('userProfile');
               dispatch(
                 toggleACertainFeatureClick({ propertyName: 'userProfile' })
               );
             }}
             onClick={() => {
-              // handleClick('userProfile');
               dispatch(
                 toggleACertainFeatureClick({ propertyName: 'userProfile' })
               );
@@ -183,17 +121,16 @@ const Navbar = () => {
           >
             <img
               alt="userProfilePic"
-              className="rounded-full w-8 h-8"
+              className="h-8 w-8 rounded-full shadow-md ring-2 ring-white dark:ring-slate-700"
               src={avatar}
             />
-            <p>
-              <span className="text-gray-400 text-14">Hi, </span>
-
-              <span className="text-gray-400 font-bold ml-1 text-14">
+            <p className="hidden md:block">
+              <span className="text-14 text-slate-400">Hi, </span>
+              <span className="ml-1 text-14 font-semibold text-slate-700 dark:text-slate-100">
                 {userInfo?.userName ? userInfo.userName : 'Anonymous'}
               </span>
             </p>
-            <MdKeyboardArrowDown className="text-gray-400 text-14" />
+            <MdKeyboardArrowDown className="text-14 text-slate-400" />
           </div>
         </Tooltip>
 

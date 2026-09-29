@@ -88,11 +88,11 @@ export const CustomTreeItemWithButton: React.FC<
             isExpanded ? 'rotate-90' : ''
           } transition-transform duration-300`}
         >
-          <i className="fas fa-chevron-circle-right text-[15px] text-blue-600" />
+          <i className="fas fa-chevron-circle-right text-[0.9375rem] text-blue-600" />
         </button>
 
         {/* Label */}
-        <span className=" text-slate-800 text-[14px]">{label}</span>
+        <span className=" text-slate-800 text-[0.875rem]">{label}</span>
       </div>
 
       {/* Content with Dashes */}
@@ -104,7 +104,7 @@ export const CustomTreeItemWithButton: React.FC<
         {/* Vertical Dashes */}
         <div className="relative">
           <div
-            className={`border-l-2 border-dashed border-gray-400 ml-[14px] transition-all duration-500 ease-in-out ${
+            className={`border-l-2 border-dashed border-gray-400 ml-[0.875rem] transition-all duration-500 ease-in-out ${
               isExpanded ? 'max-h-screen' : 'h-0'
             }`}
           >

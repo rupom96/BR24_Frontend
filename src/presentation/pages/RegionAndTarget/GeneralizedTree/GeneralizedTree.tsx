@@ -95,7 +95,7 @@ const GeneralizedTree: React.FC<GeneralizedTreeProps> = ({
       key={itemId}
       itemId={itemId.toString()}
       label={
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.125rem' }}>
           <span className="mr-3"> {label}</span>{' '}
           {/* Label takes the remaining space */}
           <Tooltip
@@ -108,7 +108,7 @@ const GeneralizedTree: React.FC<GeneralizedTreeProps> = ({
               type="button"
               data-mdb-ripple="true"
               data-mdb-ripple-color="light"
-              className="ml-[1px] inline-block px-[4px] py-[1px] bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
+              className="ml-[1px] inline-block px-[0.25rem] py-[1px] bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
               onClick={(event) => {
                 event.stopPropagation(); // Prevent TreeItem toggle
                 // setTeamSetupModalInfo({
@@ -117,8 +117,8 @@ const GeneralizedTree: React.FC<GeneralizedTreeProps> = ({
                 // setTeamMemberModal(true);
               }}
             >
-              <Edit sx={{ fontSize: '10px' }} />
-              {/* <i className="fas fa-edit text-[10px]" /> */}
+              <Edit sx={{ fontSize: '0.625rem' }} />
+              {/* <i className="fas fa-edit text-[0.625rem]" /> */}
             </button>
           </Tooltip>
         </div>

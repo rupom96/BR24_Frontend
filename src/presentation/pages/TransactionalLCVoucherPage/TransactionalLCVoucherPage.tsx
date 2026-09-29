@@ -663,7 +663,7 @@
 //                       sx={{
 //                         display: 'flex',
 //                         alignItems: 'center',
-//                         gap: '10px',
+//                         gap: '0.625rem',
 //                       }}
 //                     >
 //                       <img
@@ -723,8 +723,8 @@
 //           //   };
 //           //   return (
 //           //     <div className="w-full">
-//           //       <div className="flex justify-center -mb-[21px]">
-//           //         <span className="text-sm text-[13px] text-white dark:text-white">
+//           //       <div className="flex justify-center -mb-[1.3125rem]">
+//           //         <span className="text-sm text-[0.8125rem] text-white dark:text-white">
 //           //           {renderedCellValue} %
 //           //         </span>
 //           //       </div>
@@ -817,7 +817,7 @@
 //                       sx={{
 //                         display: 'flex',
 //                         alignItems: 'center',
-//                         gap: '10px',
+//                         gap: '0.625rem',
 //                       }}
 //                     >
 //                       <img
@@ -877,8 +877,8 @@
 //           //   };
 //           //   return (
 //           //     <div className="w-full">
-//           //       <div className="flex justify-center -mb-[21px]">
-//           //         <span className="text-sm text-[13px] text-white dark:text-white">
+//           //       <div className="flex justify-center -mb-[1.3125rem]">
+//           //         <span className="text-sm text-[0.8125rem] text-white dark:text-white">
 //           //           {renderedCellValue} %
 //           //         </span>
 //           //       </div>
@@ -971,7 +971,7 @@
 //                       sx={{
 //                         display: 'flex',
 //                         alignItems: 'center',
-//                         gap: '10px',
+//                         gap: '0.625rem',
 //                       }}
 //                     >
 //                       <img
@@ -1100,7 +1100,7 @@
 //                         btnClickVoucherApprovalBr3(row.original);
 //                       }}
 //                     >
-//                       <span className="text-[13px] font-bold leading-none">
+//                       <span className="text-[0.8125rem] font-bold leading-none">
 //                         A
 //                       </span>
 //                     </button>
@@ -1118,7 +1118,7 @@
 //                         btnClickVoucherPostBr3(row.original);
 //                       }}
 //                     >
-//                       <span className="text-[13px] font-bold leading-none">
+//                       <span className="text-[0.8125rem] font-bold leading-none">
 //                         P
 //                       </span>
 //                     </button>
@@ -1134,8 +1134,8 @@
 //                       btnClickVoucherViewCallBr3(row.original);
 //                     }}
 //                   >
-//                     <span className=" font-bold text-[13px] leading-none">
-//                       <i className="fas fa-search text-[13px]" />
+//                     <span className=" font-bold text-[0.8125rem] leading-none">
+//                       <i className="fas fa-search text-[0.8125rem]" />
 //                     </span>
 //                   </button>
 //                 </div>
@@ -1170,7 +1170,7 @@
 //                       }
 //                     }}
 //                   >
-//                     <span className=" font-bold text-[13px] leading-none">
+//                     <span className=" font-bold text-[0.8125rem] leading-none">
 //                       V+
 //                     </span>
 //                   </button>
@@ -1245,7 +1245,7 @@
 //           // borderLeft: '1px solid #e0e0e0',
 //           // borderTop: '1px solid #e0e0e0',
 //           // borderBottom: '1px solid #e0e0e0',
-//           fontSize: '13px',
+//           fontSize: '0.8125rem',
 //         },
 //       },
 //       muiTableHeadCellProps: {
@@ -1254,12 +1254,12 @@
 //           // borderLeft: '1px solid #e0e0e0',
 //           borderTop: '1px solid #e0e0e0',
 //           // borderBottom: '1px solid #e0e0e0',
-//           fontSize: '13px',
+//           fontSize: '0.8125rem',
 //           whiteSpace: 'nowrap',
 //         },
 //       },
 
-//       muiTableContainerProps: { sx: { maxHeight: '520px' } },
+//       muiTableContainerProps: { sx: { maxHeight: '32.5rem' } },
 //       // onSortingChange: setSorting,
 //       // state: { isLoading, sorting },
 //       // rowVirtualizerInstanceRef, // optional
@@ -1325,11 +1325,11 @@
 //                         InputProps={{
 //                           ...params.InputProps,
 //                           readOnly: true,
-//                           style: { fontSize: 13 },
+//                           style: { fontSize: '0.8125rem' },
 //                         }}
 //                         InputLabelProps={{
 //                           ...params.InputLabelProps,
-//                           style: { fontSize: 14 },
+//                           style: { fontSize: '0.875rem' },
 //                         }}
 //                         label="L/C No."
 //                         variant="outlined"
@@ -1353,11 +1353,11 @@
 //                           InputProps={{
 //                             ...params.InputProps,
 //                             readOnly: true,
-//                             style: { fontSize: 13 },
+//                             style: { fontSize: '0.8125rem' },
 //                           }}
 //                           InputLabelProps={{
 //                             ...params.InputLabelProps,
-//                             style: { fontSize: 14 },
+//                             style: { fontSize: '0.875rem' },
 //                           }}
 //                           variant="outlined"
 //                           size="small"
@@ -1382,13 +1382,13 @@
 //                       <TextField
 //                         // eslint-disable-next-line react/jsx-props-no-spreading
 //                         {...field}
-//                         sx={{ width: '100%', borderRadius: '50px' }}
+//                         sx={{ width: '100%', borderRadius: '3.125rem' }}
 //                         InputProps={{
 //                           readOnly: true,
-//                           style: { fontSize: 13 },
+//                           style: { fontSize: '0.8125rem' },
 //                         }}
 //                         InputLabelProps={{
-//                           style: { fontSize: 14 },
+//                           style: { fontSize: '0.875rem' },
 //                           shrink: field.value,
 //                           // shrink: (field.value ? true : false)
 //                         }}
@@ -1408,13 +1408,13 @@
 //                       <TextField
 //                         // eslint-disable-next-line react/jsx-props-no-spreading
 //                         {...field}
-//                         sx={{ width: '100%', borderRadius: '50px' }}
+//                         sx={{ width: '100%', borderRadius: '3.125rem' }}
 //                         InputProps={{
 //                           readOnly: true,
-//                           style: { fontSize: 13 },
+//                           style: { fontSize: '0.8125rem' },
 //                         }}
 //                         InputLabelProps={{
-//                           style: { fontSize: 14 },
+//                           style: { fontSize: '0.875rem' },
 //                           shrink: field.value,
 //                           // shrink: (field.value ? true : false)
 //                         }}
@@ -1491,8 +1491,8 @@
 //             onClick={handleClose}
 //             sx={{
 //               position: 'absolute',
-//               top: '8px',
-//               right: '8px',
+//               top: '0.5rem',
+//               right: '0.5rem',
 //               color: 'gray',
 //             }}
 //           >
@@ -1523,7 +1523,7 @@
 //           className="voucherGenModal"
 //         >
 //           <div className="flex justify-center bg-transparent ">
-//             <div className="mt-[350px] bg-transparent">
+//             <div className="mt-[21.875rem] bg-transparent">
 //               <PropagateLoader
 //                 color="#36d7b7"
 //                 loading

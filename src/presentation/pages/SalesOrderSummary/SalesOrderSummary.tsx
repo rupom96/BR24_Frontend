@@ -230,11 +230,11 @@ const SalesOrderSummary = () => {
                           sx={{ width: '100%', marginTop: 1 }}
                           InputProps={{
                             ...params.InputProps,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           InputLabelProps={{
                             ...params.InputLabelProps,
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                           }}
                           variant="standard"
                           size="small"
@@ -260,11 +260,11 @@ const SalesOrderSummary = () => {
                           sx={{ width: '100%', marginTop: 1 }}
                           InputProps={{
                             ...params.InputProps,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           InputLabelProps={{
                             ...params.InputLabelProps,
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                           }}
                           variant="standard"
                           size="small"
@@ -295,12 +295,12 @@ const SalesOrderSummary = () => {
                         variant="standard"
                         InputLabelProps={{
                           ...params.InputLabelProps,
-                          style: { fontSize: 14 },
+                          style: { fontSize: '0.875rem' },
                         }}
                         InputProps={{
                           ...params.InputProps,
                           readOnly: true,
-                          style: { fontSize: 13 },
+                          style: { fontSize: '0.8125rem' },
                           endAdornment: (
                             <>
                               {buyerOptionsState.isLoading ||
@@ -334,7 +334,7 @@ const SalesOrderSummary = () => {
                   </div>
                 ) : salesOrderTrackingState.isLoading ||
                   salesOrderTrackingState.isFetching ? (
-                  <div className="flex min-h-[220px] items-center justify-center">
+                  <div className="flex min-h-[13.75rem] items-center justify-center">
                     <CircularProgress />
                   </div>
                 ) : salesOrders.length === 0 ? (
@@ -356,7 +356,7 @@ const SalesOrderSummary = () => {
                           </div>
 
                           <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <CalendarTodayIcon sx={{ fontSize: 16 }} />
+                            <CalendarTodayIcon sx={{ fontSize: '1rem' }} />
                             <span>{formatDate(item.salesOrderDate)}</span>
                           </div>
                         </div>
@@ -364,7 +364,7 @@ const SalesOrderSummary = () => {
                         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
                           <div className="rounded-xl bg-gray-50 p-3">
                             <div className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700">
-                              <PersonOutlineIcon sx={{ fontSize: 18 }} />
+                              <PersonOutlineIcon sx={{ fontSize: '1.125rem' }} />
                               <span>Customer</span>
                             </div>
 
@@ -374,7 +374,7 @@ const SalesOrderSummary = () => {
 
                             {displayBuyerPhone ? (
                               <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
-                                <LocalPhoneOutlinedIcon sx={{ fontSize: 16 }} />
+                                <LocalPhoneOutlinedIcon sx={{ fontSize: '1rem' }} />
                                 <span>{displayBuyerPhone}</span>
                               </div>
                             ) : null}
@@ -385,7 +385,7 @@ const SalesOrderSummary = () => {
                               <div>
                                 <div className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700">
                                   <Inventory2OutlinedIcon
-                                    sx={{ fontSize: 18 }}
+                                    sx={{ fontSize: '1.125rem' }}
                                   />
                                   <span>Order Quantity</span>
                                 </div>
@@ -396,7 +396,7 @@ const SalesOrderSummary = () => {
 
                               <div>
                                 <div className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700">
-                                  <PaidOutlinedIcon sx={{ fontSize: 18 }} />
+                                  <PaidOutlinedIcon sx={{ fontSize: '1.125rem' }} />
                                   <span>Total Amount</span>
                                 </div>
                                 <div className="text-sm font-semibold text-sky-700">

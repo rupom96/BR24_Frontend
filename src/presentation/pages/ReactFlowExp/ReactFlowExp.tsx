@@ -456,11 +456,11 @@ const ReactFlowExp = (props: Props) => {
   return (
     <div className="mt-10 ml-10 z-40 ">
       hell
-      <div className="h-[800px] w-[100%] overflow-scroll">
+      <div className="h-[50rem] w-[100%] overflow-scroll">
         {events.map((event) => (
           <div className=" box-border border m-4">
-            <div className=" text-[13px]">{event.eventNo}</div>
-            <div key={event.id} className="w-[100%] h-[150px] mt-4">
+            <div className=" text-[0.8125rem]">{event.eventNo}</div>
+            <div key={event.id} className="w-[100%] h-[9.375rem] mt-4">
               <ReactFlow
                 nodes={generateNodes(event.tasks)}
                 edges={generateEdges(event.tasks)}

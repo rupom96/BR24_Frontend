@@ -48,7 +48,7 @@ See [../architecture/](../architecture/) for Mermaid diagrams (system, layers, m
 
 | Layer | Stack |
 |-------|--------|
-| Frontend | React 18, TypeScript, Vite 4, MUI 5, Tailwind, Redux Toolkit + RTK Query, axios, react-router-dom 6 |
+| Frontend | React 19, TypeScript 5.8, Vite 6, MUI 5, Tailwind 3.4, Redux Toolkit 2 + RTK Query, axios 1.20, react-router-dom 6.30 |
 | Backend | ASP.NET Core net7.0, Clean Architecture (`BR24.Api` / `Application` / `Domain` / `Persistence` / `Infrastructure`), MediatR, EF Core + SQL Server, JWT Bearer |
 | Auth | JWT in `localStorage.userInfo.userToken` (FE); JwtBearer (BE) |
 | API base | `window.API_BASE_URL` from `public/apiConfig.json` (local default `https://localhost:44389/api`) |

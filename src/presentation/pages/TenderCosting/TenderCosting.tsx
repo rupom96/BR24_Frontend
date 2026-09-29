@@ -49,6 +49,8 @@ import { IBuyer } from '../../../domain/interfaces/BuyerInterface';
 import { ITenderNoComboBox2 } from '../../../domain/interfaces/ProcurementTenderInterface';
 import { CostingForm } from './CostingFormTabular';
 import { ICreateBiznessEventPCTrackCommand } from '../../../domain/interfaces/BiznessEventPCTrackVMInterface';
+import { useAppSelector } from '../../../application/Redux/store/store';
+import { hexToRgba } from '../../Utils/colorUtils';
 
 const API_BASE_URL = (window as any).API_BASE_URL;
 
@@ -861,6 +863,10 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
   clickedCardInfo,
   operationMode,
 }) => {
+  const currentColor = useAppSelector((state) => state.currentColor.color);
+  const accentSoft = hexToRgba(currentColor, 0.08);
+  const accentHeader = hexToRgba(currentColor, 0.16);
+
   const biznessEventName = clickedCardInfo?.biznessEventName?.replace(
     /([A-Z])(?=[A-Z][a-z])/g,
     '$1 '
@@ -1221,7 +1227,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
           variant="standard"
           size="small"
           sx={{ width: '100%' }}
-          InputProps={{ style: { fontSize: 13 }, disableUnderline: true }}
+          InputProps={{ style: { fontSize: '0.8125rem' }, disableUnderline: true }}
           defaultValue={renderedCellValue ?? ''}
           onBlur={(e) => {
             const value = e.target.value || null;
@@ -1245,7 +1251,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
           variant="standard"
           size="small"
           sx={{ width: '100%' }}
-          InputProps={{ style: { fontSize: 13 }, disableUnderline: true }}
+          InputProps={{ style: { fontSize: '0.8125rem' }, disableUnderline: true }}
           defaultValue={renderedCellValue ?? ''}
           onBlur={(e) => {
             const v = e.target.value;
@@ -1269,7 +1275,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
     if (!editable) {
       return (
         <div className="w-full py-1 flex justify-between items-center">
-          <span style={{ fontSize: 13 }} />
+          <span style={{ fontSize: '0.8125rem' }} />
         </div>
       );
     }
@@ -1282,7 +1288,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
           variant="standard"
           size="small"
           sx={{ width: '100%' }}
-          InputProps={{ style: { fontSize: 13 }, disableUnderline: true }}
+          InputProps={{ style: { fontSize: '0.8125rem' }, disableUnderline: true }}
           defaultValue={val ?? ''}
           onBlur={(e) => {
             const v = e.target.value;
@@ -1308,7 +1314,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
     if (!editable) {
       return (
         <div className="w-full py-1 flex justify-between items-center">
-          <span style={{ fontSize: 13 }}>
+          <span style={{ fontSize: '0.8125rem' }}>
             {val == null ? '' : Number(val).toFixed(2)}
           </span>
         </div>
@@ -1322,7 +1328,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
           variant="standard"
           size="small"
           sx={{ width: '100%' }}
-          InputProps={{ style: { fontSize: 13 }, disableUnderline: true }}
+          InputProps={{ style: { fontSize: '0.8125rem' }, disableUnderline: true }}
           defaultValue={val ?? ''}
           onBlur={(e) => {
             const v = e.target.value;
@@ -1348,7 +1354,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
     if (!editable) {
       return (
         <div className="w-full py-1 flex justify-between items-center">
-          <span style={{ fontSize: 13 }}>
+          <span style={{ fontSize: '0.8125rem' }}>
             {val == null || val === 0 ? '' : Number(val).toFixed(2)}
           </span>
         </div>
@@ -1363,7 +1369,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
           size="small"
           sx={{ width: '100%' }}
           InputProps={{
-            style: { fontSize: 13 },
+            style: { fontSize: '0.8125rem' },
             disableUnderline: true,
             endAdornment: <span style={{ marginLeft: 4 }}>%</span>,
           }}
@@ -1397,7 +1403,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
           size="small"
           sx={{ width: '100%' }}
           InputProps={{
-            style: { fontSize: 13 },
+            style: { fontSize: '0.8125rem' },
             disableUnderline: true,
             endAdornment: <span style={{ marginLeft: 4 }}>%</span>,
           }}
@@ -1424,7 +1430,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
       const val = rows[row.index][key];
       return (
         <div className="w-full py-1 flex justify-between items-center">
-          <span style={{ fontSize: 13 }}>
+          <span style={{ fontSize: '0.8125rem' }}>
             {val == null ? '' : Number(val).toFixed(2)}
           </span>
         </div>
@@ -1647,7 +1653,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                   InputProps={{
                     disableUnderline: true,
                     endAdornment: <span style={{ marginLeft: 4 }}>%</span>,
-                    style: { fontSize: 13 },
+                    style: { fontSize: '0.8125rem' },
                   }}
                   sx={{ width: '100%' }}
                   onBlur={(e) => handleTaxAndVATOnePercentBlur(e.target.value)}
@@ -1697,7 +1703,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                   InputProps={{
                     disableUnderline: true,
                     endAdornment: <span style={{ marginLeft: 4 }}>%</span>,
-                    style: { fontSize: 13 },
+                    style: { fontSize: '0.8125rem' },
                   }}
                   sx={{ width: '100%' }}
                   onBlur={(e) => handleSalesExpensePercentBlur(e.target.value)}
@@ -1747,7 +1753,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                   InputProps={{
                     disableUnderline: true,
                     endAdornment: <span style={{ marginLeft: 4 }}>%</span>,
-                    style: { fontSize: 13 },
+                    style: { fontSize: '0.8125rem' },
                   }}
                   sx={{ width: '100%' }}
                   onBlur={(e) => handleAgExpensePercentBlur(e.target.value)}
@@ -1797,7 +1803,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                   InputProps={{
                     disableUnderline: true,
                     endAdornment: <span style={{ marginLeft: 4 }}>%</span>,
-                    style: { fontSize: 13 },
+                    style: { fontSize: '0.8125rem' },
                   }}
                   sx={{ width: '100%' }}
                   onBlur={(e) => handleTaxAndVATTwoPercentBlur(e.target.value)}
@@ -1850,7 +1856,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
           const val = tenderCostingState?.bgAndPgAndSd ?? 0;
           return (
             <div className="w-full py-1 flex justify-between items-center">
-              <span style={{ fontSize: 13 }}>
+              <span style={{ fontSize: '0.8125rem' }}>
                 {val === 0 ? '' : val.toFixed(2)}
               </span>
             </div>
@@ -1881,7 +1887,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                   InputProps={{
                     disableUnderline: true,
                     endAdornment: <span style={{ marginLeft: 4 }}>%</span>,
-                    style: { fontSize: 13 },
+                    style: { fontSize: '0.8125rem' },
                   }}
                   sx={{ width: '100%' }}
                   onBlur={(e) =>
@@ -1953,37 +1959,37 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
       enableColumnResizing: true,
       enableColumnPinning: true,
       muiTableContainerProps: {
-        sx: { maxHeight: 400, overflow: 'auto', position: 'relative' },
+        sx: { maxHeight: '25rem', overflow: 'auto', position: 'relative' },
       },
       muiTableFooterProps: {
         sx: {
           position: 'sticky',
-          bottom: 0,
+          bottom: '0',
           zIndex: 2,
-          backgroundColor: '#F6F7FF',
+          backgroundColor: accentSoft,
         },
       },
       muiTableFooterCellProps: {
         sx: {
-          backgroundColor: '#F6F7FF',
+          backgroundColor: accentSoft,
           fontWeight: 800,
-          fontSize: '13px',
+          fontSize: '0.8125rem',
           borderTop: '1px solid #e0e0e0',
           borderRight: '1px solid #e0e0e0',
         },
       },
       muiTablePaperProps: {
         elevation: 0,
-        sx: { borderRadius: 0, border: '1px dashed #e0e0e0' },
+        sx: { borderRadius: '0', border: '1px dashed #e0e0e0' },
       },
-      muiTableBodyCellProps: { sx: { fontSize: 13, color: '#1c1c1c' } },
+      muiTableBodyCellProps: { sx: { fontSize: '0.8125rem', color: '#1c1c1c' } },
       muiTableHeadCellProps: {
         sx: {
           borderRight: '1px solid #e0e0e0',
           borderTop: '1px solid #e0e0e0',
-          fontSize: 13,
+          fontSize: '0.8125rem',
           whiteSpace: 'nowrap',
-          backgroundColor: '#ECEFF9',
+          backgroundColor: accentHeader,
           color: '#1c1c1c',
           fontWeight: 800,
         },
@@ -2198,11 +2204,11 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                                   sx={{ width: '100%', marginTop: 1 }}
                                   InputProps={{
                                     ...params.InputProps,
-                                    style: { fontSize: 13 },
+                                    style: { fontSize: '0.8125rem' },
                                   }}
                                   InputLabelProps={{
                                     ...params.InputLabelProps,
-                                    style: { fontSize: 14 },
+                                    style: { fontSize: '0.875rem' },
                                   }}
                                   variant="standard"
                                   size="small"
@@ -2234,11 +2240,11 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                                   sx={{ width: '100%', marginTop: 1 }}
                                   InputProps={{
                                     ...params.InputProps,
-                                    style: { fontSize: 13 },
+                                    style: { fontSize: '0.8125rem' },
                                   }}
                                   InputLabelProps={{
                                     ...params.InputLabelProps,
-                                    style: { fontSize: 14 },
+                                    style: { fontSize: '0.875rem' },
                                   }}
                                   variant="standard"
                                   size="small"
@@ -2293,11 +2299,11 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                                 helperText={error ? error.message : null}
                                 InputLabelProps={{
                                   ...params.InputLabelProps,
-                                  style: { fontSize: 14 },
+                                  style: { fontSize: '0.875rem' },
                                 }}
                                 InputProps={{
                                   ...params.InputProps,
-                                  style: { fontSize: 13 },
+                                  style: { fontSize: '0.8125rem' },
                                   endAdornment: (
                                     <>
                                       {buyerOptionsAutoCompLoading && (
@@ -2325,10 +2331,10 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                         value={tenderCostingState?.salesPersonName || ''}
                         sx={{ width: '100%', marginTop: 1 }}
                         InputLabelProps={{
-                          style: { fontSize: 14 },
+                          style: { fontSize: '0.875rem' },
                         }}
                         InputProps={{
-                          style: { fontSize: 13 },
+                          style: { fontSize: '0.8125rem' },
                           readOnly: true,
                         }}
                       />
@@ -2372,11 +2378,11 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                               helperText={error ? error.message : null}
                               InputLabelProps={{
                                 ...params.InputLabelProps,
-                                style: { fontSize: 14 },
+                                style: { fontSize: '0.875rem' },
                               }}
                               InputProps={{
                                 ...params.InputProps,
-                                style: { fontSize: 13 },
+                                style: { fontSize: '0.8125rem' },
                                 endAdornment: (
                                   <>
                                     {tenderOptionsAutoCompLoading && (
@@ -2398,7 +2404,10 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                     />
                     <div className=" h-8 "> </div>
                     {/* hhohohoho */}
-                    <div className=" bg-indigo-50 border-2 border-spacing-3 grid md:grid-cols-2 grid-cols-1 md:gap-x-2 px-2">
+                    <div
+                      className="border-2 border-spacing-3 grid md:grid-cols-2 grid-cols-1 md:gap-x-2 px-2"
+                      style={{ backgroundColor: accentSoft }}
+                    >
                       <div>
                         <span className=" text-14 font-semibold">
                           Quoted Amount:{' '}
@@ -2409,7 +2418,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                           value={summations.quotedAmount.toFixed(2)}
                           InputProps={{
                             readOnly: true,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           sx={{ width: '100%' }}
                         />
@@ -2424,7 +2433,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                           value={summations.vatTax.toFixed(2)}
                           InputProps={{
                             readOnly: true,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           sx={{ width: '100%' }}
                         />
@@ -2439,7 +2448,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                           value={summations.salesExpense.toFixed(2)}
                           InputProps={{
                             readOnly: true,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           sx={{ width: '100%' }}
                         />
@@ -2452,7 +2461,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                           value={summations.agExpense.toFixed(2)}
                           InputProps={{
                             readOnly: true,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           sx={{ width: '100%' }}
                         />
@@ -2467,7 +2476,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                           value={summations.delivery.toFixed(2)}
                           InputProps={{
                             readOnly: true,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           sx={{ width: '100%' }}
                         />
@@ -2482,7 +2491,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                           value={summations.installation.toFixed(2)}
                           InputProps={{
                             readOnly: true,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           sx={{ width: '100%' }}
                         />
@@ -2497,7 +2506,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                           value={summations.training.toFixed(2)}
                           InputProps={{
                             readOnly: true,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           sx={{ width: '100%' }}
                         />
@@ -2510,7 +2519,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                           value={summations.pis.toFixed(2)}
                           InputProps={{
                             readOnly: true,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           sx={{ width: '100%' }}
                         />

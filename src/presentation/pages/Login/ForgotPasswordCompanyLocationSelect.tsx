@@ -809,11 +809,11 @@ const ForgotPasswordCompanyLocationSelect = (props: Props) => {
                         {...params}
                         InputProps={{
                           ...params.InputProps,
-                          style: { fontSize: 16 },
+                          style: { fontSize: '1rem' },
                         }}
                         InputLabelProps={{
                           ...params.InputLabelProps,
-                          style: { fontSize: 16 },
+                          style: { fontSize: '1rem' },
                         }}
                         onChange={(newValue) => {
                           console.log('autocomp Changed');
@@ -850,11 +850,11 @@ const ForgotPasswordCompanyLocationSelect = (props: Props) => {
                         {...params}
                         InputProps={{
                           ...params.InputProps,
-                          style: { fontSize: 16 },
+                          style: { fontSize: '1rem' },
                         }}
                         InputLabelProps={{
                           ...params.InputLabelProps,
-                          style: { fontSize: 16 },
+                          style: { fontSize: '1rem' },
                         }}
                         onChange={(newValue) => {
                           console.log('autocomp Changed');

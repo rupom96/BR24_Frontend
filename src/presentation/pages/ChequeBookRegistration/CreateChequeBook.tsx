@@ -333,11 +333,11 @@ const CreateChequeBook: React.FC<CreateChequeBookProps> = ({
                           // {...register('location')}
                           InputProps={{
                             ...params.InputProps,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           InputLabelProps={{
                             ...params.InputLabelProps,
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                           }}
                           label="Bank"
                           variant="outlined"
@@ -378,11 +378,11 @@ const CreateChequeBook: React.FC<CreateChequeBookProps> = ({
                               helperText={error ? error.message : null}
                               InputLabelProps={{
                                 ...params.InputLabelProps,
-                                style: { fontSize: 14 },
+                                style: { fontSize: '0.875rem' },
                               }}
                               InputProps={{
                                 ...params.InputProps,
-                                style: { fontSize: 13 },
+                                style: { fontSize: '0.8125rem' },
                               }}
                               sx={{ width: '100%', marginTop: 1 }}
                               inputRef={ref}
@@ -404,9 +404,9 @@ const CreateChequeBook: React.FC<CreateChequeBookProps> = ({
                           // eslint-disable-next-line react/jsx-props-no-spreading
                           value={value || ''}
                           sx={{ width: '100%' }}
-                          InputProps={{ style: { fontSize: 13 } }}
+                          InputProps={{ style: { fontSize: '0.8125rem' } }}
                           InputLabelProps={{
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                             shrink: value,
                           }}
                           // onBlur={onBlur} // Trigger validation on blur
@@ -442,9 +442,9 @@ const CreateChequeBook: React.FC<CreateChequeBookProps> = ({
                           type="number"
                           inputMode="numeric"
                           sx={{ width: '100%' }}
-                          InputProps={{ style: { fontSize: 13 } }}
+                          InputProps={{ style: { fontSize: '0.8125rem' } }}
                           InputLabelProps={{
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                             shrink: value,
                           }}
                           id=""
@@ -483,9 +483,9 @@ const CreateChequeBook: React.FC<CreateChequeBookProps> = ({
                           type="number"
                           inputMode="numeric"
                           sx={{ width: '100%' }}
-                          InputProps={{ style: { fontSize: 13 } }}
+                          InputProps={{ style: { fontSize: '0.8125rem' } }}
                           InputLabelProps={{
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                             shrink: value,
                           }}
                           id=""
@@ -520,9 +520,9 @@ const CreateChequeBook: React.FC<CreateChequeBookProps> = ({
                       }) => (
                         <TextField
                           sx={{ width: '100%' }}
-                          InputProps={{ style: { fontSize: 13 } }}
+                          InputProps={{ style: { fontSize: '0.8125rem' } }}
                           InputLabelProps={{
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                             shrink: value,
                           }}
                           label="From"
@@ -554,9 +554,9 @@ const CreateChequeBook: React.FC<CreateChequeBookProps> = ({
                       }) => (
                         <TextField
                           sx={{ width: '100%' }}
-                          InputProps={{ style: { fontSize: 13 } }}
+                          InputProps={{ style: { fontSize: '0.8125rem' } }}
                           InputLabelProps={{
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                             shrink: value,
                           }}
                           label="To"
@@ -625,7 +625,7 @@ const CreateChequeBook: React.FC<CreateChequeBookProps> = ({
           className="voucherGenModal"
         >
           <div className="flex justify-center bg-transparent ">
-            <div className="mt-[350px] bg-transparent">
+            <div className="mt-[21.875rem] bg-transparent">
               <PropagateLoader
                 color="#36d7b7"
                 loading

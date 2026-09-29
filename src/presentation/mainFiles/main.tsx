@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import App from './App.tsx';
 import './main.css';
+import '../styles/premium-ui.css';
 import { store } from '../../application/Redux/store/store.ts';
 
 declare global {

@@ -246,9 +246,9 @@ const DynamicReportAnalysis = ({
                 type=""
                 value={value || ''}
                 sx={{ width: '100%' }}
-                InputProps={{ style: { fontSize: 13 } }}
+                InputProps={{ style: { fontSize: '0.8125rem' } }}
                 InputLabelProps={{
-                  style: { fontSize: 14 },
+                  style: { fontSize: '0.875rem' },
                   shrink: value,
                 }}
                 // onBlur={onBlur} // Trigger validation on blur
@@ -285,9 +285,9 @@ const DynamicReportAnalysis = ({
                 type="number"
                 value={value || ''}
                 sx={{ width: '100%' }}
-                InputProps={{ style: { fontSize: 13 } }}
+                InputProps={{ style: { fontSize: '0.8125rem' } }}
                 InputLabelProps={{
-                  style: { fontSize: 14 },
+                  style: { fontSize: '0.875rem' },
                   shrink: value,
                 }}
                 // onBlur={onBlur} // Trigger validation on blur
@@ -364,11 +364,11 @@ const DynamicReportAnalysis = ({
                     helperText={error ? error.message : null}
                     InputLabelProps={{
                       ...params.InputLabelProps,
-                      style: { fontSize: 14 },
+                      style: { fontSize: '0.875rem' },
                     }}
                     InputProps={{
                       ...params.InputProps,
-                      style: { fontSize: 13 },
+                      style: { fontSize: '0.8125rem' },
                       endAdornment: (
                         <>
                           {elementsOptionState[
@@ -412,11 +412,11 @@ const DynamicReportAnalysis = ({
                       sx={{ width: '100%', marginTop: 1 }}
                       InputProps={{
                         ...params.InputProps,
-                        style: { fontSize: 13 },
+                        style: { fontSize: '0.8125rem' },
                       }}
                       InputLabelProps={{
                         ...params.InputLabelProps,
-                        style: { fontSize: 14 },
+                        style: { fontSize: '0.875rem' },
                       }}
                       variant="standard"
                       size="small"
@@ -453,11 +453,11 @@ const DynamicReportAnalysis = ({
                       sx={{ width: '100%', marginTop: 1 }}
                       InputProps={{
                         ...params.InputProps,
-                        style: { fontSize: 13 },
+                        style: { fontSize: '0.8125rem' },
                       }}
                       InputLabelProps={{
                         ...params.InputLabelProps,
-                        style: { fontSize: 14 },
+                        style: { fontSize: '0.875rem' },
                       }}
                       variant="standard"
                       size="small"
@@ -495,11 +495,11 @@ const DynamicReportAnalysis = ({
                       sx={{ width: '100%', marginTop: 1 }}
                       InputProps={{
                         ...params.InputProps,
-                        style: { fontSize: 13 },
+                        style: { fontSize: '0.8125rem' },
                       }}
                       InputLabelProps={{
                         ...params.InputLabelProps,
-                        style: { fontSize: 14 },
+                        style: { fontSize: '0.875rem' },
                       }}
                       variant="standard"
                       size="small"

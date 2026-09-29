@@ -942,7 +942,7 @@ const TenderRequisiton = ({ modalPageOpenerClose, clickedCardInfo }: any) => {
           <form onSubmit={handleSubmit(processAllDataAndSave)}>
             <div className="block rounded-lg shadow-lg bg-white dark:bg-secondary-dark-bg text-center">
               {/* Main Card header */}
-              <div className="py-3 bg-gray-100 text-slate-800 text-[14px] font-bold dark:text-gray-200 text-start px-6 border-b border-gray-300">
+              <div className="py-3 bg-gray-100 text-slate-800 text-[0.875rem] font-bold dark:text-gray-200 text-start px-6 border-b border-gray-300">
                 {/* -----[Laboratory experimental place starts here]----- */}
                 {checkArrayContents(
                   clickedCardInfo?.extendedBiznessEventName,

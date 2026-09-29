@@ -18,6 +18,7 @@ import {
   falsifyActiveMenu,
 } from '../../application/Redux/slices/ActiveMenuSlice.js';
 import { useGetSAChainMenuByCompanyLocationUserIdQuery } from '../../infrastructure/api/SAChainMenuApiSlice.js';
+import { Br24MenuSkeleton } from './Br24Loader';
 
 const Sidebar = () => {
   // const { activeMenu, setActiveMenu, screenSize, currentColor } =
@@ -536,55 +537,55 @@ const Sidebar = () => {
   };
 
   const activeLink =
-    'flex items-center gap-5 pl-4 pt-3 pb-2.5 rounded-lg text-white text-md m-2';
+    'br24-nav-link flex items-center gap-4 pl-4 pt-2.5 pb-2.5 rounded-xl text-white text-md m-2 shadow-md';
 
   const normalLink =
-    'flex items-center gap-5 pl-4 pt-3 pb-2.5 rounded-lg text-md text-gray-700 transform-all duration-300 dark:text-gray-200 dark:hover:text-black  dark:hover:transform-all duration-300 hover:transform-all duration-300  hover:scale-105 hover:bg-light-gray m-2';
+    'br24-nav-link flex items-center gap-4 pl-4 pt-2.5 pb-2.5 rounded-xl text-md text-slate-700 dark:text-slate-200 hover:bg-slate-100/90 dark:hover:bg-slate-700/50 m-2';
 
   const subactiveLink =
-    'flex items-center gap-5 pl-9 pt-2 pb-2.5 rounded-lg text-white text-md m-2';
+    'br24-nav-link flex items-center gap-4 pl-9 pt-2 pb-2.5 rounded-xl text-white text-md m-2 shadow-md';
 
   const subnormalLink =
-    'flex items-center gap-5 pl-9 pt-3 pb-2.5 rounded-lg text-md text-gray-700 transform-all duration-300 dark:text-gray-200 dark:hover:text-black dark:hover:transform-all duration-300 hover:transform-all duration-300  hover:scale-105 hover:bg-light-gray m-2';
+    'br24-nav-link flex items-center gap-4 pl-9 pt-2.5 pb-2.5 rounded-xl text-md text-slate-700 dark:text-slate-200 hover:bg-slate-100/90 dark:hover:bg-slate-700/50 m-2';
 
   return (
-    <div className="ml-3 scroller h-screen md:overflow-hidden overflow-auto md:hover:overflow-auto pb-10">
+    <div className="br24-shell-sidebar scroller ml-2 h-screen overflow-auto pb-10 md:overflow-hidden md:hover:overflow-auto">
       {activeMenu && (
         <>
-          <div className="flex justify-between items-center">
-            {/* Company name & logo */}
+          <div className="br24-anim-fade-up flex items-center justify-between px-1">
             <Link
               to="/"
-              className="items-center gap-3 ml-3 mt-4 flex text-xl font-extrabold tracking-tight dark:text-white text-slate-900"
+              className="ml-2 mt-4 flex items-center gap-3 text-xl font-extrabold tracking-tight text-slate-900 dark:text-white"
               onClick={handleCloseSidebar}
             >
-              <div className=" hover:animate-pulse flex items-center gap-5">
-                <BiAnalyse /> <span>Bizness Roots 24</span>
+              <div className="flex items-center gap-3 transition-transform duration-300 hover:scale-[1.02]">
+                <span
+                  className="flex h-9 w-9 items-center justify-center rounded-xl text-white shadow-lg"
+                  style={{ backgroundColor: currentColor }}
+                >
+                  <BiAnalyse />
+                </span>
+                <span className="text-base tracking-tight">Bizness Roots 24</span>
               </div>
             </Link>
 
-            {/* Close button Dashboard */}
             <Tooltip title="Menu" placement="top-start" arrow>
               <button
                 type="button"
                 aria-label="Menu"
-                onClick={() =>
-                  // setActiveMenu((prevActiveMenu) => !prevActiveMenu)
-                  dispatch(toggleActiveMenu())
-                }
-                className="text-xl rounded-full p-3 hover:bg-light-gray mt-4 block md:hidden"
+                onClick={() => dispatch(toggleActiveMenu())}
+                className="mt-4 block rounded-xl p-3 text-xl transition-all duration-300 hover:bg-slate-100 md:hidden"
               >
                 <MdOutlineCancel />
               </button>
             </Tooltip>
           </div>
 
-          {/* menus of Dashboard */}
           {SAChainMenuData && !SAChainMenuIsFetching && !SAChainMenuLoading ? (
-            <div className="mt-10">
+            <div className="br24-anim-fade-up-delay mt-8">
               {allLinks.map((item) => (
                 <div key={item.title}>
-                  <p className="text-gray-400 dark:text-gray-400 m-3 mt-4 uppercase">
+                  <p className="m-3 mt-4 text-[0.6875rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
                     {item.title}
                   </p>
 
@@ -611,7 +612,7 @@ const Sidebar = () => {
                           <div className="accordion" id="menuAccordion">
                             <div className="accordion-item">
                               <button
-                                className="accordion-button menu-accordion-button collapsed relative flex items-center w-[94%] gap-5 px-4 pt-3 pb-2.5 rounded-lg  text-md  transform-all duration-300 hover:scale-105 dark:text-gray-200 dark:hover:text-black   hover:bg-light-gray m-2 text-base text-gray-700 text-left"
+                                className="menu-accordion-button accordion-button collapsed relative m-2 flex w-[94%] items-center gap-4 rounded-xl px-4 pb-2.5 pt-2.5 text-left text-base text-slate-700 transition-all duration-300 hover:bg-slate-100 dark:text-gray-200"
                                 type="button"
                                 data-bs-toggle="collapse"
                                 data-bs-target={`#${link.name}`}
@@ -656,38 +657,6 @@ const Sidebar = () => {
                               </div>
                             </div>
                           </div>
-
-                          {/* <NavLink
-                                              to={`/${link.name}`}
-                                              key={link.name}
-                                              onClick={handleCloseSidebar}
-                                              style={({ isActive }) => ({
-                                                  backgroundColor: isActive ? currentColor : ''
-                                              })}
-                                              className={({ isActive }) => isActive ? activeLink : normalLink}
-                                          >
-                                              {link.icon}
-                                              <span className='capitalize'>
-                                                  {link.name}
-                                              </span>
-                                          </NavLink>
-
-                                          {link.sublinks && link.sublinks.map((sublink) => (
-                                              <NavLink
-                                                  to={`/${sublink.name}`}
-                                                  key={sublink.name}
-                                                  onClick={handleCloseSidebar}
-                                                  style={({ isActive }) => ({
-                                                      backgroundColor: isActive ? currentColor : ''
-                                                  })}
-                                                  className={({ isActive }) => isActive ? subactiveLink : subnormalLink}
-                                              >
-                                                  {sublink.icon}
-                                                  <span className='capitalize'>
-                                                      {sublink.name}
-                                                  </span>
-                                              </NavLink>
-                                          ))} */}
                         </>
                       )}
                     </div>
@@ -696,11 +665,7 @@ const Sidebar = () => {
               ))}
             </div>
           ) : (
-            <div>
-              <p className="text-gray-400 dark:text-gray-400 m-3 mt-4 uppercase">
-                LOADING...
-              </p>
-            </div>
+            <Br24MenuSkeleton />
           )}
         </>
       )}

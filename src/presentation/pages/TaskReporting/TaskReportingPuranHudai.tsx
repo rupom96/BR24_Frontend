@@ -708,8 +708,8 @@ const TaskReporting = ({ modalPageOpenerClose, clickedCardInfo }: any) => {
           };
           return (
             <div className="w-full">
-              <div className="flex justify-center -mb-[21px]">
-                <span className="text-sm text-[13px] text-white dark:text-white">
+              <div className="flex justify-center -mb-[1.3125rem]">
+                <span className="text-sm text-[0.8125rem] text-white dark:text-white">
                   {renderedCellValue} %
                 </span>
               </div>
@@ -780,7 +780,7 @@ const TaskReporting = ({ modalPageOpenerClose, clickedCardInfo }: any) => {
           // borderLeft: '1px solid #e0e0e0',
           // borderTop: '1px solid #e0e0e0',
           // borderBottom: '1px solid #e0e0e0',
-          fontSize: '13px',
+          fontSize: '0.8125rem',
         },
       },
       muiTableHeadCellProps: {
@@ -789,12 +789,12 @@ const TaskReporting = ({ modalPageOpenerClose, clickedCardInfo }: any) => {
           // borderLeft: '1px solid #e0e0e0',
           borderTop: '1px solid #e0e0e0',
           // borderBottom: '1px solid #e0e0e0',
-          fontSize: '13px',
+          fontSize: '0.8125rem',
           whiteSpace: 'nowrap',
         },
       },
 
-      muiTableContainerProps: { sx: { maxHeight: '380px' } },
+      muiTableContainerProps: { sx: { maxHeight: '23.75rem' } },
       // onSortingChange: setSorting,
       // state: { isLoading, sorting },
       // rowVirtualizerInstanceRef, // optional
@@ -808,7 +808,7 @@ const TaskReporting = ({ modalPageOpenerClose, clickedCardInfo }: any) => {
         <div className="m-0 p-0 flex justify-center">
           <div className="block m-0 p-0 w-screen ">
             {/* Main Card */}
-            <div className="block m-0 p-0 rounded-lg shadow-lg pb-5 min-h-[1000px] bg-gray-100 dark:bg-secondary-dark-bg text-center">
+            <div className="block m-0 p-0 rounded-lg shadow-lg pb-5 min-h-[62.5rem] bg-gray-100 dark:bg-secondary-dark-bg text-center">
               {/* Main Card header */}
               <div className="py-2 bg-gray-100 dark:bg-secondary-dark-bg px-6  flex justify-between">
                 <p className="mt-2 text-2xl font-extrabold dark:text-gray-200 text-start">
@@ -824,7 +824,7 @@ const TaskReporting = ({ modalPageOpenerClose, clickedCardInfo }: any) => {
                   <p className="mt-2 ml-4 text-start font-bold">
                     Progress Entry
                   </p>
-                  <div className="ml-4 bg-blue-300 h-[5px] w-10 " />
+                  <div className="ml-4 bg-blue-300 h-[0.3125rem] w-10 " />
                   <div className="mt-6 grid md:grid-cols-3 grid-cols-12 gap-3 m-3">
                     <div className="md:col-span-3 col-span-12">
                       <Controller
@@ -834,10 +834,10 @@ const TaskReporting = ({ modalPageOpenerClose, clickedCardInfo }: any) => {
                           <TextField
                             // eslint-disable-next-line react/jsx-props-no-spreading
                             {...field}
-                            sx={{ width: '100%', borderRadius: '50px' }}
-                            InputProps={{ style: { fontSize: 13 } }}
+                            sx={{ width: '100%', borderRadius: '3.125rem' }}
+                            InputProps={{ style: { fontSize: '0.8125rem' } }}
                             InputLabelProps={{
-                              style: { fontSize: 14 },
+                              style: { fontSize: '0.875rem' },
                               shrink: field.value,
                               // shrink: (field.value ? true : false)
                             }}
@@ -864,11 +864,11 @@ const TaskReporting = ({ modalPageOpenerClose, clickedCardInfo }: any) => {
                               // defaultValue={voucherDateState}
                               InputProps={{
                                 ...params.InputProps,
-                                style: { fontSize: 13 },
+                                style: { fontSize: '0.8125rem' },
                               }}
                               InputLabelProps={{
                                 ...params.InputLabelProps,
-                                style: { fontSize: 14 },
+                                style: { fontSize: '0.875rem' },
                               }}
                               variant="outlined"
                               size="small"
@@ -899,11 +899,11 @@ const TaskReporting = ({ modalPageOpenerClose, clickedCardInfo }: any) => {
                               // defaultValue={voucherDateState}
                               InputProps={{
                                 ...params.InputProps,
-                                style: { fontSize: 13 },
+                                style: { fontSize: '0.8125rem' },
                               }}
                               InputLabelProps={{
                                 ...params.InputLabelProps,
-                                style: { fontSize: 14 },
+                                style: { fontSize: '0.875rem' },
                               }}
                               variant="outlined"
                               size="small"
@@ -954,11 +954,11 @@ const TaskReporting = ({ modalPageOpenerClose, clickedCardInfo }: any) => {
                               // defaultValue={voucherDateState}
                               InputProps={{
                                 ...params.InputProps,
-                                style: { fontSize: 13 },
+                                style: { fontSize: '0.8125rem' },
                               }}
                               InputLabelProps={{
                                 ...params.InputLabelProps,
-                                style: { fontSize: 14 },
+                                style: { fontSize: '0.875rem' },
                               }}
                               variant="outlined"
                               size="small"
@@ -985,9 +985,9 @@ const TaskReporting = ({ modalPageOpenerClose, clickedCardInfo }: any) => {
                             multiline
                             rows={4} // Adjust the number of minRows as needed
                             sx={{ width: '100%' }}
-                            InputProps={{ style: { fontSize: 13 } }}
+                            InputProps={{ style: { fontSize: '0.8125rem' } }}
                             InputLabelProps={{
-                              style: { fontSize: 14 },
+                              style: { fontSize: '0.875rem' },
                               shrink: field.value,
                             }}
                             id=""
@@ -1010,7 +1010,7 @@ const TaskReporting = ({ modalPageOpenerClose, clickedCardInfo }: any) => {
                     <div className="md:col-span-3 col-span-12">
                       <div className="w-full mt-1 grid grid-cols-12 gap-x-3 gap-y-0 ">
                         <div className="col-span-12 text-start">
-                          <p className=" text-[13px]">Progress % :</p>
+                          <p className=" text-[0.8125rem]">Progress % :</p>
                         </div>
 
                         <div className="md:col-span-10 col-span-9">
@@ -1039,7 +1039,7 @@ const TaskReporting = ({ modalPageOpenerClose, clickedCardInfo }: any) => {
                               max: 100,
                               type: 'number',
                               'aria-labelledby': 'input-slider',
-                              style: { fontSize: 13, fontWeight: 'bold' },
+                              style: { fontSize: '0.8125rem', fontWeight: 'bold' },
                             }}
                           />
                         </div>
@@ -1052,13 +1052,13 @@ const TaskReporting = ({ modalPageOpenerClose, clickedCardInfo }: any) => {
                             <Checkbox
                               color="success"
                               onChange={handleCheckboxChange}
-                              sx={{ '& .MuiSvgIcon-root': { fontSize: 18 } }}
+                              sx={{ '& .MuiSvgIcon-root': { fontSize: '1.125rem' } }}
                             />
                           }
                           label="Task Completed"
                           sx={{
                             '& .MuiTypography-root': {
-                              fontSize: '13px', // Font size for the label
+                              fontSize: '0.8125rem', // Font size for the label
                               fontWeight: 'bold',
                             },
                           }}
@@ -1091,7 +1091,7 @@ const TaskReporting = ({ modalPageOpenerClose, clickedCardInfo }: any) => {
                   <p className="mt-2 ml-4 text-start font-bold">
                     Individual Report Progress %
                   </p>
-                  <div className="ml-4 bg-blue-300 h-[5px] w-10 " />
+                  <div className="ml-4 bg-blue-300 h-[0.3125rem] w-10 " />
                   {/* <div className="flex p-0 m-0 justify-center"> */}
                   {/* <div className="w-[90%] p-0 m-0 flex justify-center "> */}
                   <div className="mt-2 flex justify-center">
@@ -1130,7 +1130,7 @@ const TaskReporting = ({ modalPageOpenerClose, clickedCardInfo }: any) => {
                   <p className="mt-2 ml-4 text-start font-bold">
                     Progress Report Log
                   </p>
-                  <div className="ml-4 bg-blue-300 h-[5px] w-10 " />
+                  <div className="ml-4 bg-blue-300 h-[0.3125rem] w-10 " />
 
                   <div className=" m-4">
                     <MaterialReactTable table={tableInitializer} />
@@ -1160,7 +1160,7 @@ const TaskReporting = ({ modalPageOpenerClose, clickedCardInfo }: any) => {
         </div>
       ) : (
         <div className=" z-[1000000000001] h-[100vh] w-full bg-gray-800 flex justify-center align-middle">
-          <div className=" mt-[350px]">
+          <div className=" mt-[21.875rem]">
             <PropagateLoader
               color="#36d7b7"
               loading={loaderSpinner}

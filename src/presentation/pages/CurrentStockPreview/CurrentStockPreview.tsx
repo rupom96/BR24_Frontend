@@ -192,7 +192,7 @@ const CurrentStockPreview = () => {
     popper: { maxWidth: string; fontSize: string };
   }
   const autoCompResStyles: AutoCompResStyles = {
-    popper: { maxWidth: 'fit-content', fontSize: '12px' },
+    popper: { maxWidth: 'fit-content', fontSize: '0.75rem' },
   };
 
   const PopperMy = useCallback(
@@ -674,7 +674,7 @@ const CurrentStockPreview = () => {
         grouping: [],
       },
 
-      muiSkeletonProps: { animation: 'pulse', height: 30 },
+      muiSkeletonProps: { animation: 'pulse', height: '1.875rem' },
       muiTablePaperProps: {
         elevation: 0,
         sx: { borderRadius: '0', border: '1px dashed #e0e0e0' },
@@ -684,7 +684,7 @@ const CurrentStockPreview = () => {
         sx: {
           borderRight: '1px solid #e0e0e0',
           borderTop: '1px solid #e0e0e0',
-          fontSize: '13px',
+          fontSize: '0.8125rem',
           whiteSpace: 'nowrap',
           backgroundColor: '#ECEFF9',
           color: '#1c1c1c',
@@ -695,7 +695,7 @@ const CurrentStockPreview = () => {
       },
       muiTableBodyCellProps: {
         sx: {
-          fontSize: '13px',
+          fontSize: '0.8125rem',
           textAlign: 'center',
           '& *': { textAlign: 'center' },
         },
@@ -711,7 +711,7 @@ const CurrentStockPreview = () => {
         align: 'center',
         sx: {
           backgroundColor: '#F6F7FF',
-          fontSize: '13px',
+          fontSize: '0.8125rem',
           borderTop: '1px solid #e0e0e0',
           borderRight: '1px solid #e0e0e0',
         },
@@ -1078,7 +1078,7 @@ const CurrentStockPreview = () => {
         <Box sx={{ width: '100%' }}>
           <LinearProgress variant="determinate" value={value} />
         </Box>
-        <Box sx={{ minWidth: 42 }}>
+        <Box sx={{ minWidth: '2.625rem' }}>
           <Typography
             variant="body2"
             sx={{ color: 'rgba(255,255,255,0.9)', fontWeight: 800 }}
@@ -1121,11 +1121,11 @@ const CurrentStockPreview = () => {
                           sx={{ width: '100%', marginTop: 1 }}
                           InputLabelProps={{
                             ...params.InputLabelProps,
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                           }}
                           InputProps={{
                             ...params.InputProps,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           size="small"
                         />
@@ -1160,11 +1160,11 @@ const CurrentStockPreview = () => {
                         variant="standard"
                         InputLabelProps={{
                           ...params.InputLabelProps,
-                          style: { fontSize: 14 },
+                          style: { fontSize: '0.875rem' },
                         }}
                         InputProps={{
                           ...params.InputProps,
-                          style: { fontSize: 13 },
+                          style: { fontSize: '0.8125rem' },
                         }}
                         sx={{ width: '100%', marginTop: 1 }}
                       />
@@ -1214,11 +1214,11 @@ const CurrentStockPreview = () => {
                         variant="standard"
                         InputLabelProps={{
                           ...params.InputLabelProps,
-                          style: { fontSize: 14 },
+                          style: { fontSize: '0.875rem' },
                         }}
                         InputProps={{
                           ...params.InputProps,
-                          style: { fontSize: 13 },
+                          style: { fontSize: '0.8125rem' },
                         }}
                         sx={{ width: '100%', marginTop: 1 }}
                       />
@@ -1266,11 +1266,11 @@ const CurrentStockPreview = () => {
                         variant="standard"
                         InputLabelProps={{
                           ...params.InputLabelProps,
-                          style: { fontSize: 14 },
+                          style: { fontSize: '0.875rem' },
                         }}
                         InputProps={{
                           ...params.InputProps,
-                          style: { fontSize: 13 },
+                          style: { fontSize: '0.8125rem' },
                         }}
                         sx={{ width: '100%', marginTop: 1 }}
                       />
@@ -1315,11 +1315,11 @@ const CurrentStockPreview = () => {
                         variant="standard"
                         InputLabelProps={{
                           ...params.InputLabelProps,
-                          style: { fontSize: 14 },
+                          style: { fontSize: '0.875rem' },
                         }}
                         InputProps={{
                           ...params.InputProps,
-                          style: { fontSize: 13 },
+                          style: { fontSize: '0.8125rem' },
                         }}
                         sx={{ width: '100%', marginTop: 1 }}
                       />
@@ -1364,11 +1364,11 @@ const CurrentStockPreview = () => {
                         variant="standard"
                         InputLabelProps={{
                           ...params.InputLabelProps,
-                          style: { fontSize: 14 },
+                          style: { fontSize: '0.875rem' },
                         }}
                         InputProps={{
                           ...params.InputProps,
-                          style: { fontSize: 13 },
+                          style: { fontSize: '0.8125rem' },
                         }}
                         sx={{ width: '100%', marginTop: 1 }}
                       />
@@ -1388,7 +1388,7 @@ const CurrentStockPreview = () => {
         </div>
       </div>
 
-      <Box sx={{ height: 10 }} />
+      <Box sx={{ height: '0.625rem' }} />
 
       {/*  Export loader overlay */}
       <Backdrop
@@ -1409,11 +1409,11 @@ const CurrentStockPreview = () => {
             border: '1px solid rgba(255,255,255,0.12)',
           }}
         >
-          <Typography sx={{ fontWeight: 900, fontSize: 14 }}>
+          <Typography sx={{ fontWeight: 900, fontSize: '0.875rem' }}>
             Downloading Current Stock in excel format, Please wait...
           </Typography>
 
-          <Typography sx={{ fontSize: 12, opacity: 0.85, mt: 0.8 }}>
+          <Typography sx={{ fontSize: '0.75rem', opacity: 0.85, mt: 0.8 }}>
             {exportProgress.total > 0
               ? `Processed ${exportProgress.done} / ${exportProgress.total} rows`
               : 'Preparing export...'}

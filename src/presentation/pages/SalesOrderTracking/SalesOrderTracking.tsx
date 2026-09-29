@@ -475,10 +475,10 @@ const SpectacleLensSpecificationForm = ({
     return (
       <div className="mb-3">
         <div className="flex items-center gap-2 mb-1">
-          <div className="text-[13px] font-semibold text-gray-700">{label}</div>
+          <div className="text-[0.8125rem] font-semibold text-gray-700">{label}</div>
           <button
             type="button"
-            className="min-w-[24px] h-[24px] px-2 rounded bg-red-500 text-white text-xs font-bold shadow-sm"
+            className="min-w-[1.5rem] h-[1.5rem] px-2 rounded bg-red-500 text-white text-xs font-bold shadow-sm"
             onClick={() => toggleSignedFieldSign(eye, fieldKey)}
           >
             {fieldValue.sign}
@@ -496,7 +496,7 @@ const SpectacleLensSpecificationForm = ({
           size="small"
           inputMode="decimal"
           InputProps={{
-            style: { fontSize: 13 },
+            style: { fontSize: '0.8125rem' },
           }}
         />
       </div>
@@ -521,12 +521,12 @@ const SpectacleLensSpecificationForm = ({
         <div className="grid grid-cols-2 gap-3">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <div className="text-[13px] font-semibold text-gray-700">
+              <div className="text-[0.8125rem] font-semibold text-gray-700">
                 {firstLabel}
               </div>
               <button
                 type="button"
-                className="min-w-[24px] h-[24px] px-2 rounded bg-red-500 text-white text-xs font-bold shadow-sm"
+                className="min-w-[1.5rem] h-[1.5rem] px-2 rounded bg-red-500 text-white text-xs font-bold shadow-sm"
                 onClick={() => toggleSignedFieldSign(eye, firstKey)}
               >
                 {firstValue.sign}
@@ -544,19 +544,19 @@ const SpectacleLensSpecificationForm = ({
               size="small"
               inputMode="decimal"
               InputProps={{
-                style: { fontSize: 13 },
+                style: { fontSize: '0.8125rem' },
               }}
             />
           </div>
 
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <div className="text-[13px] font-semibold text-gray-700">
+              <div className="text-[0.8125rem] font-semibold text-gray-700">
                 {secondLabel}
               </div>
               <button
                 type="button"
-                className="min-w-[24px] h-[24px] px-2 rounded bg-red-500 text-white text-xs font-bold shadow-sm"
+                className="min-w-[1.5rem] h-[1.5rem] px-2 rounded bg-red-500 text-white text-xs font-bold shadow-sm"
                 onClick={() => toggleSignedFieldSign(eye, secondKey)}
               >
                 {secondValue.sign}
@@ -574,7 +574,7 @@ const SpectacleLensSpecificationForm = ({
               size="small"
               inputMode="decimal"
               InputProps={{
-                style: { fontSize: 13 },
+                style: { fontSize: '0.8125rem' },
               }}
             />
           </div>
@@ -603,8 +603,8 @@ const SpectacleLensSpecificationForm = ({
             label="Type"
             variant="outlined"
             size="small"
-            InputLabelProps={{ style: { fontSize: 14 } }}
-            InputProps={{ style: { fontSize: 13 } }}
+            InputLabelProps={{ style: { fontSize: '0.875rem' } }}
+            InputProps={{ style: { fontSize: '0.8125rem' } }}
           >
             <MenuItem value="">Select Type</MenuItem>
             {lensTypeOptions.map((item) => (
@@ -684,7 +684,7 @@ const SpectacleLensSpecificationForm = ({
         maxHeight: 'calc(100vh - 96px)',
         overflowY: 'auto',
         backgroundColor: 'white',
-        borderRadius: '12px',
+        borderRadius: '0.75rem',
         boxShadow: 24,
       }}
     >
@@ -720,8 +720,8 @@ const SpectacleLensSpecificationForm = ({
               variant="outlined"
               size="small"
               inputMode="decimal"
-              InputLabelProps={{ style: { fontSize: 14 } }}
-              InputProps={{ style: { fontSize: 13 } }}
+              InputLabelProps={{ style: { fontSize: '0.875rem' } }}
+              InputProps={{ style: { fontSize: '0.8125rem' } }}
             />
 
             <TextField
@@ -732,8 +732,8 @@ const SpectacleLensSpecificationForm = ({
               variant="outlined"
               size="small"
               inputMode="decimal"
-              InputLabelProps={{ style: { fontSize: 14 } }}
-              InputProps={{ style: { fontSize: 13 } }}
+              InputLabelProps={{ style: { fontSize: '0.875rem' } }}
+              InputProps={{ style: { fontSize: '0.8125rem' } }}
             />
 
             <TextField
@@ -743,15 +743,15 @@ const SpectacleLensSpecificationForm = ({
               label="Size"
               variant="outlined"
               size="small"
-              InputLabelProps={{ style: { fontSize: 14 } }}
-              InputProps={{ style: { fontSize: 13 } }}
+              InputLabelProps={{ style: { fontSize: '0.875rem' } }}
+              InputProps={{ style: { fontSize: '0.8125rem' } }}
             />
           </div>
 
           <div className="flex items-center justify-center gap-4 flex-wrap">
             <button
               type="button"
-              className={`min-w-[150px] h-[48px] rounded-lg border text-sm font-semibold transition-all duration-150 ${
+              className={`min-w-[9.375rem] h-[3rem] rounded-lg border text-sm font-semibold transition-all duration-150 ${
                 form.focalType === 'UniFocal'
                   ? 'border-blue-500 text-gray-700 bg-white shadow-md'
                   : 'border-gray-300 text-gray-600 bg-white'
@@ -774,7 +774,7 @@ const SpectacleLensSpecificationForm = ({
 
             <button
               type="button"
-              className={`min-w-[150px] h-[48px] rounded-lg border text-sm font-semibold transition-all duration-150 ${
+              className={`min-w-[9.375rem] h-[3rem] rounded-lg border text-sm font-semibold transition-all duration-150 ${
                 form.focalType === 'BiFocal'
                   ? 'border-blue-500 text-gray-700 bg-white shadow-md'
                   : 'border-gray-300 text-gray-600 bg-white'
@@ -1593,7 +1593,7 @@ const SalesOrderTracking = ({
   ]);
 
   const autoCompResStyles = useMemo(
-    () => ({ popper: { maxWidth: 'fit-content', fontSize: '12px' } }),
+    () => ({ popper: { maxWidth: 'fit-content', fontSize: '0.75rem' } }),
     []
   );
 
@@ -1737,7 +1737,7 @@ const SalesOrderTracking = ({
                   {...params}
                   InputProps={{
                     ...params.InputProps,
-                    style: { fontSize: 13 },
+                    style: { fontSize: '0.8125rem' },
                     disableUnderline: true,
                   }}
                   variant="standard"
@@ -1770,7 +1770,7 @@ const SalesOrderTracking = ({
               if (row.original.productId) checkAndAddEmptyRow(row.index);
             }}
             InputProps={{
-              style: { fontSize: 13 },
+              style: { fontSize: '0.8125rem' },
               disableUnderline: true,
             }}
             sx={{ width: '100%' }}
@@ -1799,7 +1799,7 @@ const SalesOrderTracking = ({
             }}
             InputProps={{
               readOnly: true,
-              style: { fontSize: 13 },
+              style: { fontSize: '0.8125rem' },
               disableUnderline: true,
             }}
             sx={{ width: '100%' }}
@@ -1823,7 +1823,7 @@ const SalesOrderTracking = ({
                     void openSpecificationModal(row.index);
                   }}
                 >
-                  <InfoOutlinedIcon sx={{ fontSize: 16 }} />
+                  <InfoOutlinedIcon sx={{ fontSize: '1rem' }} />
                   {row.original.specificationValue ? 'Edit Info' : 'Add Info'}
                 </button>
               ) : null}
@@ -1878,10 +1878,10 @@ const SalesOrderTracking = ({
   //                 sx={{
   //                   border: '1px solid #dbeafe',
   //                   backgroundColor: '#eff6ff',
-  //                   borderRadius: '8px',
+  //                   borderRadius: '0.5rem',
   //                 }}
   //               >
-  //                 <MoreVertIcon sx={{ fontSize: 18, color: '#2563eb' }} />
+  //                 <MoreVertIcon sx={{ fontSize: '1.125rem', color: '#2563eb' }} />
   //               </IconButton>
   //             </Tooltip>
   //           </div>
@@ -1896,7 +1896,7 @@ const SalesOrderTracking = ({
   //       size: 200,
   //       grow: true,
   //       Cell: ({ row }) => (
-  //         <div className="text-[13px] text-gray-800 whitespace-normal break-words leading-[1.25rem]">
+  //         <div className="text-[0.8125rem] text-gray-800 whitespace-normal break-words leading-[1.25rem]">
   //           {row.original.productName ?? ''}
   //         </div>
   //       ),
@@ -1908,7 +1908,7 @@ const SalesOrderTracking = ({
   //       size: 100,
   //       grow: true,
   //       Cell: ({ row }) => (
-  //         <div className="text-[13px] text-gray-800">
+  //         <div className="text-[0.8125rem] text-gray-800">
   //           {row.original.quantity ?? ''}
   //         </div>
   //       ),
@@ -1920,7 +1920,7 @@ const SalesOrderTracking = ({
   //       size: 100,
   //       grow: true,
   //       Cell: ({ row }) => (
-  //         <div className="text-[13px] text-gray-800">
+  //         <div className="text-[0.8125rem] text-gray-800">
   //           {row.original.price ?? ''}
   //         </div>
   //       ),
@@ -1932,7 +1932,7 @@ const SalesOrderTracking = ({
   //       size: 110,
   //       grow: true,
   //       Cell: ({ row }) => (
-  //         <div className="text-[13px] font-semibold text-gray-900">
+  //         <div className="text-[0.8125rem] font-semibold text-gray-900">
   //           {Number(row.original.amount || 0).toFixed(2)}
   //         </div>
   //       ),
@@ -1958,12 +1958,15 @@ const SalesOrderTracking = ({
                   size="small"
                   onClick={(e) => openMobileMenu(e, idx)}
                   sx={{
-                    border: '1px solid #dbeafe',
-                    backgroundColor: '#eff6ff',
-                    borderRadius: '8px',
+                    border: '1px solid',
+                    borderColor: 'primary.light',
+                    backgroundColor: (t) => `${t.palette.primary.main}14`,
+                    borderRadius: '0.5rem',
                   }}
                 >
-                  <MoreVertIcon sx={{ fontSize: 18, color: '#2563eb' }} />
+                  <MoreVertIcon
+                    sx={{ fontSize: '1.125rem', color: 'primary.main' }}
+                  />
                 </IconButton>
               </Tooltip>
             </div>
@@ -1977,7 +1980,7 @@ const SalesOrderTracking = ({
         size: 80,
         grow: true,
         Cell: ({ row }) => (
-          <div className="text-[13px] text-gray-800 whitespace-normal break-words leading-[1.25rem]">
+          <div className="text-[0.8125rem] text-gray-800 whitespace-normal break-words leading-[1.25rem]">
             {row.original.productName ?? ''}
           </div>
         ),
@@ -1989,7 +1992,7 @@ const SalesOrderTracking = ({
         size: 80,
         grow: false,
         Cell: ({ row }) => (
-          <div className="text-[13px] text-gray-800">
+          <div className="text-[0.8125rem] text-gray-800">
             {row.original.quantity ?? ''}
           </div>
         ),
@@ -2001,7 +2004,7 @@ const SalesOrderTracking = ({
         size: 80,
         grow: false,
         Cell: ({ row }) => (
-          <div className="text-[13px] text-gray-800">
+          <div className="text-[0.8125rem] text-gray-800">
             {row.original.price ?? ''}
           </div>
         ),
@@ -2013,7 +2016,7 @@ const SalesOrderTracking = ({
         size: 80,
         grow: false,
         Cell: ({ row }) => (
-          <div className="text-[13px] font-semibold text-gray-900">
+          <div className="text-[0.8125rem] font-semibold text-gray-900">
             {Number(row.original.amount || 0).toFixed(2)}
           </div>
         ),
@@ -2024,7 +2027,7 @@ const SalesOrderTracking = ({
 
   const commonTableConfig = {
     positionToolbarAlertBanner: 'none' as const,
-    muiSkeletonProps: { animation: 'pulse' as const, height: 30 },
+    muiSkeletonProps: { animation: 'pulse' as const, height: '1.875rem' },
     enableBottomToolbar: false,
     enableColumnResizing: true,
     enableGlobalFilterModes: true,
@@ -2040,13 +2043,13 @@ const SalesOrderTracking = ({
       sx: { borderRadius: '0', border: '1px dashed #e0e0e0' },
     },
     muiTableBodyCellProps: {
-      sx: { fontSize: '13px', color: '#ea1143' },
+      sx: { fontSize: '0.8125rem', color: '#ea1143' },
     },
     muiTableHeadCellProps: {
       sx: {
         borderRight: '1px solid #e0e0e0',
         borderTop: '1px solid #e0e0e0',
-        fontSize: '13px',
+        fontSize: '0.8125rem',
         whiteSpace: 'nowrap',
         backgroundColor: '#ECEFF9',
         color: '#1c1c1c',
@@ -2055,7 +2058,7 @@ const SalesOrderTracking = ({
     },
     muiTableContainerProps: {
       sx: {
-        maxHeight: '400px',
+        maxHeight: '25rem',
         // overflowX: 'hidden',
       },
     },
@@ -2368,12 +2371,12 @@ const SalesOrderTracking = ({
                             helperText={error ? (error.message as any) : null}
                             InputLabelProps={{
                               ...params.InputLabelProps,
-                              style: { fontSize: 14 },
+                              style: { fontSize: '0.875rem' },
                             }}
                             InputProps={{
                               ...params.InputProps,
                               readOnly: true,
-                              style: { fontSize: 13 },
+                              style: { fontSize: '0.8125rem' },
                             }}
                             sx={{ width: '100%', marginTop: 1 }}
                             inputRef={ref}
@@ -2393,10 +2396,10 @@ const SalesOrderTracking = ({
                         variant="standard"
                         size="small"
                         sx={{ width: '100%', marginTop: 1 }}
-                        InputLabelProps={{ style: { fontSize: 14 } }}
+                        InputLabelProps={{ style: { fontSize: '0.875rem' } }}
                         InputProps={{
                           readOnly: true,
-                          style: { fontSize: 13 },
+                          style: { fontSize: '0.8125rem' },
                         }}
                       />
                     )}
@@ -2424,11 +2427,11 @@ const SalesOrderTracking = ({
                               sx={{ width: '100%', marginTop: 1 }}
                               InputProps={{
                                 ...params.InputProps,
-                                style: { fontSize: 13 },
+                                style: { fontSize: '0.8125rem' },
                               }}
                               InputLabelProps={{
                                 ...params.InputLabelProps,
-                                style: { fontSize: 14 },
+                                style: { fontSize: '0.875rem' },
                               }}
                               variant="standard"
                               size="small"
@@ -2451,8 +2454,8 @@ const SalesOrderTracking = ({
                         variant="standard"
                         size="small"
                         sx={{ width: '100%', marginTop: 1 }}
-                        InputLabelProps={{ style: { fontSize: 14 } }}
-                        InputProps={{ style: { fontSize: 13 }, readOnly: true }}
+                        InputLabelProps={{ style: { fontSize: '0.875rem' } }}
+                        InputProps={{ style: { fontSize: '0.8125rem' }, readOnly: true }}
                       />
                     )}
                   />
@@ -2467,8 +2470,8 @@ const SalesOrderTracking = ({
                         variant="standard"
                         size="small"
                         sx={{ width: '100%', marginTop: 1 }}
-                        InputLabelProps={{ style: { fontSize: 14 } }}
-                        InputProps={{ style: { fontSize: 13 }, readOnly: true }}
+                        InputLabelProps={{ style: { fontSize: '0.875rem' } }}
+                        InputProps={{ style: { fontSize: '0.8125rem' }, readOnly: true }}
                       />
                     )}
                   />
@@ -2496,11 +2499,11 @@ const SalesOrderTracking = ({
                             sx={{ width: '100%', marginTop: 1 }}
                             InputLabelProps={{
                               ...params.InputLabelProps,
-                              style: { fontSize: 14 },
+                              style: { fontSize: '0.875rem' },
                             }}
                             InputProps={{
                               ...params.InputProps,
-                              style: { fontSize: 13 },
+                              style: { fontSize: '0.8125rem' },
                             }}
                             inputRef={ref}
                           />
@@ -2520,10 +2523,10 @@ const SalesOrderTracking = ({
                         size="small"
                         type="number"
                         sx={{ width: '100%', marginTop: 1 }}
-                        InputLabelProps={{ style: { fontSize: 14 } }}
+                        InputLabelProps={{ style: { fontSize: '0.875rem' } }}
                         InputProps={{
                           readOnly: true,
-                          style: { fontSize: 13 },
+                          style: { fontSize: '0.8125rem' },
                         }}
                       />
                     )}
@@ -2564,10 +2567,10 @@ const SalesOrderTracking = ({
                       variant="outlined"
                       size="small"
                       value={Number(vatTaxSummary.totalVat || 0).toFixed(2)}
-                      InputLabelProps={{ style: { fontSize: 14 } }}
+                      InputLabelProps={{ style: { fontSize: '0.875rem' } }}
                       InputProps={{
                         readOnly: true,
-                        style: { fontSize: 13 },
+                        style: { fontSize: '0.8125rem' },
                       }}
                       sx={{ width: '100%' }}
                     />
@@ -2577,10 +2580,10 @@ const SalesOrderTracking = ({
                       variant="outlined"
                       size="small"
                       value={Number(vatTaxSummary.totalTax || 0).toFixed(2)}
-                      InputLabelProps={{ style: { fontSize: 14 } }}
+                      InputLabelProps={{ style: { fontSize: '0.875rem' } }}
                       InputProps={{
                         readOnly: true,
-                        style: { fontSize: 13 },
+                        style: { fontSize: '0.8125rem' },
                       }}
                       sx={{ width: '100%' }}
                     />
@@ -2664,7 +2667,7 @@ const SalesOrderTracking = ({
             position: 'relative',
             width: { xs: '92vw', md: '520px' },
             backgroundColor: 'white',
-            borderRadius: '10px',
+            borderRadius: '0.625rem',
             boxShadow: 24,
             p: 3,
           }}
@@ -2672,7 +2675,7 @@ const SalesOrderTracking = ({
           <IconButton
             aria-label="close"
             onClick={() => setRowModalOpen(false)}
-            sx={{ position: 'absolute', top: 8, right: 8, color: 'gray' }}
+            sx={{ position: 'absolute', top: '0.5rem', right: '0.5rem', color: 'gray' }}
           >
             <CloseIcon />
           </IconButton>
@@ -2708,11 +2711,11 @@ const SalesOrderTracking = ({
                       variant="standard"
                       InputLabelProps={{
                         ...params.InputLabelProps,
-                        style: { fontSize: 14 },
+                        style: { fontSize: '0.875rem' },
                       }}
                       InputProps={{
                         ...params.InputProps,
-                        style: { fontSize: 13 },
+                        style: { fontSize: '0.8125rem' },
                       }}
                       sx={{ width: '100%' }}
                     />
@@ -2731,8 +2734,8 @@ const SalesOrderTracking = ({
                   variant="standard"
                   inputMode="decimal"
                   sx={{ width: '100%' }}
-                  InputLabelProps={{ style: { fontSize: 14 } }}
-                  InputProps={{ style: { fontSize: 13 } }}
+                  InputLabelProps={{ style: { fontSize: '0.875rem' } }}
+                  InputProps={{ style: { fontSize: '0.8125rem' } }}
                 />
               )}
             />
@@ -2747,10 +2750,10 @@ const SalesOrderTracking = ({
                   variant="standard"
                   inputMode="decimal"
                   sx={{ width: '100%' }}
-                  InputLabelProps={{ style: { fontSize: 14 } }}
+                  InputLabelProps={{ style: { fontSize: '0.875rem' } }}
                   InputProps={{
                     readOnly: true,
-                    style: { fontSize: 13 },
+                    style: { fontSize: '0.8125rem' },
                   }}
                 />
               )}
@@ -2803,7 +2806,7 @@ const SalesOrderTracking = ({
                 maxHeight: 'calc(100vh - 96px)',
                 overflowY: 'auto',
                 backgroundColor: 'white',
-                borderRadius: '10px',
+                borderRadius: '0.625rem',
                 boxShadow: 24,
                 p: 3,
               }}

@@ -567,7 +567,7 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
     popper: {
       maxWidth: 'fit-content',
       // minWidth: 'inherit',
-      fontSize: '12px',
+      fontSize: '0.75rem',
     },
   };
   const PopperMy = useCallback(
@@ -616,11 +616,11 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
                   helperText={error ? error.message : null}
                   InputLabelProps={{
                     ...params.InputLabelProps,
-                    style: { fontSize: 14 },
+                    style: { fontSize: '0.875rem' },
                   }}
                   InputProps={{
                     ...params.InputProps,
-                    style: { fontSize: 13 },
+                    style: { fontSize: '0.8125rem' },
                   }}
                   sx={{ width: '100%', marginTop: 1 }}
                   inputRef={ref}
@@ -676,11 +676,11 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
                   helperText={error ? error.message : null}
                   InputLabelProps={{
                     ...params.InputLabelProps,
-                    style: { fontSize: 14 },
+                    style: { fontSize: '0.875rem' },
                   }}
                   InputProps={{
                     ...params.InputProps,
-                    style: { fontSize: 13 },
+                    style: { fontSize: '0.8125rem' },
                   }}
                   sx={{ width: '100%', marginTop: 1 }}
                   inputRef={ref}
@@ -738,11 +738,11 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
                   helperText={error ? error.message : null}
                   InputLabelProps={{
                     ...params.InputLabelProps,
-                    style: { fontSize: 14 },
+                    style: { fontSize: '0.875rem' },
                   }}
                   InputProps={{
                     ...params.InputProps,
-                    style: { fontSize: 13 },
+                    style: { fontSize: '0.8125rem' },
                   }}
                   sx={{ width: '100%', marginTop: 1 }}
                   inputRef={ref}
@@ -795,11 +795,11 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
                   helperText={error ? error.message : null}
                   InputLabelProps={{
                     ...params.InputLabelProps,
-                    style: { fontSize: 14 },
+                    style: { fontSize: '0.875rem' },
                   }}
                   InputProps={{
                     ...params.InputProps,
-                    style: { fontSize: 13 },
+                    style: { fontSize: '0.8125rem' },
                   }}
                   sx={{ width: '100%', marginTop: 1 }}
                   inputRef={ref}
@@ -823,9 +823,9 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
               type="text"
               value={value || ''}
               sx={{ width: '100%' }}
-              InputProps={{ style: { fontSize: 13 }, readOnly: true }}
+              InputProps={{ style: { fontSize: '0.8125rem' }, readOnly: true }}
               InputLabelProps={{
-                style: { fontSize: 14 },
+                style: { fontSize: '0.875rem' },
                 shrink: value,
               }}
               // onBlur={onBlur} // Trigger validation on blur
@@ -855,9 +855,9 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
               type="text"
               value={value || ''}
               sx={{ width: '100%' }}
-              InputProps={{ style: { fontSize: 13 }, readOnly: true }}
+              InputProps={{ style: { fontSize: '0.8125rem' }, readOnly: true }}
               InputLabelProps={{
-                style: { fontSize: 14 },
+                style: { fontSize: '0.875rem' },
                 shrink: value,
               }}
               // onBlur={onBlur} // Trigger validation on blur
@@ -893,11 +893,11 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
                     sx={{ width: '100%', marginTop: 1 }}
                     InputProps={{
                       ...params.InputProps,
-                      style: { fontSize: 13 },
+                      style: { fontSize: '0.8125rem' },
                     }}
                     InputLabelProps={{
                       ...params.InputLabelProps,
-                      style: { fontSize: 14 },
+                      style: { fontSize: '0.875rem' },
                     }}
                     variant="standard"
                     size="small"
@@ -933,11 +933,11 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
                     sx={{ width: '100%', marginTop: 1 }}
                     InputProps={{
                       ...params.InputProps,
-                      style: { fontSize: 13 },
+                      style: { fontSize: '0.8125rem' },
                     }}
                     InputLabelProps={{
                       ...params.InputLabelProps,
-                      style: { fontSize: 14 },
+                      style: { fontSize: '0.875rem' },
                     }}
                     variant="standard"
                     size="small"
@@ -996,11 +996,11 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
                   helperText={error ? error.message : null}
                   InputLabelProps={{
                     ...params.InputLabelProps,
-                    style: { fontSize: 14 },
+                    style: { fontSize: '0.875rem' },
                   }}
                   InputProps={{
                     ...params.InputProps,
-                    style: { fontSize: 13 },
+                    style: { fontSize: '0.8125rem' },
                   }}
                   sx={{ width: '100%', marginTop: 1 }}
                   inputRef={ref}
@@ -1024,9 +1024,9 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
               type="text"
               value={value || ''}
               sx={{ width: '100%' }}
-              InputProps={{ style: { fontSize: 13 }, readOnly: true }}
+              InputProps={{ style: { fontSize: '0.8125rem' }, readOnly: true }}
               InputLabelProps={{
-                style: { fontSize: 14 },
+                style: { fontSize: '0.875rem' },
                 shrink: value,
               }}
               // onBlur={onBlur} // Trigger validation on blur
@@ -1065,9 +1065,9 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
               type="number"
               value={value || ''}
               sx={{ width: '100%' }}
-              InputProps={{ style: { fontSize: 13 } }}
+              InputProps={{ style: { fontSize: '0.8125rem' } }}
               InputLabelProps={{
-                style: { fontSize: 14 },
+                style: { fontSize: '0.875rem' },
                 shrink: value,
               }}
               // onBlur={onBlur} // Trigger validation on blur
@@ -1114,9 +1114,9 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
               type="number"
               value={value || ''}
               sx={{ width: '100%' }}
-              InputProps={{ style: { fontSize: 13 } }}
+              InputProps={{ style: { fontSize: '0.8125rem' } }}
               InputLabelProps={{
-                style: { fontSize: 14 },
+                style: { fontSize: '0.875rem' },
                 shrink: value,
               }}
               // onBlur={onBlur} // Trigger validation on blur
@@ -1169,11 +1169,11 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
                     sx={{ width: '100%', marginTop: 1 }}
                     InputProps={{
                       ...params.InputProps,
-                      style: { fontSize: 13 },
+                      style: { fontSize: '0.8125rem' },
                     }}
                     InputLabelProps={{
                       ...params.InputLabelProps,
-                      style: { fontSize: 14 },
+                      style: { fontSize: '0.875rem' },
                     }}
                     variant="standard"
                     size="small"
@@ -1196,9 +1196,9 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
               // eslint-disable-next-line react/jsx-props-no-spreading
               value={value || ''}
               sx={{ width: '100%' }}
-              InputProps={{ style: { fontSize: 13 } }}
+              InputProps={{ style: { fontSize: '0.8125rem' } }}
               InputLabelProps={{
-                style: { fontSize: 14 },
+                style: { fontSize: '0.875rem' },
                 shrink: value,
               }}
               // onBlur={onBlur} // Trigger validation on blur
@@ -1236,9 +1236,9 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
               value={value || ''}
               type="number"
               sx={{ width: '100%' }}
-              InputProps={{ style: { fontSize: 13 } }}
+              InputProps={{ style: { fontSize: '0.8125rem' } }}
               InputLabelProps={{
-                style: { fontSize: 14 },
+                style: { fontSize: '0.875rem' },
                 shrink: value,
               }}
               // onBlur={onBlur} // Trigger validation on blur
@@ -1314,11 +1314,11 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
                       variant="standard"
                       InputLabelProps={{
                         ...params.InputLabelProps,
-                        style: { fontSize: 14 },
+                        style: { fontSize: '0.875rem' },
                       }}
                       InputProps={{
                         ...params.InputProps,
-                        style: { fontSize: 13 },
+                        style: { fontSize: '0.8125rem' },
                       }}
                       sx={{ width: '100%', marginTop: 1 }}
                       inputRef={ref}
@@ -1404,11 +1404,11 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
                       variant="standard"
                       InputLabelProps={{
                         ...params.InputLabelProps,
-                        style: { fontSize: 14 },
+                        style: { fontSize: '0.875rem' },
                       }}
                       InputProps={{
                         ...params.InputProps,
-                        style: { fontSize: 13 },
+                        style: { fontSize: '0.8125rem' },
                       }}
                       sx={{ width: '100%', marginTop: 1 }}
                       inputRef={ref}

@@ -395,7 +395,7 @@ const CreateChequeLeaf: React.FC<CreateChequeLeafProps> = ({
                         <TextField
                           // eslint-disable-next-line react/jsx-props-no-spreading
                           {...field}
-                          sx={{ width: '100%', borderRadius: '50px' }}
+                          sx={{ width: '100%', borderRadius: '3.125rem' }}
                           value={
                             chequeBookInfo?.bankName
                               ? chequeBookInfo.bankName
@@ -403,10 +403,10 @@ const CreateChequeLeaf: React.FC<CreateChequeLeafProps> = ({
                           }
                           InputProps={{
                             readOnly: true,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           InputLabelProps={{
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                             shrink: field.value,
                             // shrink: (field.value ? true : false)
                           }}
@@ -426,7 +426,7 @@ const CreateChequeLeaf: React.FC<CreateChequeLeafProps> = ({
                         <TextField
                           // eslint-disable-next-line react/jsx-props-no-spreading
                           {...field}
-                          sx={{ width: '100%', borderRadius: '50px' }}
+                          sx={{ width: '100%', borderRadius: '3.125rem' }}
                           value={
                             chequeBookInfo?.leafSerialFrom
                               ? `${chequeBookInfo.leafSerialFrom}-${chequeBookInfo.leafSerialTo}`
@@ -434,10 +434,10 @@ const CreateChequeLeaf: React.FC<CreateChequeLeafProps> = ({
                           }
                           InputProps={{
                             readOnly: true,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           InputLabelProps={{
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                             shrink: field.value,
                             // shrink: (field.value ? true : false)
                           }}
@@ -463,10 +463,10 @@ const CreateChequeLeaf: React.FC<CreateChequeLeafProps> = ({
                           sx={{ width: '100%' }}
                           InputProps={{
                             readOnly: true,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           InputLabelProps={{
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                             shrink: value,
                           }}
                           // onBlur={onBlur} // Trigger validation on blur
@@ -504,10 +504,10 @@ const CreateChequeLeaf: React.FC<CreateChequeLeafProps> = ({
                           sx={{ width: '100%' }}
                           InputProps={{
                             readOnly: true,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           InputLabelProps={{
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                             shrink: value,
                           }}
                           id=""
@@ -546,9 +546,9 @@ const CreateChequeLeaf: React.FC<CreateChequeLeafProps> = ({
                           type="number"
                           inputMode="numeric"
                           sx={{ width: '100%' }}
-                          InputProps={{ style: { fontSize: 13 } }}
+                          InputProps={{ style: { fontSize: '0.8125rem' } }}
                           InputLabelProps={{
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                             shrink: value,
                           }}
                           id=""
@@ -618,7 +618,7 @@ const CreateChequeLeaf: React.FC<CreateChequeLeafProps> = ({
           className="voucherGenModal"
         >
           <div className="flex justify-center bg-transparent ">
-            <div className="mt-[350px] bg-transparent">
+            <div className="mt-[21.875rem] bg-transparent">
               <PropagateLoader
                 color="#36d7b7"
                 loading

@@ -472,7 +472,7 @@ const ChequeBookLeaf: React.FC<ChequeBookLeafProps> = ({
               sx={{ width: '100%' }}
               value={renderedCellValue || ''}
               InputProps={{
-                style: { fontSize: 13 },
+                style: { fontSize: '0.8125rem' },
                 disableUnderline: true,
                 readOnly: true,
               }}
@@ -531,11 +531,11 @@ const ChequeBookLeaf: React.FC<ChequeBookLeafProps> = ({
                 </div>
               ) : (
                 // {/* <div className="rounded-full border bg-slate-100 py-1 px-2">
-                //   <i className=" fas fa-circle text-slate-500 text-[10px]" />{' '}
+                //   <i className=" fas fa-circle text-slate-500 text-[0.625rem]" />{' '}
                 //   {renderedCellValue}
                 // </div>
                 // <div className="rounded-full border bg-red-100 py-1 px-2">
-                //   <i className=" fas fa-circle text-red-700 text-[10px]" />{' '}
+                //   <i className=" fas fa-circle text-red-700 text-[0.625rem]" />{' '}
                 //   {renderedCellValue}
                 // </div> */}
                 ''
@@ -575,7 +575,7 @@ const ChequeBookLeaf: React.FC<ChequeBookLeafProps> = ({
                 ''
               }
               InputProps={{
-                style: { fontSize: 13 },
+                style: { fontSize: '0.8125rem' },
                 disableUnderline: true,
                 readOnly: true,
               }}
@@ -620,7 +620,7 @@ const ChequeBookLeaf: React.FC<ChequeBookLeafProps> = ({
               sx={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '10px',
+                gap: '0.625rem',
               }}
             >
               {row.original.chequeBookDetailId &&
@@ -677,7 +677,7 @@ const ChequeBookLeaf: React.FC<ChequeBookLeafProps> = ({
               sx={{ width: '100%' }}
               value={renderedCellValue || ''}
               InputProps={{
-                style: { fontSize: 13 },
+                style: { fontSize: '0.8125rem' },
                 disableUnderline: true,
                 readOnly: true,
               }}
@@ -713,7 +713,7 @@ const ChequeBookLeaf: React.FC<ChequeBookLeafProps> = ({
         //       sx={{ width: '100%' }}
         //       value={renderedCellValue || ''}
         //       InputProps={{
-        //         style: { fontSize: 13 },
+        //         style: { fontSize: '0.8125rem' },
         //         disableUnderline: true,
         //         readOnly: true,
         //       }}
@@ -728,7 +728,7 @@ const ChequeBookLeaf: React.FC<ChequeBookLeafProps> = ({
               sx={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '10px',
+                gap: '0.625rem',
               }}
             >
               {renderedCellValue ? (
@@ -777,7 +777,7 @@ const ChequeBookLeaf: React.FC<ChequeBookLeafProps> = ({
               sx={{ width: '100%' }}
               value={renderedCellValue || ''}
               InputProps={{
-                style: { fontSize: 13 },
+                style: { fontSize: '0.8125rem' },
                 disableUnderline: true,
                 readOnly: true,
               }}
@@ -817,7 +817,7 @@ const ChequeBookLeaf: React.FC<ChequeBookLeafProps> = ({
                 ''
               }
               InputProps={{
-                style: { fontSize: 13 },
+                style: { fontSize: '0.8125rem' },
                 disableUnderline: true,
                 readOnly: true,
               }}
@@ -864,7 +864,7 @@ const ChequeBookLeaf: React.FC<ChequeBookLeafProps> = ({
                       );
                     }}
                   >
-                    <span className=" font-bold text-[13px] leading-none">
+                    <span className=" font-bold text-[0.8125rem] leading-none">
                       <i className="far fa-eye fa-sm" /> Attachment
                     </span>
                   </button>
@@ -926,7 +926,7 @@ const ChequeBookLeaf: React.FC<ChequeBookLeafProps> = ({
           // borderLeft: '1px solid #e0e0e0',
           // borderTop: '1px solid #e0e0e0',
           // borderBottom: '1px solid #e0e0e0',
-          fontSize: '13px',
+          fontSize: '0.8125rem',
         },
       },
       muiTableHeadCellProps: {
@@ -935,17 +935,17 @@ const ChequeBookLeaf: React.FC<ChequeBookLeafProps> = ({
           // borderLeft: '1px solid #e0e0e0',
           borderTop: '1px solid #e0e0e0',
           // borderBottom: '1px solid #e0e0e0',
-          fontSize: '13px',
+          fontSize: '0.8125rem',
           whiteSpace: 'nowrap',
         },
       },
 
-      muiTableContainerProps: { sx: { maxHeight: '550px' } },
+      muiTableContainerProps: { sx: { maxHeight: '34.375rem' } },
       renderToolbarInternalActions: ({ table }) => {
         const disabledClass =
-          'inline-block px-[6px] py-1 bg-gray-500 text-white font-medium text-xs leading-tight rounded-full hover:bg-gray-600 hover:shadow-lg hover:scale-110 focus:bg-gray-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-600  active:-translate-y-1 active:shadow-lg transform-all duration-700 ease-in-out cursor-not-allowed';
+          'inline-block px-[0.375rem] py-1 bg-gray-500 text-white font-medium text-xs leading-tight rounded-full hover:bg-gray-600 hover:shadow-lg hover:scale-110 focus:bg-gray-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-600  active:-translate-y-1 active:shadow-lg transform-all duration-700 ease-in-out cursor-not-allowed';
         const enabledClass =
-          'inline-block px-[6px] py-1 bg-blue-700 text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-900 hover:shadow-lg hover:scale-110 focus:bg-blue-900 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-700 ease-in-out';
+          'inline-block px-[0.375rem] py-1 bg-blue-700 text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-900 hover:shadow-lg hover:scale-110 focus:bg-blue-900 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-700 ease-in-out';
 
         return (
           <>
@@ -982,7 +982,7 @@ const ChequeBookLeaf: React.FC<ChequeBookLeafProps> = ({
                 type="button"
                 data-mdb-ripple="true"
                 data-mdb-ripple-color="light"
-                className="inline-block px-[6px] py-1 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
+                className="inline-block px-[0.375rem] py-1 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
                 onClick={() => {
                   handleExportData(chequeBookDetail, chequeBookLeafColumns);
                 }}
@@ -1043,15 +1043,15 @@ const ChequeBookLeaf: React.FC<ChequeBookLeafProps> = ({
                       <TextField
                         // eslint-disable-next-line react/jsx-props-no-spreading
                         {...field}
-                        sx={{ width: '100%', borderRadius: '50px' }}
+                        sx={{ width: '100%', borderRadius: '3.125rem' }}
                         value={
                           chequeBookInfo?.bankName
                             ? chequeBookInfo.bankName
                             : ''
                         }
-                        InputProps={{ readOnly: true, style: { fontSize: 13 } }}
+                        InputProps={{ readOnly: true, style: { fontSize: '0.8125rem' } }}
                         InputLabelProps={{
-                          style: { fontSize: 14 },
+                          style: { fontSize: '0.875rem' },
                           shrink: field.value,
                           // shrink: (field.value ? true : false)
                         }}
@@ -1071,15 +1071,15 @@ const ChequeBookLeaf: React.FC<ChequeBookLeafProps> = ({
                       <TextField
                         // eslint-disable-next-line react/jsx-props-no-spreading
                         {...field}
-                        sx={{ width: '100%', borderRadius: '50px' }}
+                        sx={{ width: '100%', borderRadius: '3.125rem' }}
                         value={
                           chequeBookInfo?.leafSerialFrom
                             ? `${chequeBookInfo.leafSerialFrom}-${chequeBookInfo.leafSerialTo}`
                             : ''
                         }
-                        InputProps={{ readOnly: true, style: { fontSize: 13 } }}
+                        InputProps={{ readOnly: true, style: { fontSize: '0.8125rem' } }}
                         InputLabelProps={{
-                          style: { fontSize: 14 },
+                          style: { fontSize: '0.875rem' },
                           shrink: field.value,
                           // shrink: (field.value ? true : false)
                         }}
@@ -1193,7 +1193,7 @@ const ChequeBookLeaf: React.FC<ChequeBookLeafProps> = ({
           // className="voucherGenModal"
         >
           <div className="flex justify-center bg-transparent ">
-            <div className="mt-[350px] bg-transparent">
+            <div className="mt-[21.875rem] bg-transparent">
               <PropagateLoader
                 color="#36d7b7"
                 loading

@@ -375,13 +375,13 @@ const TenderWon = ({
   const getStatusStyles = (status: string) => {
     switch (status) {
       case 'Won':
-        return { color: 'green', fontWeight: 'bold', fontSize: '13px' };
+        return { color: 'green', fontWeight: 'bold', fontSize: '0.8125rem' };
       case 'Lost':
-        return { color: 'red', fontWeight: 'bold', fontSize: '13px' };
+        return { color: 'red', fontWeight: 'bold', fontSize: '0.8125rem' };
       case 'Pending':
-        return { color: 'orange', fontWeight: 'bold', fontSize: '13px' };
+        return { color: 'orange', fontWeight: 'bold', fontSize: '0.8125rem' };
       case 'Not Applicable':
-        return { color: 'gray', fontWeight: 'bold', fontSize: '13px' };
+        return { color: 'gray', fontWeight: 'bold', fontSize: '0.8125rem' };
       default:
         return {};
     }
@@ -455,11 +455,11 @@ const TenderWon = ({
                               sx={{ width: '100%', marginTop: 1 }}
                               InputProps={{
                                 ...params.InputProps,
-                                style: { fontSize: 13 },
+                                style: { fontSize: '0.8125rem' },
                               }}
                               InputLabelProps={{
                                 ...params.InputLabelProps,
-                                style: { fontSize: 14 },
+                                style: { fontSize: '0.875rem' },
                               }}
                               variant="standard"
                               size="small"
@@ -497,11 +497,11 @@ const TenderWon = ({
                               sx={{ width: '100%', marginTop: 1 }}
                               InputProps={{
                                 ...params.InputProps,
-                                style: { fontSize: 13 },
+                                style: { fontSize: '0.8125rem' },
                               }}
                               InputLabelProps={{
                                 ...params.InputLabelProps,
-                                style: { fontSize: 14 },
+                                style: { fontSize: '0.875rem' },
                               }}
                               variant="standard"
                               size="small"
@@ -557,11 +557,11 @@ const TenderWon = ({
                           helperText={error ? error.message : null}
                           InputLabelProps={{
                             ...params.InputLabelProps,
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                           }}
                           InputProps={{
                             ...params.InputProps,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                             endAdornment: (
                               <>
                                 {buyerOptionsAutoCompLoading ? (
@@ -624,11 +624,11 @@ const TenderWon = ({
                               helperText={error ? error.message : null}
                               InputLabelProps={{
                                 ...params.InputLabelProps,
-                                style: { fontSize: 14 },
+                                style: { fontSize: '0.875rem' },
                               }}
                               InputProps={{
                                 ...params.InputProps,
-                                style: { fontSize: 13 },
+                                style: { fontSize: '0.8125rem' },
                                 endAdornment: (
                                   <>
                                     {tenderOptionsAutoCompLoading ? (
@@ -679,9 +679,9 @@ const TenderWon = ({
                       type=""
                       value={value || ''}
                       sx={{ width: '100%' }}
-                      InputProps={{ style: { fontSize: 13 } }}
+                      InputProps={{ style: { fontSize: '0.8125rem' } }}
                       InputLabelProps={{
-                        style: { fontSize: 14 },
+                        style: { fontSize: '0.875rem' },
                         shrink: value,
                       }}
                       // onBlur={onBlur} // Trigger validation on blur

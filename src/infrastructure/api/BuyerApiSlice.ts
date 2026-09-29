@@ -1,33 +1,22 @@
 /* eslint-disable no-param-reassign */
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
 import { IProductGroupComboBox } from '../../domain/interfaces/ProductInterfaces';
 import {
   IBuyer,
   IBuyerGradingOptions,
   IBuyerSalesReport,
 } from '../../domain/interfaces/BuyerInterface';
-import { getToken } from '../Auth/JWTSecurity/jwtTokenManager';
 import { IBuyerGroup } from '../../domain/interfaces/BuyerGroupInterface';
+import { createAuthenticatedBaseQuery } from './shared/createAuthenticatedBaseQuery';
 
 // Import the JSON file directly
-
-const API_BASE_URL = window.API_BASE_URL;
 
 const controllerName: string = `Buyer`;
 
 // Define a service using a base URL and expected endpoints
 export const BuyerApiSlice = createApi({
   reducerPath: 'BuyerApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: `${API_BASE_URL}/${controllerName}/`,
-    // token er kaaj shuru
-    prepareHeaders: async (headers) => {
-      const token = await getToken();
-      headers.set('Authorization', `Bearer ${token}`);
-      return headers;
-    },
-    // token er kaaj shesh
-  }),
+  baseQuery: createAuthenticatedBaseQuery(controllerName),
   tagTypes: [
     'buyerOptions, buyerGroupOptions',
     'buyerOfACertainSomething',

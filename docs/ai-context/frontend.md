@@ -61,7 +61,13 @@ Defined only in `src/presentation/mainFiles/App.tsx` (no separate router module)
 
 **Dynamic routes:** `useGetSAChainMenuByCompanyLocationUserIdQuery` builds paths from `fixedTaskTemplateName` (spaces removed) → `EventsOfAChain` or `DynamicReportAnalysis`. Exact path strings are **server-driven / unknown at build time**.
 
-Some routes lack `PrivateRoute` wrapping (e.g. `tenderCosting`, several edit/import paths) — treat as observed inconsistency, not intentional public API.
+### PrivateRoute audit (Phase 5)
+
+**Intentionally public (login/reset):** `loginUsername`, `loginPassword`, `loginPhoneLayer`, `loginOtpLayer`, `forgotPasswordCompanyLocationSelect`, `secretQuestion`, `resetPassword`.
+
+**Guarded in Phase 5 (were unprotected business pages):** `tenderCosting`, edit pages (`salesOrderEdit`, `lPurchaseInEdit`, `purchaseReturnEdit`, `paymentEdit`, `collectionEdit`, `collectionEditGh`, `salesReturnEdit`, `importInEdit`), additional-cost pages, import pages (`*Import`), `salesOrderTracking`, `currentStockPreview`, `salesOrderSummary`, `pointOfSales`, `sample`.
+
+**Still review later (commented or special):** commented `bizEventProcConfig` / `structuredPage` samples; dynamic chain template routes already use `PrivateRoute` in active branches.
 
 ## Component hierarchy (shell)
 
@@ -93,7 +99,7 @@ Shared UI under `src/presentation/components/` including `biz24Components/` (e.g
 
 ## API communication layer
 
-Pattern:
+Pattern (legacy — still most slices):
 
 ```ts
 const API_BASE_URL = window.API_BASE_URL;
@@ -105,6 +111,14 @@ createApi({
   }),
 });
 ```
+
+**Phase 5 preferred helper:** `src/infrastructure/api/shared/createAuthenticatedBaseQuery.ts`
+
+```ts
+baseQuery: createAuthenticatedBaseQuery(controllerName),
+```
+
+**Migrated pilots:** `TenderApiSlice`, `BuyerApiSlice`. New/refactored slices should use the helper; bulk migrate remaining slices incrementally.
 
 ### Slice → controller map (exact)
 

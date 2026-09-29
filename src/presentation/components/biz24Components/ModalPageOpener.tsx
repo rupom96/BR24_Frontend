@@ -123,7 +123,7 @@ const HistoryComponent = ({
         >
           <div className=" mt-1 h-full col-span-1">
             <img
-              className="rounded-full h-[35px] bg-gray-500"
+              className="rounded-full h-[2.1875rem] bg-gray-500"
               src={
                 item.performedByImage ? item.performedByImage : avatarColored3
               }
@@ -152,7 +152,7 @@ const HistoryComponent = ({
                 : '(Completed)'}{' '}
             </p>
 
-            <p className="bg-slate-300 border text-gray-500 text-xs py-[2px] px-[4px] rounded-[5px] w-fit">
+            <p className="bg-slate-300 border text-gray-500 text-xs py-[0.125rem] px-[0.25rem] rounded-[0.3125rem] w-fit">
               Sequence: <b>{item.originalSequence}</b>
             </p>
 
@@ -271,8 +271,8 @@ const HistoryModal = ({
           onClick={handleHistoryModalClose}
           sx={{
             position: 'absolute',
-            top: '8px',
-            right: '8px',
+            top: '0.5rem',
+            right: '0.5rem',
             color: 'gray',
           }}
         >
@@ -405,7 +405,7 @@ const PreviewEditModal = ({
           backgroundColor: 'white',
           overflow: 'hidden',
           '@media (max-width:600px)': {
-            top: '70px',
+            top: '4.375rem',
           },
           // borderRadius: '20px 20px 20px 20px',
           // transition: 'transform 0.9s ease-in', // Add a transition for the transform property
@@ -418,7 +418,7 @@ const PreviewEditModal = ({
           sx={{
             width: '100%', // Adjust the width as needed
             backgroundColor: '#383838',
-            padding: '10px',
+            padding: '0.625rem',
             transition: 'background-color 700ms ease', // Transition for background color
             '&:hover': {
               backgroundColor: '#383838', // Background color on hover
@@ -430,8 +430,8 @@ const PreviewEditModal = ({
           }}
           // style={{ borderRight: '1px solid white' }}
         >
-          <i className="fas fa-eye text-[20px] mr-2 text-white" />
-          <span className="text-white text-[10px]">Previewing task</span>
+          <i className="fas fa-eye text-[1.25rem] mr-2 text-white" />
+          <span className="text-white text-[0.625rem]">Previewing task</span>
         </Button>
         {previewPageData?.controllerPathType === 'url' ? (
           <iframe
@@ -458,7 +458,7 @@ const PreviewEditModal = ({
           sx={{
             position: 'absolute',
             top: '1px',
-            right: '8px',
+            right: '0.5rem',
             color: 'white',
           }}
         >
@@ -563,7 +563,7 @@ const ModalPageOpener: React.FC<ModalPageOpenerProps> = ({
           backgroundColor: 'red',
           overflow: 'hidden',
           '@media (max-width:600px)': {
-            top: '70px',
+            top: '4.375rem',
           },
         }}
         className="modalPageOpener"
@@ -609,7 +609,7 @@ const ModalPageOpener: React.FC<ModalPageOpenerProps> = ({
             <button
               type="button"
               aria-label="hide"
-              className="md:w-[12px] bg-gray-200 hover:shadow-2xl shadow-blue-800 transition-all transform-all duration-700 ease-in-out"
+              className="md:w-[0.75rem] bg-gray-200 hover:shadow-2xl shadow-blue-800 transition-all transform-all duration-700 ease-in-out"
               onClick={() => {
                 setHistoryPanelOpen((prev) => !prev);
               }}
@@ -659,8 +659,8 @@ const ModalPageOpener: React.FC<ModalPageOpenerProps> = ({
                 }}
                 // style={{ borderRight: '1px solid white' }}
               >
-                <i className="fas fa-eye text-[20px] mr-2 text-white" />
-                <span className="text-white text-[10px]">Preview</span>
+                <i className="fas fa-eye text-[1.25rem] mr-2 text-white" />
+                <span className="text-white text-[0.625rem]">Preview</span>
               </Button>
               <Button
                 className=" w-1/2"
@@ -676,8 +676,8 @@ const ModalPageOpener: React.FC<ModalPageOpenerProps> = ({
                   setHistoryModalOpen(true);
                 }}
               >
-                <i className="fas fa-history text-[20px] mr-2 text-white" />
-                <span className="text-white text-[10px]">History</span>
+                <i className="fas fa-history text-[1.25rem] mr-2 text-white" />
+                <span className="text-white text-[0.625rem]">History</span>
               </Button>
             </div>
           ) : (
@@ -691,8 +691,8 @@ const ModalPageOpener: React.FC<ModalPageOpenerProps> = ({
           onClick={() => onClose()}
           sx={{
             position: 'absolute',
-            top: '8px',
-            right: '8px',
+            top: '0.5rem',
+            right: '0.5rem',
             // color: 'gray',
             // backgroundColor: 'rgba(255, 255, 255, 0.8)',
 
@@ -704,8 +704,8 @@ const ModalPageOpener: React.FC<ModalPageOpenerProps> = ({
 
             backdropFilter: 'blur(8px) brightness(1.2)',
             // '@media (max-width:600px)': {
-            //   top: '70px',
-            //   right: '10px',
+            //   top: '4.375rem',
+            //   right: '0.625rem',
             // },
           }}
         >
@@ -727,7 +727,7 @@ const ModalPageOpener: React.FC<ModalPageOpenerProps> = ({
               left: '40%',
               transform: 'translateX(-40%)',
               color: 'gray',
-              fontSize: '13px',
+              fontSize: '0.8125rem',
               '@media (max-width: 767px)': {
                 display: 'none',
               },
@@ -741,8 +741,8 @@ const ModalPageOpener: React.FC<ModalPageOpenerProps> = ({
               },
             }}
           >
-            <i className="fas fa-eye text-[20px] mr-2 text-slate-950 dark:text-black" />
-            <span className=" text-[10px] text-slate-950 dark:text-black">
+            <i className="fas fa-eye text-[1.25rem] mr-2 text-slate-950 dark:text-black" />
+            <span className=" text-[0.625rem] text-slate-950 dark:text-black">
               Preview
             </span>
           </Button>

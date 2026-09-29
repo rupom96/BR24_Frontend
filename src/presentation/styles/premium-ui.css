@@ -1,0 +1,670 @@
+/* BR24 theme tokens + premium shell/login — light & dark */
+
+/*
+ * Density: html { font-size: 80% } in main.css.
+ * Prefer rem in this file so layout tracks that root (no transform scale).
+ */
+
+:root,
+.light {
+  --br24-bg: #f1f5f9;
+  --br24-bg-elevated: #f8f9fb;
+  --br24-surface: rgba(248, 249, 251, 0.94);
+  --br24-surface-solid: #f8f9fb;
+  --br24-text: #0f172a;
+  --br24-text-muted: #64748b;
+  --br24-text-soft: #94a3b8;
+  --br24-border: rgba(15, 23, 42, 0.1);
+  /* Soft neutrals — avoid pure #fff / #000 (UI readability) */
+  --br24-white: #f8f9fb;
+  --br24-black: #0f172a;
+  /* Accent defaults — runtime ThemeSettings overrides via applyAccentCssVars */
+  --br24-accent: #0d9488;
+  --br24-accent-hover: #0f766e;
+  --br24-accent-strong: #115e59;
+  --br24-accent-soft-fill: #ccfbf1;
+  --br24-accent-soft: rgba(13, 148, 136, 0.12);
+  --br24-glow: rgba(13, 148, 136, 0.22);
+  --br24-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.16);
+  --br24-navbar-bg: rgba(248, 249, 251, 0.92);
+  --br24-profile-bg: rgba(248, 249, 251, 0.97);
+  --br24-profile-backdrop: rgba(15, 23, 42, 0.2);
+  --br24-input-label: rgba(15, 23, 42, 0.65);
+  --br24-input-text: #0f172a;
+  --br24-input-border: rgba(15, 23, 42, 0.18);
+  --br24-login-stage-bg: linear-gradient(
+    145deg,
+    #f8fafc 0%,
+    #eef2ff 42%,
+    #ecfeff 100%
+  );
+}
+
+.dark {
+  --br24-bg: #0b1220;
+  --br24-bg-elevated: #111827;
+  --br24-surface: rgba(15, 23, 42, 0.78);
+  --br24-surface-solid: #1e293b;
+  --br24-text: #e2e8f0;
+  --br24-text-muted: #94a3b8;
+  --br24-text-soft: #64748b;
+  --br24-border: rgba(248, 249, 251, 0.12);
+  --br24-white: #f1f5f9;
+  --br24-black: #020617;
+  /* Do NOT hardcode accent here — ThemeSettings / applyAccentCssVars owns it */
+  --br24-shadow: 0 25px 50px -12px rgba(2, 6, 23, 0.55);
+  --br24-navbar-bg: rgba(15, 23, 42, 0.88);
+  --br24-profile-bg: rgba(30, 41, 59, 0.96);
+  --br24-profile-backdrop: rgba(2, 6, 23, 0.45);
+  --br24-input-label: rgba(226, 232, 240, 0.7);
+  --br24-input-text: #e2e8f0;
+  --br24-input-border: rgba(148, 163, 184, 0.35);
+  --br24-login-stage-bg: radial-gradient(
+      ellipse at 20% 20%,
+      color-mix(in srgb, var(--br24-accent) 18%, transparent),
+      transparent 50%
+    ),
+    #0b1220;
+}
+
+@keyframes br24-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes br24-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes br24-soft-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.75;
+  }
+}
+
+@keyframes br24-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .br24-anim-fade-up,
+  .br24-anim-fade-up-delay,
+  .br24-anim-fade-in,
+  .br24-login-glow,
+  .br24-spinner {
+    animation: none !important;
+  }
+}
+
+.br24-anim-fade-up {
+  animation: br24-fade-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.br24-anim-fade-up-delay {
+  animation: br24-fade-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+}
+
+.br24-anim-fade-in {
+  animation: br24-fade-in 0.5s ease both;
+}
+
+.br24-login-stage {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  overflow: hidden;
+  /* Transparent so tsparticles fullscreen canvas is the page background */
+  background: transparent;
+}
+
+.br24-login-glow {
+  pointer-events: none;
+  position: absolute;
+  z-index: 0;
+  width: 42rem;
+  height: 42rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--br24-glow) 0%, transparent 68%);
+  filter: blur(10px);
+  opacity: 0.55;
+  animation: br24-soft-pulse 7s ease-in-out infinite;
+}
+
+.br24-login-brand {
+  letter-spacing: 0.04em;
+  color: var(--br24-accent);
+}
+
+.br24-login-title {
+  color: var(--br24-text);
+  text-shadow: 0 1px 18px rgba(15, 23, 42, 0.12);
+}
+
+.dark .br24-login-title {
+  text-shadow: 0 1px 22px rgba(0, 0, 0, 0.45);
+}
+
+.br24-login-subtitle {
+  color: var(--br24-text-muted);
+  text-shadow: 0 1px 12px rgba(255, 255, 255, 0.35);
+}
+
+.dark .br24-login-subtitle {
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.4);
+}
+
+.br24-login-card {
+  width: 100%;
+  max-width: 26rem;
+  border-radius: 1.25rem;
+  border: 1px solid var(--br24-border);
+  background: var(--br24-surface);
+  backdrop-filter: blur(18px);
+  box-shadow: var(--br24-shadow);
+  color: var(--br24-text);
+  overflow: hidden;
+}
+
+.br24-login-card-header {
+  border-bottom: 1px solid var(--br24-border);
+  padding: 1rem 1.5rem;
+  text-align: left;
+}
+
+.br24-login-card-kicker {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--br24-accent);
+}
+
+.br24-login-card-title {
+  margin-top: 0.25rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--br24-text);
+}
+
+.br24-login-card-body {
+  padding: 2rem 1.5rem;
+  text-align: left;
+}
+
+.br24-login-card-footer {
+  border-top: 1px solid var(--br24-border);
+  padding: 1rem 1.5rem;
+}
+
+.br24-login-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.8rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--br24-white, #f8f9fb);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--br24-accent) 78%, #000) 0%,
+    var(--br24-accent) 55%,
+    color-mix(in srgb, var(--br24-accent) 70%, #fff) 100%
+  );
+  box-shadow: 0 10px 24px -8px color-mix(in srgb, var(--br24-accent) 55%, transparent);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    filter 0.25s ease;
+}
+
+.br24-login-cta:hover:not(:disabled) {
+  transform: translateY(-1px) scale(1.01);
+  filter: brightness(1.05);
+}
+
+.br24-login-cta:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.br24-login-link {
+  display: inline-block;
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--br24-accent);
+  text-underline-offset: 4px;
+  transition: color 0.2s ease;
+}
+
+.br24-login-link:hover {
+  text-decoration: underline;
+  filter: brightness(1.1);
+}
+
+.br24-shell-navbar {
+  backdrop-filter: blur(12px);
+  background: var(--br24-navbar-bg);
+  border-bottom: 1px solid var(--br24-border);
+  color: var(--br24-text);
+  transition: box-shadow 0.3s ease;
+}
+
+.br24-shell-navbar:hover {
+  box-shadow: 0 8px 24px -16px rgba(15, 23, 42, 0.35);
+}
+
+.dark .br24-shell-navbar:hover {
+  box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.55);
+}
+
+.br24-shell-sidebar {
+  position: relative;
+  isolation: isolate;
+  transition:
+    width 0.3s ease,
+    box-shadow 0.3s ease;
+  color: var(--br24-text);
+}
+
+.br24-page-transition {
+  min-height: inherit;
+  width: 100%;
+  will-change: opacity, transform;
+}
+
+.br24-nav-link {
+  transition:
+    transform 0.22s ease,
+    background-color 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.br24-nav-link:hover {
+  transform: translateX(3px);
+}
+
+.br24-spinner {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 9999px;
+  border: 3px solid var(--br24-accent-soft);
+  border-top-color: var(--br24-accent);
+  animation: br24-spin 0.75s linear infinite;
+}
+
+.br24-profile-panel {
+  position: fixed;
+  top: 4.5rem;
+  right: 1rem;
+  z-index: 10050;
+  width: min(24rem, calc(100vw - 1.5rem));
+  max-height: min(85vh, 40rem);
+  overflow-y: auto;
+  border-radius: 1.25rem;
+  border: 1px solid var(--br24-border);
+  background: var(--br24-profile-bg);
+  color: var(--br24-text);
+  backdrop-filter: blur(16px);
+  box-shadow: var(--br24-shadow);
+  animation: br24-fade-up 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.br24-profile-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10040;
+  background: var(--br24-profile-backdrop);
+  backdrop-filter: blur(2px);
+  animation: br24-fade-in 0.2s ease both;
+}
+
+/* —— Theme Settings panel —— */
+.br24-theme-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 11000;
+  background: rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(6px);
+}
+
+.br24-theme-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 11010;
+  display: flex;
+  flex-direction: column;
+  width: min(22.5rem, 100vw);
+  height: 100vh;
+  padding: 1.25rem 1.35rem 1.5rem;
+  border-left: 1px solid var(--br24-border);
+  background: var(--br24-profile-bg, rgba(255, 255, 255, 0.97));
+  color: var(--br24-text, #0f172a);
+  box-shadow: -18px 0 48px -20px rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(18px);
+}
+
+.br24-theme-panel.dark {
+  background: rgba(30, 41, 59, 0.97);
+  color: #e2e8f0;
+  box-shadow: -18px 0 48px -20px rgba(0, 0, 0, 0.55);
+}
+
+.br24-theme-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.br24-theme-kicker {
+  font-size: 0.7rem;
+  font-weight: 650;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--br24-accent);
+}
+
+.br24-theme-title {
+  margin-top: 0.2rem;
+  font-size: 1.25rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.br24-theme-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 0.85rem;
+  padding: 0.55rem;
+  font-size: 1.5rem;
+  color: var(--br24-text-muted, #64748b);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.br24-theme-close:hover {
+  color: var(--br24-text, #0f172a);
+  background: rgba(148, 163, 184, 0.18);
+  transform: scale(1.05);
+}
+
+.br24-theme-section {
+  margin-bottom: 1.5rem;
+  padding-top: 1.15rem;
+  border-top: 1px solid var(--br24-border, rgba(15, 23, 42, 0.1));
+}
+
+.br24-theme-section-label {
+  margin-bottom: 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--br24-text-muted, #64748b);
+}
+
+.br24-theme-section-hint {
+  margin: -0.35rem 0 0.85rem;
+  font-size: 0.8rem;
+  color: var(--br24-text-soft, #94a3b8);
+}
+
+.br24-theme-mode-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  padding: 0.35rem;
+  border-radius: 0.95rem;
+  background: rgba(148, 163, 184, 0.14);
+}
+
+.br24-theme-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--br24-text-muted, #64748b);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background-color 0.22s ease,
+    color 0.22s ease,
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.br24-theme-mode-btn:hover:not(.is-active) {
+  color: var(--br24-text, #0f172a);
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.dark .br24-theme-mode-btn:hover:not(.is-active),
+.br24-theme-panel.dark .br24-theme-mode-btn:hover:not(.is-active) {
+  background: rgba(15, 23, 42, 0.45);
+  color: #e2e8f0;
+}
+
+.br24-theme-mode-btn.is-active {
+  box-shadow: 0 8px 18px -10px color-mix(in srgb, var(--br24-accent) 70%, transparent);
+}
+
+.br24-theme-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.br24-theme-swatch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border: 2px solid transparent;
+  border-radius: 9999px;
+  cursor: pointer;
+  box-shadow: 0 8px 16px -10px rgba(15, 23, 42, 0.45);
+  transition: box-shadow 0.2s ease;
+}
+
+.br24-theme-swatch.is-selected {
+  border-color: rgba(255, 255, 255, 0.95);
+  box-shadow:
+    0 0 0 2px var(--br24-accent),
+    0 10px 20px -10px rgba(15, 23, 42, 0.5);
+}
+
+.br24-theme-swatch-check {
+  display: inline-flex;
+  font-size: 1.5rem;
+  color: var(--br24-white, #f8f9fb);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+}
+
+.br24-theme-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-top: auto;
+  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  border: 1px solid var(--br24-border, rgba(15, 23, 42, 0.1));
+  background: rgba(148, 163, 184, 0.1);
+}
+
+.br24-theme-preview-dot {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  box-shadow: 0 8px 16px -8px color-mix(in srgb, var(--br24-accent) 65%, transparent);
+}
+
+.br24-theme-preview-label {
+  font-size: 0.7rem;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--br24-text-muted, #64748b);
+}
+
+.br24-theme-preview-value {
+  margin-top: 0.15rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.br24-theme-fab {
+  border: none;
+  border-radius: 9999px;
+  padding: 0.85rem;
+  cursor: pointer;
+  box-shadow: 0 12px 28px -10px color-mix(in srgb, var(--br24-accent) 65%, transparent);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    filter 0.25s ease;
+}
+
+.br24-theme-fab:hover {
+  transform: scale(1.08);
+  filter: brightness(1.05);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .br24-theme-fab,
+  .br24-theme-close,
+  .br24-theme-mode-btn {
+    transition: none !important;
+  }
+}
+
+/*
+ * Safety net: map common Tailwind “default blue button” utilities to accent.
+ * Primary path is tailwind.config.js blue → CSS vars; this catches edge cases.
+ */
+.bg-blue-500,
+.bg-blue-600 {
+  background-color: var(--br24-accent) !important;
+}
+.hover\:bg-blue-700:hover,
+.focus\:bg-blue-700:focus,
+.bg-blue-700 {
+  background-color: var(--br24-accent-hover) !important;
+}
+.active\:bg-blue-900:active,
+.bg-blue-800,
+.bg-blue-900 {
+  background-color: var(--br24-accent-strong) !important;
+}
+.border-blue-700,
+.border-blue-800 {
+  border-color: var(--br24-accent) !important;
+}
+.text-blue-700,
+.text-blue-800,
+.text-blue-900 {
+  color: var(--br24-accent) !important;
+}
+.hover\:text-white:hover {
+  /* keep as-is — white text on accent hover remains correct */
+}
+
+/* MUI contained primary fallback when theme lags a paint */
+.MuiButton-containedPrimary {
+  background-color: var(--br24-accent) !important;
+}
+.MuiButton-containedPrimary:hover {
+  background-color: var(--br24-accent-hover) !important;
+}
+.MuiButton-outlinedPrimary {
+  border-color: var(--br24-accent) !important;
+  color: var(--br24-accent) !important;
+}
+.MuiButton-textPrimary {
+  color: var(--br24-accent) !important;
+}
+.MuiCheckbox-colorPrimary.Mui-checked,
+.MuiRadio-colorPrimary.Mui-checked,
+.MuiSwitch-colorPrimary.Mui-checked {
+  color: var(--br24-accent) !important;
+}
+.MuiSwitch-colorPrimary.Mui-checked + .MuiSwitch-track {
+  background-color: var(--br24-accent) !important;
+}
+
+/*
+ * Soft neutrals: avoid pure #fff / #000 glare (UI/UX).
+ * Tailwind white/black remapped in config; this catches leftover utilities.
+ */
+.bg-white {
+  background-color: var(--br24-white, #f8f9fb) !important;
+}
+.text-white {
+  color: var(--br24-white, #f8f9fb) !important;
+}
+.border-white {
+  border-color: var(--br24-white, #f8f9fb) !important;
+}
+.bg-black {
+  background-color: var(--br24-black, #0f172a) !important;
+}
+.text-black {
+  color: var(--br24-black, #0f172a) !important;
+}
+.border-black {
+  border-color: var(--br24-black, #0f172a) !important;
+}
+.hover\:text-white:hover {
+  color: var(--br24-white, #f8f9fb) !important;
+}
+.hover\:bg-white:hover {
+  background-color: var(--br24-white, #f8f9fb) !important;
+}
+
+/* MUI paper/default surfaces follow soft white/black via theme; reinforce light paper */
+.MuiPaper-root {
+  --Paper-overlay: none;
+}

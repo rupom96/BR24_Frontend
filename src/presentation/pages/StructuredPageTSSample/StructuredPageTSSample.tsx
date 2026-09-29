@@ -197,7 +197,7 @@ const StructuredPageTSSample = () => {
     //     // borderLeft: '1px solid #e0e0e0',
     //     // borderTop: '1px solid #e0e0e0',
     //     // borderBottom: '1px solid #e0e0e0',
-    //     fontSize: '13px',
+    //     fontSize: '0.8125rem',
     //   },
     // },
     muiTableBodyCellProps: {
@@ -206,7 +206,7 @@ const StructuredPageTSSample = () => {
         // borderLeft: '1px solid #e0e0e0',
         // borderTop: '1px solid #e0e0e0',
         // borderBottom: '1px solid #e0e0e0',
-        fontSize: '13px',
+        fontSize: '0.8125rem',
       },
     },
 
@@ -216,12 +216,12 @@ const StructuredPageTSSample = () => {
         // borderLeft: '1px solid #e0e0e0',
         borderTop: '1px solid #e0e0e0',
         // borderBottom: '1px solid #e0e0e0',
-        fontSize: '13px',
+        fontSize: '0.8125rem',
         whiteSpace: 'nowrap',
       },
     },
 
-    muiTableContainerProps: { sx: { maxHeight: '380px' } },
+    muiTableContainerProps: { sx: { maxHeight: '23.75rem' } },
     onSortingChange: setSorting,
     state: { isLoading, sorting },
     rowVirtualizerInstanceRef, // optional

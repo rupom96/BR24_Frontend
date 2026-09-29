@@ -6,9 +6,10 @@ alwaysApply: false
 
 # ApiSlice rules
 
-- Prefer `createApi` + `fetchBaseQuery`; `controllerName` must match ASP.NET controller short name.
+- Prefer `createApi` + `createAuthenticatedBaseQuery(controllerName)` from `./shared/createAuthenticatedBaseQuery` for new/migrated slices (legacy: inline `fetchBaseQuery` + `getToken()` still exists).
+- `controllerName` must match ASP.NET controller short name.
 - Base URL: `window.API_BASE_URL` (includes `/api`). Never hardcode hosts.
-- `prepareHeaders`: Bearer via `getToken()` from `jwtTokenManager`.
+- Shared RTK helpers live under `src/infrastructure/api/shared/` — do not drop non-slice utilities next to `*ApiSlice.ts`.
 - Register new slices in `src/application/Redux/store/store.ts` (reducer + middleware).
 - Common write URL: `'process'` when matching backend `POST .../process`.
 - If multiple slice styles exist, ask which to copy for **new** slices — do not invent a third pattern.

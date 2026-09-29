@@ -645,7 +645,7 @@
 //   const autoCompResStyles: AutoCompResStyles = {
 //     popper: {
 //       maxWidth: 'fit-content',
-//       fontSize: '12px',
+//       fontSize: '0.75rem',
 //     },
 //   };
 
@@ -1006,7 +1006,7 @@
 //               type="text"
 //               sx={{ width: '100%' }}
 //               InputProps={{
-//                 style: { fontSize: 13 },
+//                 style: { fontSize: '0.8125rem' },
 //                 disableUnderline: true,
 //               }}
 //               variant="standard"
@@ -1090,7 +1090,7 @@
 //                       {...params}
 //                       InputProps={{
 //                         ...params.InputProps,
-//                         style: { fontSize: 13 },
+//                         style: { fontSize: '0.8125rem' },
 //                         disableUnderline: true,
 //                       }}
 //                       variant="standard"
@@ -1099,7 +1099,7 @@
 //                       helperText={error ? error.message : null}
 //                       FormHelperTextProps={{
 //                         sx: {
-//                           fontSize: 10,
+//                           fontSize: '0.625rem',
 //                           marginTop: 0,
 //                           color: 'red',
 //                         },
@@ -1195,7 +1195,7 @@
 //               type="number"
 //               sx={{ width: '100%' }}
 //               InputProps={{
-//                 style: { fontSize: 13 },
+//                 style: { fontSize: '0.8125rem' },
 //                 disableUnderline: true,
 //               }}
 //               variant="standard"
@@ -1230,11 +1230,11 @@
 //               <Box
 //                 sx={{
 //                   width: '100%',
-//                   minHeight: 32,
+//                   minHeight: '2rem',
 //                   display: 'flex',
 //                   alignItems: 'center',
 //                   px: 1,
-//                   fontSize: 13,
+//                   fontSize: '0.8125rem',
 //                 }}
 //               />
 //             );
@@ -1248,12 +1248,12 @@
 //             <Box
 //               sx={{
 //                 width: '100%',
-//                 minHeight: 32,
+//                 minHeight: '2rem',
 //                 display: 'flex',
 //                 alignItems: 'center',
 //                 px: 1,
 //                 cursor: 'pointer',
-//                 fontSize: 13,
+//                 fontSize: '0.8125rem',
 //                 color: readOnly ? '#6e6e6e' : 'black',
 //               }}
 //               onClick={() => {
@@ -1322,7 +1322,7 @@
 //                       {...params}
 //                       InputProps={{
 //                         ...params.InputProps,
-//                         style: { fontSize: 13 },
+//                         style: { fontSize: '0.8125rem' },
 //                         disableUnderline: true,
 //                       }}
 //                       variant="standard"
@@ -1331,7 +1331,7 @@
 //                       helperText={error ? error.message : null}
 //                       FormHelperTextProps={{
 //                         sx: {
-//                           fontSize: 10,
+//                           fontSize: '0.625rem',
 //                           marginTop: 0,
 //                           color: 'red',
 //                         },
@@ -1360,7 +1360,7 @@
 //               type="text"
 //               sx={{ width: '100%' }}
 //               InputProps={{
-//                 style: { fontSize: 13 },
+//                 style: { fontSize: '0.8125rem' },
 //                 disableUnderline: true,
 //                 readOnly:
 //                   !row.original.chequeNo || row.original.cqdCollected !== 'D',
@@ -1397,7 +1397,7 @@
 //               type="text"
 //               sx={{ width: '100%' }}
 //               InputProps={{
-//                 style: { fontSize: 13 },
+//                 style: { fontSize: '0.8125rem' },
 //                 disableUnderline: true,
 //                 readOnly: !row.original.chequeNo,
 //               }}
@@ -1468,7 +1468,7 @@
 //       onColumnVisibilityChange: setColumnVisibility,
 //       muiSkeletonProps: {
 //         animation: 'pulse',
-//         height: 30,
+//         height: '1.875rem',
 //       },
 //       enableRowVirtualization: true,
 //       enableBottomToolbar: false,
@@ -1492,7 +1492,7 @@
 //       },
 //       muiTableBodyCellProps: {
 //         sx: {
-//           fontSize: '13px',
+//           fontSize: '0.8125rem',
 //           color: '#ea1143',
 //         },
 //       },
@@ -1500,7 +1500,7 @@
 //         sx: {
 //           borderRight: '1px solid #e0e0e0',
 //           borderTop: '1px solid #e0e0e0',
-//           fontSize: '13px',
+//           fontSize: '0.8125rem',
 //           whiteSpace: 'nowrap',
 //           backgroundColor: '#ECEFF9',
 //           color: '#1c1c1c',
@@ -1508,7 +1508,7 @@
 //         },
 //       },
 
-//       muiTableContainerProps: { sx: { maxHeight: '400px' } },
+//       muiTableContainerProps: { sx: { maxHeight: '25rem' } },
 //       renderToolbarInternalActions: ({ table }) => (
 //         <>
 //           <MRT_ToggleGlobalFilterButton table={table} />
@@ -1521,7 +1521,7 @@
 //               type="button"
 //               data-mdb-ripple="true"
 //               data-mdb-ripple-color="light"
-//               className="inline-block px-[6px] py-1 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
+//               className="inline-block px-[0.375rem] py-1 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
 //               onClick={() => {
 //                 handleExportData(chequeDetailGrid, chequeDetailGridColumns);
 //               }}
@@ -1597,7 +1597,7 @@
 //             top: '50%',
 //             left: '50%',
 //             transform: 'translate(-50%, -50%)',
-//             width: 420,
+//             width: '26.25rem',
 //             bgcolor: 'background.paper',
 //             boxShadow: 24,
 //             p: 3,
@@ -1646,7 +1646,7 @@
 //                   fullWidth
 //                   InputProps={{
 //                     ...params.InputProps,
-//                     style: { fontSize: 13 },
+//                     style: { fontSize: '0.8125rem' },
 //                   }}
 //                 />
 //               )}
@@ -1666,7 +1666,7 @@
 //                     fullWidth
 //                     InputProps={{
 //                       ...params.InputProps,
-//                       style: { fontSize: 13 },
+//                       style: { fontSize: '0.8125rem' },
 //                     }}
 //                   />
 //                 )}
@@ -1688,7 +1688,7 @@
 //                       fullWidth
 //                       InputProps={{
 //                         ...params.InputProps,
-//                         style: { fontSize: 13 },
+//                         style: { fontSize: '0.8125rem' },
 //                       }}
 //                     />
 //                   )}

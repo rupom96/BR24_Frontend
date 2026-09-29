@@ -183,7 +183,7 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
     popper: {
       maxWidth: 'fit-content',
       // minWidth: 'inherit',
-      fontSize: '12px',
+      fontSize: '0.75rem',
     },
   };
   const PopperMy = useCallback(
@@ -264,10 +264,10 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
             }}
           >
             <Checkbox
-              sx={{ '& .MuiSvgIcon-root': { fontSize: 20 } }}
+              sx={{ '& .MuiSvgIcon-root': { fontSize: '1.25rem' } }}
               checked={false}
             />
-            <span className=" text-[13px]">Unselect All</span>
+            <span className=" text-[0.8125rem]">Unselect All</span>
           </div>
         ), // custom header markup
         Cell: ({ renderedCellValue, row }) => {
@@ -303,7 +303,7 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
               }}
             >
               <Checkbox
-                sx={{ '& .MuiSvgIcon-root': { fontSize: 20 } }}
+                sx={{ '& .MuiSvgIcon-root': { fontSize: '1.25rem' } }}
                 checked
               />
             </div>
@@ -358,7 +358,7 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
               type="text"
               sx={{ width: '100%' }}
               InputProps={{
-                style: { fontSize: 13 },
+                style: { fontSize: '0.8125rem' },
                 disableUnderline: true,
                 readOnly: true,
               }}
@@ -387,7 +387,7 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
               type="number"
               sx={{ width: '100%' }}
               InputProps={{
-                style: { fontSize: 13 },
+                style: { fontSize: '0.8125rem' },
                 disableUnderline: true,
                 // readOnly: true,
               }}
@@ -420,7 +420,7 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
               type="text"
               sx={{ width: '100%' }}
               InputProps={{
-                style: { fontSize: 13 },
+                style: { fontSize: '0.8125rem' },
                 disableUnderline: true,
                 // readOnly: true,
               }}
@@ -450,7 +450,7 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
               type="text"
               sx={{ width: '100%' }}
               InputProps={{
-                style: { fontSize: 13 },
+                style: { fontSize: '0.8125rem' },
                 disableUnderline: true,
                 // readOnly: true,
               }}
@@ -480,7 +480,7 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
               type="number"
               sx={{ width: '100%' }}
               InputProps={{
-                style: { fontSize: 13 },
+                style: { fontSize: '0.8125rem' },
                 disableUnderline: true,
                 // readOnly: true,
               }}
@@ -583,10 +583,10 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
             }}
           >
             <Checkbox
-              sx={{ '& .MuiSvgIcon-root': { fontSize: 20 } }}
+              sx={{ '& .MuiSvgIcon-root': { fontSize: '1.25rem' } }}
               checked={false}
             />
-            <span className=" text-[13px]">Select All</span>
+            <span className=" text-[0.8125rem]">Select All</span>
           </div>
         ), // custom header markup
         id: 'unselect',
@@ -619,7 +619,7 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
               }}
             >
               <Checkbox
-                sx={{ '& .MuiSvgIcon-root': { fontSize: 20 } }}
+                sx={{ '& .MuiSvgIcon-root': { fontSize: '1.25rem' } }}
                 checked={false}
               />
             </div>
@@ -638,7 +638,7 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
               type="text"
               sx={{ width: '100%' }}
               InputProps={{
-                style: { fontSize: 13 },
+                style: { fontSize: '0.8125rem' },
                 disableUnderline: true,
                 readOnly: true,
               }}
@@ -665,7 +665,7 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
               type="text"
               sx={{ width: '100%' }}
               InputProps={{
-                style: { fontSize: 13 },
+                style: { fontSize: '0.8125rem' },
                 disableUnderline: true,
                 readOnly: true,
               }}
@@ -692,7 +692,7 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
               type="text"
               sx={{ width: '100%' }}
               InputProps={{
-                style: { fontSize: 13 },
+                style: { fontSize: '0.8125rem' },
                 disableUnderline: true,
                 readOnly: true,
               }}
@@ -718,7 +718,7 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
               type="text"
               sx={{ width: '100%' }}
               InputProps={{
-                style: { fontSize: 13 },
+                style: { fontSize: '0.8125rem' },
                 disableUnderline: true,
                 readOnly: true,
               }}
@@ -744,7 +744,7 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
               type="number"
               sx={{ width: '100%' }}
               InputProps={{
-                style: { fontSize: 13 },
+                style: { fontSize: '0.8125rem' },
                 disableUnderline: true,
                 readOnly: true,
               }}
@@ -822,7 +822,7 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
       onColumnVisibilityChange: setColumnVisibility,
       muiSkeletonProps: {
         animation: 'pulse',
-        height: 40,
+        height: '2.5rem',
       },
       enableBottomToolbar: false,
       enableColumnResizing: true,
@@ -870,7 +870,7 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
       muiTableBodyCellProps: {
         sx: {
           // borderRight: '1px solid #e0e0e0', // add a border between columns //eigulla shobi use kora jaay but comment out kora
-          fontSize: '13px',
+          fontSize: '0.8125rem',
           color: '#ea1143',
         },
       },
@@ -880,7 +880,7 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
           // borderLeft: '1px solid #e0e0e0',
           borderTop: '1px solid #e0e0e0',
           // borderBottom: '1px solid #e0e0e0',
-          fontSize: '13px',
+          fontSize: '0.8125rem',
           whiteSpace: 'nowrap',
           backgroundColor: '#ECEFF9',
           color: '#1c1c1c',
@@ -888,7 +888,7 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
         },
       },
 
-      muiTableContainerProps: { sx: { maxHeight: '500px' } },
+      muiTableContainerProps: { sx: { maxHeight: '31.25rem' } },
       renderToolbarInternalActions: ({ table }) => (
         <>
           {/* built-in buttons (must pass in table prop for them to work!) */}
@@ -902,7 +902,7 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
               type="button"
               data-mdb-ripple="true"
               data-mdb-ripple-color="light"
-              className="inline-block px-[6px] py-1 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
+              className="inline-block px-[0.375rem] py-1 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
               onClick={() => {
                 //   handleExportData(
                 //     purchaseComparativeSheetGridState,
@@ -919,7 +919,7 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
 
       renderTopToolbarCustomActions: ({ table }) => (
         <div className="">
-          <p className=" mt-1 font-bold text-[13px]">Selected</p>
+          <p className=" mt-1 font-bold text-[0.8125rem]">Selected</p>
         </div>
       ),
 
@@ -966,7 +966,7 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
       onColumnVisibilityChange: columnVisibility,
       muiSkeletonProps: {
         animation: 'pulse',
-        height: 40,
+        height: '2.5rem',
       },
       enableBottomToolbar: false,
       enableColumnResizing: true,
@@ -1002,7 +1002,7 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
       muiTableBodyCellProps: {
         sx: {
           // borderRight: '1px solid #e0e0e0', // add a border between columns //eigulla shobi use kora jaay but comment out kora
-          fontSize: '13px',
+          fontSize: '0.8125rem',
           color: '#ea1143',
         },
       },
@@ -1012,7 +1012,7 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
           // borderLeft: '1px solid #e0e0e0',
           borderTop: '1px solid #e0e0e0',
           // borderBottom: '1px solid #e0e0e0',
-          fontSize: '13px',
+          fontSize: '0.8125rem',
           whiteSpace: 'nowrap',
           backgroundColor: '#ECEFF9',
           color: '#1c1c1c',
@@ -1020,7 +1020,7 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
         },
       },
       // onGlobalFilterChange: setGlobalFilter, // Update global filter value
-      muiTableContainerProps: { sx: { maxHeight: '500px' } },
+      muiTableContainerProps: { sx: { maxHeight: '31.25rem' } },
       renderToolbarInternalActions: ({ table }) => {
         return (
           <>
@@ -1032,9 +1032,9 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
               {/* <TextField
                 type="text"
                 sx={{ width: '100%' }}
-                InputProps={{ style: { fontSize: 13 } }}
+                InputProps={{ style: { fontSize: '0.8125rem' } }}
                 InputLabelProps={{
-                  style: { fontSize: 14 },
+                  style: { fontSize: '0.875rem' },
                   shrink: !!globalFilter,
                 }}
                 onChange={(e) => setGlobalFilter(e.target.value || '')}
@@ -1058,7 +1058,7 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
                 type="button"
                 data-mdb-ripple="true"
                 data-mdb-ripple-color="light"
-                className="inline-block px-[6px] py-1 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
+                className="inline-block px-[0.375rem] py-1 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
                 onClick={() => {
                   //   handleExportData(
                   //     purchaseComparativeSheetGridState,
@@ -1076,7 +1076,7 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
 
       renderTopToolbarCustomActions: ({ table }) => (
         <div className="">
-          <p className=" mt-1 font-bold text-[13px]">UnSelected</p>
+          <p className=" mt-1 font-bold text-[0.8125rem]">UnSelected</p>
         </div>
       ),
 
@@ -1202,7 +1202,7 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
           }}
         >
           <div className="flex gap-2">
-            <List style={{ overflowY: 'auto', maxHeight: '247px' }}>
+            <List style={{ overflowY: 'auto', maxHeight: '15.4375rem' }}>
               {allButtonsByBiznessEventProcessConfig.map(
                 (row: IPCButtonListDto, index: number) => {
                   const existsInArray = currentButtonData.some(
@@ -1237,13 +1237,13 @@ const DualListSelectorWithGrid: React.FC<DualListSelectorWithGridProps> = ({
                       sx={{ paddingY: 0 }}
                     >
                       <Checkbox
-                        sx={{ '& .MuiSvgIcon-root': { fontSize: 18 } }}
+                        sx={{ '& .MuiSvgIcon-root': { fontSize: '1.125rem' } }}
                         checked={existsInArray}
                         disabled={calledFrom === 'unselected'}
                       />
                       <ListItemText
                         primary={row.biznessEventPCPageGenActionName}
-                        sx={{ '& .MuiTypography-root': { fontSize: '13px' } }}
+                        sx={{ '& .MuiTypography-root': { fontSize: '0.8125rem' } }}
                       />
                     </ListItem>
                   );

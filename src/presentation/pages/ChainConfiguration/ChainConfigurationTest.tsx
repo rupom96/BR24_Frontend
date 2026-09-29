@@ -838,7 +838,7 @@
 //     popper: {
 //       maxWidth: 'fit-content',
 //       // minWidth: 'inherit',
-//       fontSize: '12px',
+//       fontSize: '0.75rem',
 //     },
 //   };
 //   const PopperMy = useCallback(
@@ -1046,7 +1046,7 @@
 //                   // onBlur={() => { console.log(this) }}
 //                   InputProps={{
 //                     ...params.InputProps,
-//                     style: { fontSize: 13 },
+//                     style: { fontSize: '0.8125rem' },
 //                     disableUnderline: true,
 //                   }}
 //                   variant="standard"
@@ -1071,7 +1071,7 @@
 //               type="text"
 //               sx={{ width: '100%' }}
 //               InputProps={{
-//                 style: { fontSize: 13 },
+//                 style: { fontSize: '0.8125rem' },
 //                 disableUnderline: true,
 //                 // readOnly: true,
 //               }}
@@ -1238,7 +1238,7 @@
 //       onColumnVisibilityChange: columnVisibility,
 //       muiSkeletonProps: {
 //         animation: 'pulse',
-//         height: 40,
+//         height: '2.5rem',
 //       },
 //       enableBottomToolbar: false,
 //       enableColumnResizing: true,
@@ -1282,7 +1282,7 @@
 //       muiTableBodyCellProps: {
 //         sx: {
 //           // borderRight: '1px solid #e0e0e0', // add a border between columns //eigulla shobi use kora jaay but comment out kora
-//           fontSize: '13px',
+//           fontSize: '0.8125rem',
 //           color: '#ea1143',
 //         },
 //       },
@@ -1292,7 +1292,7 @@
 //           // borderLeft: '1px solid #e0e0e0',
 //           borderTop: '1px solid #e0e0e0',
 //           // borderBottom: '1px solid #e0e0e0',
-//           fontSize: '13px',
+//           fontSize: '0.8125rem',
 //           whiteSpace: 'nowrap',
 //           backgroundColor: '#ECEFF9',
 //           color: '#1c1c1c',
@@ -1300,7 +1300,7 @@
 //         },
 //       },
 
-//       muiTableContainerProps: { sx: { maxHeight: '500px' } },
+//       muiTableContainerProps: { sx: { maxHeight: '31.25rem' } },
 //       renderToolbarInternalActions: ({ table }) => (
 //         <>
 //           {/* built-in buttons (must pass in table prop for them to work!) */}
@@ -1314,7 +1314,7 @@
 //               type="button"
 //               data-mdb-ripple="true"
 //               data-mdb-ripple-color="light"
-//               className="inline-block px-[6px] py-1 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
+//               className="inline-block px-[0.375rem] py-1 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
 //               onClick={() => {
 //                 //   handleExportData(
 //                 //     purchaseComparativeSheetGridState,
@@ -1331,7 +1331,7 @@
 
 //       renderTopToolbarCustomActions: ({ table }) => (
 //         <div className="">
-//           <p className=" mt-1 font-bold text-[13px]">
+//           <p className=" mt-1 font-bold text-[0.8125rem]">
 //             Process Congituration Grid
 //           </p>
 //         </div>
@@ -3627,11 +3627,11 @@
 //                               helperText={error ? error.message : null}
 //                               InputLabelProps={{
 //                                 ...params.InputLabelProps,
-//                                 style: { fontSize: 14 },
+//                                 style: { fontSize: '0.875rem' },
 //                               }}
 //                               InputProps={{
 //                                 ...params.InputProps,
-//                                 style: { fontSize: 13 },
+//                                 style: { fontSize: '0.8125rem' },
 //                               }}
 //                               sx={{ width: '100%', marginTop: 1 }}
 //                               inputRef={ref}
@@ -3933,9 +3933,9 @@
 //                       type=""
 //                       value={value || ''}
 //                       sx={{ width: '100%' }}
-//                       InputProps={{ style: { fontSize: 13 } }}
+//                       InputProps={{ style: { fontSize: '0.8125rem' } }}
 //                       InputLabelProps={{
-//                         style: { fontSize: 14 },
+//                         style: { fontSize: '0.875rem' },
 //                         shrink: value,
 //                       }}
 //                       // onBlur={onBlur} // Trigger validation on blur
@@ -3971,9 +3971,9 @@
 //                       type=""
 //                       value={value || ''}
 //                       sx={{ width: '100%' }}
-//                       InputProps={{ style: { fontSize: 13 } }}
+//                       InputProps={{ style: { fontSize: '0.8125rem' } }}
 //                       InputLabelProps={{
-//                         style: { fontSize: 14 },
+//                         style: { fontSize: '0.875rem' },
 //                         shrink: value,
 //                       }}
 //                       // onBlur={onBlur} // Trigger validation on blur
@@ -4009,9 +4009,9 @@
 //                     type=""
 //                     value={value || ''}
 //                     sx={{ width: '100%' }}
-//                     InputProps={{ style: { fontSize: 13 } }}
+//                     InputProps={{ style: { fontSize: '0.8125rem' } }}
 //                     InputLabelProps={{
-//                       style: { fontSize: 14 },
+//                       style: { fontSize: '0.875rem' },
 //                       shrink: value,
 //                     }}
 //                     // onBlur={onBlur} // Trigger validation on blur
@@ -4046,9 +4046,9 @@
 //                       type="number"
 //                       value={value || ''}
 //                       sx={{ width: '100%' }}
-//                       InputProps={{ style: { fontSize: 13 } }}
+//                       InputProps={{ style: { fontSize: '0.8125rem' } }}
 //                       InputLabelProps={{
-//                         style: { fontSize: 14 },
+//                         style: { fontSize: '0.875rem' },
 //                         shrink: value,
 //                       }}
 //                       // onBlur={onBlur} // Trigger validation on blur
@@ -4084,9 +4084,9 @@
 //                       type="number"
 //                       value={value || ''}
 //                       sx={{ width: '100%' }}
-//                       InputProps={{ style: { fontSize: 13 } }}
+//                       InputProps={{ style: { fontSize: '0.8125rem' } }}
 //                       InputLabelProps={{
-//                         style: { fontSize: 14 },
+//                         style: { fontSize: '0.875rem' },
 //                         shrink: value,
 //                       }}
 //                       // onBlur={onBlur} // Trigger validation on blur
@@ -4122,9 +4122,9 @@
 //                       type=""
 //                       value={value || ''}
 //                       sx={{ width: '100%' }}
-//                       InputProps={{ style: { fontSize: 13 } }}
+//                       InputProps={{ style: { fontSize: '0.8125rem' } }}
 //                       InputLabelProps={{
-//                         style: { fontSize: 14 },
+//                         style: { fontSize: '0.875rem' },
 //                         shrink: value,
 //                       }}
 //                       // onBlur={onBlur} // Trigger validation on blur
@@ -4160,9 +4160,9 @@
 //                       type=""
 //                       value={value || ''}
 //                       sx={{ width: '100%' }}
-//                       InputProps={{ style: { fontSize: 13 } }}
+//                       InputProps={{ style: { fontSize: '0.8125rem' } }}
 //                       InputLabelProps={{
-//                         style: { fontSize: 14 },
+//                         style: { fontSize: '0.875rem' },
 //                         shrink: value,
 //                       }}
 //                       // onBlur={onBlur} // Trigger validation on blur
@@ -4261,9 +4261,9 @@
 //                       type=""
 //                       value={value || ''}
 //                       sx={{ width: '100%' }}
-//                       InputProps={{ style: { fontSize: 13 } }}
+//                       InputProps={{ style: { fontSize: '0.8125rem' } }}
 //                       InputLabelProps={{
-//                         style: { fontSize: 14 },
+//                         style: { fontSize: '0.875rem' },
 //                         shrink: value,
 //                       }}
 //                       // onBlur={onBlur} // Trigger validation on blur

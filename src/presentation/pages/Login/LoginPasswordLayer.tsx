@@ -34,6 +34,12 @@ import {
   useAppDispatch,
   useAppSelector,
 } from '../../../application/Redux/store/store';
+import {
+  LoginShell,
+  getLoginParticleTheme,
+  loginFieldSx,
+  loginLabelSx,
+} from '../../components/LoginShell';
 
 const API_BASE_URL = window.API_BASE_URL;
 // import { loadBasic } from "@tsparticles/basic"; // if you are going to use `loadBasic`, install the "@tsparticles/basic" package too.
@@ -50,6 +56,10 @@ const LoginPasswordLayer = (props: Props) => {
   const [loading, setLoading] = useState(false);
 
   const dispatch = useAppDispatch();
+  const currentMode = useAppSelector((state) => state.currentMode.mode);
+  const currentColor = useAppSelector((state) => state.currentColor.color);
+  const isDark = currentMode === 'Dark';
+  const particleTheme = getLoginParticleTheme(isDark, currentColor);
   dispatch(setNavbarShow(false));
   dispatch(setPanelShow(false));
 
@@ -79,7 +89,7 @@ const LoginPasswordLayer = (props: Props) => {
       autoPlay: true,
       background: {
         color: {
-          value: '#eae9f0', // background color
+          value: particleTheme.background, // background color
         },
         // image:
         //   "url('http://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/NASA_logo.svg/1237px-NASA_logo.svg.png')",
@@ -103,11 +113,11 @@ const LoginPasswordLayer = (props: Props) => {
       delay: 0,
       fullScreen: {
         enable: true,
-        zIndex: -1,
+        zIndex: 0,
       },
       detectRetina: true,
       duration: 0,
-      fpsLimit: 200,
+      fpsLimit: 48,
       interactivity: {
         detectsOn: 'window',
         events: {
@@ -261,7 +271,7 @@ const LoginPasswordLayer = (props: Props) => {
           },
         },
         color: {
-          value: '#000000', // particle color !!!!
+          value: particleTheme.particle, // particle color !!!!
           animation: {
             h: {
               count: 0,
@@ -373,7 +383,7 @@ const LoginPasswordLayer = (props: Props) => {
             mode: 'delete',
             value: 0,
           },
-          value: 160,
+          value: isDark ? 55 : 40,
         },
         opacity: {
           value: {
@@ -539,13 +549,13 @@ const LoginPasswordLayer = (props: Props) => {
         links: {
           blink: false,
           color: {
-            value: '#fff',
+            value: particleTheme.link,
           },
           consent: false,
-          distance: 100,
-          enable: false,
+          distance: 130,
+          enable: true,
           frequency: 1,
-          opacity: 1,
+          opacity: isDark ? 0.35 : 0.28,
           shadow: {
             blur: 5,
             color: {
@@ -585,7 +595,7 @@ const LoginPasswordLayer = (props: Props) => {
         },
       },
     }),
-    []
+    [isDark, particleTheme.background, particleTheme.particle, particleTheme.link]
   );
 
   // if (init) {
@@ -702,145 +712,71 @@ const LoginPasswordLayer = (props: Props) => {
   return (
     <>
       <Particles
-        id="tsparticles"
+        id="tsparticles-password"
         particlesLoaded={particlesLoaded}
         options={options}
       />
 
-      <div className="  bg-transparent w-full h-[100vh] md:flex justify-center items-center">
-        <div className="block md:w-1/4 w-full z-[0]">BIZROOTS BrainWave</div>
-        <div className="block md:w-1/4 md:mx-0 mx-5 z-[0]">
-          {/* Main Card */}
-          <div className=" block rounded-lg shadow-lg bg-transparent backdrop-blur-sm dark:bg-secondary-dark-bg  text-center">
-            {/* Main Card header */}
-            <div className="py-3 bg-transparent backdrop-blur-md text-xl dark:text-gray-200 text-start px-6 border-b border-gray-300">
-              {/* -----[Laboratory experimental place starts here]----- */}
-              LOGIN
-              {/* ---//--[Laboratory experimental place ENDS here]----- */}
-            </div>
-            {/* Main Card header--/-- */}
-
-            {/* Main Card body */}
-            <div className=" px-6 text-start h-[70vh] gap-4 mt-2">
-              <div className=" mx-1">
-                <div className="mt-4">
-                  {/* <Controller
-                    name="password"
-                    control={control}
-                    render={({ field }) => (
-                      <TextField
-                        // eslint-disable-next-line react/jsx-props-no-spreading
-                        {...field}
-                        sx={{ width: '100%', borderRadius: '50px' }}
-                        InputProps={{ style: { fontSize: 13 } }}
-                        InputLabelProps={{
-                          style: { fontSize: 14 },
-                          //   shrink: field.value,
-                          // shrink: (field.value ? true : false)
-                        }}
-                        id=""
-                        label="Password"
-                        variant="outlined"
-                        size="small"
-                        placeholder="Enter Password"
-                      />
-                    )}
-                  /> */}
-
-                  {/* <FormControl
-                    sx={{ m: 1, width: '100%' }}
-                    size="small"
-                    variant="outlined"
-                  >
-                    <InputLabel htmlFor="outlined-adornment-username">
-                      User Name
-                    </InputLabel>
-                    <OutlinedInput
-                      {...register('userName')}
-                      id="outlined-adornment-username"
-                      type="text"
-                      endAdornment={
-                        <InputAdornment position="end">
-                          <AccountCircle />
-                        </InputAdornment>
-                      }
-                      label="User Name"
-                    />
-                  </FormControl> */}
-
-                  <FormControl
-                    sx={{ m: 1, width: '100%' }}
-                    size="small"
-                    variant="outlined"
-                  >
-                    <InputLabel htmlFor="outlined-adornment-password">
-                      Password
-                    </InputLabel>
-                    <OutlinedInput
-                      id="outlined-adornment-password"
-                      {...register('password')}
-                      type={showPassword ? 'text' : 'password'}
-                      endAdornment={
-                        <InputAdornment position="end">
-                          <IconButton
-                            aria-label="toggle password visibility"
-                            onClick={handleClickShowPassword}
-                            onMouseDown={handleMouseDownPassword}
-                            edge="end"
-                          >
-                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </InputAdornment>
-                      }
-                      onKeyPress={(event) => {
-                        if (event.key === 'Enter') {
-                          btnLogin();
-                        }
-                      }}
-                      label="Password"
-                    />
-                  </FormControl>
-                  <Link
-                    to="/forgotPasswordCompanyLocationSelect"
-                    style={{ color: 'blue', textDecoration: 'underline' }}
-                  >
-                    Forgot Password?
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            {/* Main Card Body--/-- */}
-
-            {/* Main Card footer */}
-            <div className="py-3 px-6 border-t text-start border-gray-300 text-gray-600">
-              <div className="flex gap-x-3">
-                <button
-                  type="button"
-                  data-mdb-ripple="true"
-                  data-mdb-ripple-color="light"
-                  className={`inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out ${
-                    loading ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
-                  onClick={() => {
-                    btnLogin();
+      <LoginShell
+        title="Password"
+        subtitle="Enter your password to unlock the workspace."
+        footer={
+          <button
+            type="button"
+            className="br24-login-cta"
+            onClick={() => {
+              btnLogin();
+            }}
+            disabled={loading}
+          >
+            {loading && <CircularProgress size={14} color="inherit" />}
+            {loading ? 'Please wait…' : 'Login'}
+          </button>
+        }
+      >
+        <FormControl sx={{ width: '100%' }} size="small" variant="outlined">
+          <InputLabel
+            htmlFor="outlined-adornment-password"
+            sx={loginLabelSx(isDark)}
+          >
+            Password
+          </InputLabel>
+          <OutlinedInput
+            id="outlined-adornment-password"
+            {...register('password')}
+            type={showPassword ? 'text' : 'password'}
+            endAdornment={
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="toggle password visibility"
+                  onClick={handleClickShowPassword}
+                  onMouseDown={handleMouseDownPassword}
+                  edge="end"
+                  sx={{
+                    color: isDark ? 'rgba(148,163,184,0.95)' : '#64748b',
                   }}
-                  disabled={loading} // Disable the button when loading
                 >
-                  {loading && <CircularProgress size={12} color="inherit" />}
-                  {'  '}
-                  {loading ? ' Please wait...' : 'Login'}
-                </button>
-              </div>
-            </div>
-            {/* Main Card footer--/-- */}
-          </div>
-          {/* Main Card--/-- */}
-        </div>
-      </div>
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            }
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                btnLogin();
+              }
+            }}
+            label="Password"
+            sx={loginFieldSx(isDark, currentColor)}
+          />
+        </FormControl>
+        <Link
+          to="/forgotPasswordCompanyLocationSelect"
+          className="br24-login-link"
+        >
+          Forgot Password?
+        </Link>
+      </LoginShell>
     </>
-
-    // return wrapper div--/--
   );
 };
 

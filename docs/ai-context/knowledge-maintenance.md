@@ -76,6 +76,10 @@ After extraction, spot-check that new controllers/pages appear. Fix extractor fi
 
 Never copy connection strings, JWT keys, SMTP passwords, or SendGrid API keys into `/docs`. Document **setting names** only.
 
-## Deferred work note
+## Deferred / residual after Phase 5
 
-Frontend npm upgrades and UI polish are a **separate phase** after onboarding. When that phase runs, update stack versions in docs and re-extract if package-driven structure changes (usually narrative-only for version bumps).
+Phase 5 (2026-09-28) applied controlled FE dependency upgrades (no Vite/React/MUI major), scoped UI polish, shared `createAuthenticatedBaseQuery` pilots, and PrivateRoute on clear business routes.
+
+**Remaining known npm issues (not force-fixed):** Vite/esbuild (needs Vite major), react-router residual (needs v7), uuid via exceljs, `xlsx` (no upstream fix), typescript-eslint/minimatch (eslint 8 stack). Revisit in a dedicated major-upgrade task.
+
+When majors land, update stack versions in docs and re-extract Graphify if structure changes.

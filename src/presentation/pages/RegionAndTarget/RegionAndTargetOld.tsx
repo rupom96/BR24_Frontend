@@ -172,7 +172,7 @@
 //       key={teamId}
 //       itemId={teamId.toString()}
 //       label={
-//         <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+//         <div style={{ display: 'flex', alignItems: 'center', gap: '0.125rem' }}>
 //           <span className="mr-3"> {label}</span>{' '}
 //           {/* Label takes the remaining space */}
 //           <Tooltip
@@ -185,7 +185,7 @@
 //               type="button"
 //               data-mdb-ripple="true"
 //               data-mdb-ripple-color="light"
-//               className="ml-[1px] inline-block px-[4px] py-[1px] bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
+//               className="ml-[1px] inline-block px-[0.25rem] py-[1px] bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
 //               onClick={(event) => {
 //                 event.stopPropagation(); // Prevent TreeItem toggle
 //                 setTeamSetupModalInfo({
@@ -194,8 +194,8 @@
 //                 setTeamMemberModal(true);
 //               }}
 //             >
-//               <Edit sx={{ fontSize: '10px' }} />
-//               {/* <i className="fas fa-edit text-[10px]" /> */}
+//               <Edit sx={{ fontSize: '0.625rem' }} />
+//               {/* <i className="fas fa-edit text-[0.625rem]" /> */}
 //             </button>
 //           </Tooltip>
 //         </div>
@@ -236,7 +236,7 @@
 //                       type="button"
 //                       data-mdb-ripple="true"
 //                       data-mdb-ripple-color="light"
-//                       className="ml-2 inline-block px-[4px] py-0 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
+//                       className="ml-2 inline-block px-[0.25rem] py-0 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
 //                       onClick={() => {
 //                         setTeamSetupModalInfo({
 //                           teamId: 0,
@@ -262,7 +262,7 @@
 //                       type="button"
 //                       data-mdb-ripple="true"
 //                       data-mdb-ripple-color="light"
-//                       className="ml-2 inline-block px-[4px] py-0 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
+//                       className="ml-2 inline-block px-[0.25rem] py-0 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
 //                       onClick={() => {
 //                         setTeamSetupModalInfo({
 //                           entryMode: 'newEntry',
@@ -276,7 +276,7 @@
 //                   </Tooltip> */}
 //                 </div>
 
-//                 {/* <Box sx={{ minHeight: 352, minWidth: 250, maxWidth: '100vw' }}> */}
+//                 {/* <Box sx={{ minHeight: '22rem', minWidth: '15.625rem', maxWidth: '100vw' }}> */}
 //                 {/* <div className="w-[80vw]">
 //                   <TeamTargetGrid teamId={1} month={1} year={2024} />
 //                 </div> */}

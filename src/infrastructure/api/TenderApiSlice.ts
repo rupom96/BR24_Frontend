@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
 
 // Import the JSON file directly
 import { toast } from 'react-toastify';
@@ -13,30 +13,19 @@ import {
 } from '../../domain/interfaces/ProcurementTenderInterface';
 import { IProcurementTenderDetail } from '../../domain/interfaces/ProcurementTenderDetailInterface';
 import { IProcurementTenderAdditionalCost } from '../../domain/interfaces/ProcurementTenderAdditionalCost';
-import { getToken } from '../Auth/JWTSecurity/jwtTokenManager';
 import {
   GetTenderCostingDto,
   TenderCostingCommandsVM,
   // TenderCostingWithPCTrackDto,
 } from '../../domain/interfaces/TenderCostingInterface';
-
-const API_BASE_URL = window.API_BASE_URL;
+import { createAuthenticatedBaseQuery } from './shared/createAuthenticatedBaseQuery';
 
 const controllerName: string = `ProcurementTender`;
 
 // Define a service using a base URL and expected endpoints
 export const TenderApiSlice = createApi({
   reducerPath: 'TenderApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: `${API_BASE_URL}/${controllerName}/`,
-    // token er kaaj shuru
-    prepareHeaders: async (headers) => {
-      const token = await getToken();
-      headers.set('Authorization', `Bearer ${token}`);
-      return headers;
-    },
-    // token er kaaj shesh
-  }),
+  baseQuery: createAuthenticatedBaseQuery(controllerName),
   tagTypes: [
     'tenderOptions',
     'procurementTender',

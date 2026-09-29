@@ -325,7 +325,7 @@ const ChequeHistory: React.FC<ChequeHistoryProps> = ({
       sx: {
         borderRight: '1px solid #e0e0e0',
         borderTop: '1px solid #e0e0e0',
-        fontSize: '13px',
+        fontSize: '0.8125rem',
         whiteSpace: 'nowrap',
         backgroundColor: '#ECEFF9',
         color: '#1c1c1c',
@@ -333,7 +333,7 @@ const ChequeHistory: React.FC<ChequeHistoryProps> = ({
       },
     },
 
-    muiTableBodyCellProps: { sx: { fontSize: '13px' } },
+    muiTableBodyCellProps: { sx: { fontSize: '0.8125rem' } },
 
     //  clicking anywhere on row selects range
     muiTableBodyRowProps: ({ row }) => ({

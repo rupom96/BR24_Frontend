@@ -4,6 +4,8 @@
 import * as React from 'react';
 import { Box, TextField } from '@mui/material';
 import type { TenderCostingState } from './TenderCosting'; // adjust import path if needed
+import { useAppSelector } from '../../../application/Redux/store/store';
+import { hexToRgba } from '../../Utils/colorUtils';
 
 type CostingFormProps = {
   state: TenderCostingState | null;
@@ -17,10 +19,14 @@ export const CostingForm: React.FC<CostingFormProps> = ({
   state,
   onFieldBlur,
 }) => {
+  const currentColor = useAppSelector((s) => s.currentColor.color);
+  const accentBand = hexToRgba(currentColor, 0.22);
+  const accentBandSoft = hexToRgba(currentColor, 0.12);
+
   const commonInputProps = {
     disableUnderline: true,
     sx: {
-      fontSize: 12,
+      fontSize: '0.75rem',
       paddingY: 0,
       '.MuiInputBase-input': {
         padding: 0,
@@ -40,10 +46,13 @@ export const CostingForm: React.FC<CostingFormProps> = ({
     <Box className="p-2 sm:p-4 bg-white border border-gray-300 shadow-sm max-w-full mx-auto">
       <div className="overflow-x-auto">
         {/* Top 3 blocks: BG / PG / SD */}
-        <div className="min-w-[640px] md:min-w-0 grid grid-cols-1 md:grid-cols-3 gap-0 border border-gray-300 text-[11px] sm:text-xs">
+        <div className="min-w-[40rem] md:min-w-0 grid grid-cols-1 md:grid-cols-3 gap-0 border border-gray-300 text-[0.6875rem] sm:text-xs">
           {/* ------------ BG ------------- */}
           <div className="border-b md:border-b-0 md:border-r border-gray-300">
-            <div className="bg-[#ced1f2] text-center font-bold py-1 border-b border-gray-300">
+            <div
+              className="text-center font-bold py-1 border-b border-gray-300"
+              style={{ backgroundColor: accentBand }}
+            >
               BG
             </div>
 
@@ -79,7 +88,10 @@ export const CostingForm: React.FC<CostingFormProps> = ({
 
           {/* ------------ PG ------------- */}
           <div className="border-b md:border-b-0 md:border-r border-gray-300">
-            <div className="bg-[#e3e3fc] text-center font-bold py-1 border-b border-gray-300">
+            <div
+              className="text-center font-bold py-1 border-b border-gray-300"
+              style={{ backgroundColor: accentBandSoft }}
+            >
               PG
             </div>
 
@@ -219,7 +231,10 @@ export const CostingForm: React.FC<CostingFormProps> = ({
 
           {/* ------------ SD ------------- */}
           <div className="border-b md:border-b-0 border-gray-300">
-            <div className="bg-[#ced1f2] text-center font-bold py-1 border-b border-gray-300">
+            <div
+              className="text-center font-bold py-1 border-b border-gray-300"
+              style={{ backgroundColor: accentBand }}
+            >
               SD
             </div>
 
@@ -309,7 +324,10 @@ export const CostingForm: React.FC<CostingFormProps> = ({
       </div>
 
       {/* Bottom total row */}
-      <Box className="mt-2 bg-[#ced1f2] py-2 text-center font-semibold text-xs sm:text-sm tracking-wide border border-gray-300">
+      <Box
+        className="mt-2 py-2 text-center font-semibold text-xs sm:text-sm tracking-wide border border-gray-300"
+        style={{ backgroundColor: accentBand }}
+      >
         Total BG + PG + SD &nbsp;&nbsp; BDT {fmt(state?.bgAndPgAndSd ?? 0)}
       </Box>
     </Box>
@@ -326,7 +344,7 @@ type CellProps = {
 };
 
 const baseCell =
-  'border-t border-gray-300 px-2 py-1 flex items-center text-[11px] sm:text-xs min-h-[26px]';
+  'border-t border-gray-300 px-2 py-1 flex items-center text-[0.6875rem] sm:text-xs min-h-[1.625rem]';
 
 const Cell: React.FC<CellProps> = ({ label, children, lastRow }) => (
   <>
@@ -353,7 +371,7 @@ const PlainCell: React.FC<CellProps> = ({ children, className, lastRow }) => (
 
 const HeaderCell: React.FC<CellProps> = ({ children, className }) => (
   <div
-    className={`border-b border-gray-300 px-2 py-1 text-[11px] sm:text-xs font-semibold ${
+    className={`border-b border-gray-300 px-2 py-1 text-[0.6875rem] sm:text-xs font-semibold ${
       className || ''
     }`}
   >

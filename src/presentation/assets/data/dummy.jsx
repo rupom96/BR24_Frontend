@@ -180,7 +180,7 @@ const customerGridStatus = (props) => (
 export const areaPrimaryXAxis = {
   valueType: 'DateTime',
   labelFormat: 'y',
-  majorGridLines: { width: 0 },
+  majorGridLines: { width: '0' },
   intervalType: 'Years',
   edgeLabelPlacement: 'Shift',
   labelStyle: { color: 'gray' },
@@ -188,22 +188,22 @@ export const areaPrimaryXAxis = {
 
 export const areaPrimaryYAxis = {
   labelFormat: '{value}%',
-  lineStyle: { width: 0 },
+  lineStyle: { width: '0' },
   maximum: 4,
   interval: 1,
-  majorTickLines: { width: 0 },
-  minorTickLines: { width: 0 },
+  majorTickLines: { width: '0' },
+  minorTickLines: { width: '0' },
   labelStyle: { color: 'gray' },
 };
 export const barPrimaryXAxis = {
   valueType: 'Category',
   interval: 1,
-  majorGridLines: { width: 0 },
+  majorGridLines: { width: '0' },
 };
 export const barPrimaryYAxis = {
-  majorGridLines: { width: 0 },
-  majorTickLines: { width: 0 },
-  lineStyle: { width: 0 },
+  majorGridLines: { width: '0' },
+  majorTickLines: { width: '0' },
+  lineStyle: { width: '0' },
   labelStyle: { color: 'transparent' },
 };
 const areaChartData = [
@@ -382,14 +382,14 @@ export const rangeColorMapping = [
 
 export const ColorMappingPrimaryXAxis = {
   valueType: 'Category',
-  majorGridLines: { width: 0 },
+  majorGridLines: { width: '0' },
   title: 'Months',
 };
 
 export const ColorMappingPrimaryYAxis = {
-  lineStyle: { width: 0 },
-  majorTickLines: { width: 0 },
-  minorTickLines: { width: 0 },
+  lineStyle: { width: '0' },
+  majorTickLines: { width: '0' },
+  minorTickLines: { width: '0' },
   labelFormat: '{value}°C',
   title: 'Temperature',
 };
@@ -399,7 +399,7 @@ export const FinancialPrimaryXAxis = {
   minimum: new Date('2016, 12, 31'),
   maximum: new Date('2017, 9, 30'),
   crosshairTooltip: { enable: true },
-  majorGridLines: { width: 0 },
+  majorGridLines: { width: '0' },
 };
 
 export const FinancialPrimaryYAxis = {
@@ -407,8 +407,8 @@ export const FinancialPrimaryYAxis = {
   minimum: 100,
   maximum: 180,
   interval: 20,
-  lineStyle: { width: 0 },
-  majorTickLines: { width: 0 },
+  lineStyle: { width: '0' },
+  majorTickLines: { width: '0' },
 };
 
 export const LinePrimaryXAxis = {
@@ -416,7 +416,7 @@ export const LinePrimaryXAxis = {
   labelFormat: 'y',
   intervalType: 'Years',
   edgeLabelPlacement: 'Shift',
-  majorGridLines: { width: 0 },
+  majorGridLines: { width: '0' },
   background: 'white',
 };
 
@@ -426,9 +426,9 @@ export const LinePrimaryYAxis = {
   minimum: 0,
   maximum: 100,
   interval: 20,
-  lineStyle: { width: 0 },
-  majorTickLines: { width: 0 },
-  minorTickLines: { width: 0 },
+  lineStyle: { width: '0' },
+  majorTickLines: { width: '0' },
+  minorTickLines: { width: '0' },
 };
 
 export const customersGrid = [
@@ -2992,7 +2992,7 @@ export const lineCustomSeries = [
     yName: 'y',
     name: 'Germany',
     width: '2',
-    marker: { visible: true, width: 10, height: 10 },
+    marker: { visible: true, width: '0.625rem', height: '0.625rem' },
     type: 'Line',
   },
 
@@ -3002,7 +3002,7 @@ export const lineCustomSeries = [
     yName: 'y',
     name: 'England',
     width: '2',
-    marker: { visible: true, width: 10, height: 10 },
+    marker: { visible: true, width: '0.625rem', height: '0.625rem' },
     type: 'Line',
   },
 
@@ -3012,7 +3012,7 @@ export const lineCustomSeries = [
     yName: 'y',
     name: 'India',
     width: '2',
-    marker: { visible: true, width: 10, height: 10 },
+    marker: { visible: true, width: '0.625rem', height: '0.625rem' },
     type: 'Line',
   },
 ];
@@ -3095,25 +3095,25 @@ export const stackedCustomSeries = [
 ];
 
 export const stackedPrimaryXAxis = {
-  majorGridLines: { width: 0 },
-  minorGridLines: { width: 0 },
-  majorTickLines: { width: 0 },
-  minorTickLines: { width: 0 },
+  majorGridLines: { width: '0' },
+  minorGridLines: { width: '0' },
+  majorTickLines: { width: '0' },
+  minorTickLines: { width: '0' },
   interval: 1,
-  lineStyle: { width: 0 },
+  lineStyle: { width: '0' },
   labelIntersectAction: 'Rotate45',
   valueType: 'Category',
 };
 
 export const stackedPrimaryYAxis = {
-  lineStyle: { width: 0 },
+  lineStyle: { width: '0' },
   minimum: 100,
   maximum: 400,
   interval: 100,
-  majorTickLines: { width: 0 },
+  majorTickLines: { width: '0' },
   majorGridLines: { width: 1 },
   minorGridLines: { width: 1 },
-  minorTickLines: { width: 0 },
+  minorTickLines: { width: '0' },
   labelFormat: '{value}',
 };
 
