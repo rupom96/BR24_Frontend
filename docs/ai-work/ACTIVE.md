@@ -11,8 +11,8 @@
 
 # Current State
 
-**Idle** — last completed: `history/TASK-20260929-sidebar-particles-page-motion.md`
+**Idle** — last completed: auto build-info bump for Navbar (`scripts/bump-build-info.mjs`)
 
 # Next Action
 
-Smoke-test sidebar particles (menu still clickable) + route transitions.
+Smoke-test: `npm run build` → Navbar version + timestamp update.

@@ -540,13 +540,13 @@ const Sidebar = () => {
     'br24-nav-link flex items-center gap-4 pl-4 pt-2.5 pb-2.5 rounded-xl text-white text-md m-2 shadow-md';
 
   const normalLink =
-    'br24-nav-link flex items-center gap-4 pl-4 pt-2.5 pb-2.5 rounded-xl text-md text-slate-700 dark:text-slate-200 hover:bg-slate-100/90 dark:hover:bg-slate-700/50 m-2';
+    'br24-nav-link flex items-center gap-4 pl-4 pt-2.5 pb-2.5 rounded-xl text-md text-slate-700 dark:text-slate-200 m-2';
 
   const subactiveLink =
     'br24-nav-link flex items-center gap-4 pl-9 pt-2 pb-2.5 rounded-xl text-white text-md m-2 shadow-md';
 
   const subnormalLink =
-    'br24-nav-link flex items-center gap-4 pl-9 pt-2.5 pb-2.5 rounded-xl text-md text-slate-700 dark:text-slate-200 hover:bg-slate-100/90 dark:hover:bg-slate-700/50 m-2';
+    'br24-nav-link flex items-center gap-4 pl-9 pt-2.5 pb-2.5 rounded-xl text-md text-slate-700 dark:text-slate-200 m-2';
 
   return (
     <div className="br24-shell-sidebar scroller ml-2 h-screen overflow-auto pb-10 md:overflow-hidden md:hover:overflow-auto">
@@ -612,7 +612,7 @@ const Sidebar = () => {
                           <div className="accordion" id="menuAccordion">
                             <div className="accordion-item">
                               <button
-                                className="menu-accordion-button accordion-button collapsed relative m-2 flex w-[94%] items-center gap-4 rounded-xl px-4 pb-2.5 pt-2.5 text-left text-base text-slate-700 transition-all duration-300 hover:bg-slate-100 dark:text-gray-200"
+                                className="menu-accordion-button accordion-button collapsed relative m-2 flex w-[94%] items-center gap-4 rounded-xl px-4 pb-2.5 pt-2.5 text-left text-base text-slate-700 transition-all duration-300 dark:text-gray-200"
                                 type="button"
                                 data-bs-toggle="collapse"
                                 data-bs-target={`#${link.name}`}

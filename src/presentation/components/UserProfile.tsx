@@ -166,9 +166,9 @@ const UserProfile = () => {
         aria-modal="true"
         aria-labelledby="br24-user-profile-title"
       >
-        <div className="flex items-start justify-between border-b border-slate-200/80 px-5 py-4 dark:border-slate-600/60">
+        <div className="br24-profile-divider flex items-start justify-between px-5 py-4">
           <div>
-            <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.2em] text-teal-700/80 dark:text-teal-300/90">
+            <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.2em] text-[color:var(--br24-accent)]">
               Account
             </p>
             <h2
@@ -181,16 +181,16 @@ const UserProfile = () => {
           <button
             type="button"
             onClick={closeProfile}
-            className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-700/60 dark:hover:text-slate-200"
+            className="br24-profile-icon-btn rounded-xl p-2 text-slate-400"
             aria-label="Close"
           >
             <MdOutlineCancel className="text-2xl" />
           </button>
         </div>
 
-        <div className="flex items-center gap-4 border-b border-slate-200/80 px-5 py-5 dark:border-slate-600/60">
+        <div className="br24-profile-divider flex items-center gap-4 px-5 py-5">
           <img
-            className="h-16 w-16 rounded-2xl object-cover shadow-md ring-2 ring-white dark:ring-slate-600"
+            className="h-16 w-16 rounded-2xl object-cover shadow-md ring-2 ring-white/70 dark:ring-slate-600/70"
             src={avatar}
             alt="user-profile"
           />
@@ -217,9 +217,9 @@ const UserProfile = () => {
         </div>
 
         <div className="px-3 py-3">
-          <div className="overflow-hidden rounded-xl border border-slate-200/90 bg-slate-50/60 dark:border-slate-600/50 dark:bg-slate-800/40">
+          <div className="br24-profile-card overflow-hidden rounded-xl">
             <div
-              className="flex cursor-pointer gap-3 p-3 transition hover:bg-white dark:hover:bg-slate-700/50"
+              className="br24-profile-card-row flex cursor-pointer gap-3 p-3"
               onClick={() => {
                 setShowCompanyLocationDiv((prev) => !prev);
               }}
@@ -232,11 +232,7 @@ const UserProfile = () => {
               tabIndex={0}
             >
               <div
-                style={{
-                  color: 'rgb(13, 148, 136)',
-                  backgroundColor: 'rgba(204, 251, 241, 0.9)',
-                }}
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl"
+                className="br24-profile-card-icon flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl"
               >
                 <BsShield />
               </div>
@@ -247,14 +243,14 @@ const UserProfile = () => {
                 <p className="truncate text-xs text-slate-500 dark:text-slate-400">
                   {userSession.companyName} · {userSession.locationName}
                 </p>
-                <p className="mt-1 text-[0.6875rem] font-medium text-teal-700">
+                <p className="mt-1 text-[0.6875rem] font-medium text-[color:var(--br24-accent)]">
                   {showCompanyLocationDiv ? 'Hide options' : 'Show options'}
                 </p>
               </div>
             </div>
 
             {showCompanyLocationDiv ? (
-              <div className="space-y-3 border-t border-slate-200/80 bg-white px-3 py-3 dark:border-slate-600/50 dark:bg-slate-900/40">
+              <div className="br24-profile-card-body space-y-3 px-3 py-3">
                 <Autocomplete
                   size="small"
                   options={loginCompanyOptionsComboBox ?? []}
@@ -353,7 +349,7 @@ const UserProfile = () => {
                           loginLocationOutput
                         );
                       }}
-                      className="h-full min-h-[2.5rem] w-full rounded-lg border border-teal-700/20 bg-teal-50 text-teal-800 transition hover:bg-teal-700 hover:text-white"
+                      className="br24-profile-save-btn h-full min-h-[2.5rem] w-full rounded-lg"
                       title="Apply company & location"
                     >
                       <i className="fas fa-save" />
@@ -365,7 +361,7 @@ const UserProfile = () => {
           </div>
         </div>
 
-        <div className="border-t border-slate-200/80 px-5 py-4 dark:border-slate-600/60">
+        <div className="br24-profile-divider px-5 py-4">
           <button
             type="button"
             onClick={() => logoutBtn()}

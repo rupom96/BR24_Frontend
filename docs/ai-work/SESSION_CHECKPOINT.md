@@ -4,14 +4,13 @@
 
 ## Current task
 
-none (idle) — sidebar particles + page transition flash fixes
+none (idle) — auto build version + stamp on Navbar
 
 ## Completed
 
-- PageTransition: inject `location` into `Routes` (fixes double appear)
-- SidebarParticles: fixed canvas size, higher visibility, density off
-- tsc clean
+- `scripts/bump-build-info.mjs` + `prebuild` bumps last version segment + Dhaka date/time
+- Navbar reads `APP_VERSION` / `APP_BUILD_STAMP` from `buildInfo.ts`
 
 ## Exact next action
 
-User smoke-test sidebar particles + single smooth page enter.
+User: `npm run build` once — confirm Navbar shows new version + stamp.

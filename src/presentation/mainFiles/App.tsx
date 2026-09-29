@@ -347,7 +347,7 @@ const App = () => {
               {/* --Sidebar depending on 'activeMenu' var--  */}
               {activeMenu ? (
                 <div
-                  className={`w-72 fixed sidebar drop-shadow-lg bg-white dark:bg-secondary-dark-bg transition-all duration-300 ${
+                  className={`br24-sidebar-panel w-72 fixed sidebar transition-all duration-300 ${
                     showPanel ? '' : 'hidden'
                   }`}
                   id="sidebarDiv"
@@ -356,7 +356,7 @@ const App = () => {
                 </div>
               ) : (
                 <div
-                  className={`transition-all duration-300 w-0 drop-shadow-2xl  bg-white dark:bg-secondary-dark-bg ${
+                  className={`br24-sidebar-panel transition-all duration-300 w-0 ${
                     showPanel ? '' : 'hidden'
                   }`}
                 >
@@ -371,7 +371,7 @@ const App = () => {
                         ${activeMenu && showPanel ? 'md:ml-72' : 'flex-2'}`}
               >
                 <div
-                  className={`fixed md:static bg-main-bg dark:bg-main-dark-bg navbar w-full ${
+                  className={`fixed md:static navbar w-full bg-transparent ${
                     showNavbar ? '' : 'hidden'
                   }`}
                 >

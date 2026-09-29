@@ -20,6 +20,10 @@ import {
   truthifyActiveMenu,
 } from '../../application/Redux/slices/ActiveMenuSlice';
 import { toggleACertainFeatureClick } from '../../application/Redux/slices/IsClickedSlice';
+import {
+  APP_BUILD_STAMP,
+  APP_VERSION,
+} from '../constants/buildInfo';
 
 interface NavButtonProps {
   title?: string;
@@ -41,7 +45,7 @@ const NavButton: React.FC<NavButtonProps> = ({
       type="button"
       onClick={customFunc}
       style={{ color }}
-      className="relative rounded-xl p-2.5 text-xl transition-all duration-300 hover:scale-105 hover:bg-slate-100/90 focus:outline-none focus:ring-2 focus:ring-teal-500/30 active:scale-95 dark:hover:bg-slate-800/80"
+      className="br24-nav-icon-btn relative rounded-xl p-2.5 text-xl transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[color-mix(in_srgb,var(--br24-accent)_35%,transparent)] active:scale-95"
     >
       <span
         style={{ background: dotColor }}
@@ -98,14 +102,14 @@ const Navbar = () => {
       <div className="flex items-center gap-3">
         <div className="hidden text-right sm:block">
           <p className="text-[0.625rem] font-medium uppercase tracking-wider text-slate-400">
-            Version 2.2.3.5
+            Version {APP_VERSION}
           </p>
-          <p className="text-[0.625rem] text-slate-400">26 May, 2025</p>
+          <p className="text-[0.625rem] text-slate-400">{APP_BUILD_STAMP}</p>
         </div>
 
         <Tooltip title="Profile" placement="bottom" arrow>
           <div
-            className="flex cursor-pointer items-center gap-2 rounded-xl p-1.5 transition-all duration-300 hover:scale-[1.02] hover:bg-slate-100/90 focus:outline-none active:scale-95 dark:hover:bg-slate-800/80"
+            className="br24-nav-icon-btn flex cursor-pointer items-center gap-2 rounded-xl p-1.5 transition-all duration-300 hover:scale-[1.02] focus:outline-none active:scale-95"
             role="button"
             tabIndex={0}
             onKeyDown={() => {
@@ -121,7 +125,7 @@ const Navbar = () => {
           >
             <img
               alt="userProfilePic"
-              className="h-8 w-8 rounded-full shadow-md ring-2 ring-white dark:ring-slate-700"
+              className="h-8 w-8 rounded-full shadow-md ring-2 ring-white/70 dark:ring-slate-600/80"
               src={avatar}
             />
             <p className="hidden md:block">
