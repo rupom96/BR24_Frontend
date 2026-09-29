@@ -36,6 +36,7 @@ body:has(.MuiPaper-root[style*="100dvh"]) {
 /* Scrollbar custom css for chrome/edge */
 ::-webkit-scrollbar {
     width: 6px;
+    height: 6px; /* horizontal (MRT etc.) — without this, X-bars stay ~15px thick */
 }
 
 ::-webkit-scrollbar-thumb {
@@ -51,6 +52,45 @@ body:has(.MuiPaper-root[style*="100dvh"]) {
 .scroller {
     scrollbar-color: rgb(216, 216, 216) rgba(255, 255, 255, 0);
     scrollbar-width: thin;
+}
+
+/* material-react-table — slim sleek scrollbars */
+.MuiTableContainer-root {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--br24-accent, #64748b) 35%, #cbd5e1)
+        transparent;
+}
+
+.MuiTableContainer-root::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+.MuiTableContainer-root::-webkit-scrollbar-thumb {
+    background-color: color-mix(
+        in srgb,
+        var(--br24-accent, #94a3b8) 28%,
+        #c4c9d1
+    );
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    background-clip: padding-box;
+}
+
+.MuiTableContainer-root::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(
+        in srgb,
+        var(--br24-accent, #64748b) 45%,
+        #94a3b8
+    );
+}
+
+.MuiTableContainer-root::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.MuiTableContainer-root::-webkit-scrollbar-corner {
+    background: transparent;
 }
 
 

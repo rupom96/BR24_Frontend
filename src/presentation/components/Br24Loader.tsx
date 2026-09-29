@@ -83,3 +83,89 @@ export function Br24ContentSkeleton() {
     </div>
   );
 }
+
+const eventCardSx = {
+  bgcolor: 'rgba(148,163,184,0.18)',
+};
+
+/** Event-list placeholder — matches EventsOfAChain card layout */
+export function Br24EventCardsSkeleton({
+  count = 4,
+  label = 'Loading events…',
+}: {
+  count?: number;
+  label?: string;
+}) {
+  return (
+    <div
+      className="br24-anim-fade-in w-full space-y-5 py-2"
+      role="status"
+      aria-live="polite"
+      aria-label={label}
+    >
+      <Skeleton
+        variant="rounded"
+        height={40}
+        sx={{ borderRadius: '0.5rem', ...eventCardSx }}
+      />
+      {Array.from({ length: count }, (_, i) => (
+        <div
+          key={i}
+          className="w-full rounded-xl border border-zinc-200/80 bg-slate-100/60 p-[0.9375rem] dark:border-zinc-800 dark:bg-slate-900/40"
+          aria-hidden
+        >
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <Skeleton
+              variant="text"
+              width="18%"
+              height={18}
+              sx={eventCardSx}
+            />
+            <Skeleton
+              variant="text"
+              width="42%"
+              height={18}
+              sx={eventCardSx}
+            />
+            <Skeleton
+              variant="text"
+              width="20%"
+              height={18}
+              sx={eventCardSx}
+            />
+          </div>
+          <Skeleton
+            variant="text"
+            width="70%"
+            height={28}
+            sx={{ mb: 0.5, ...eventCardSx }}
+          />
+          <Skeleton
+            variant="text"
+            width="45%"
+            height={18}
+            sx={{ mb: 1.5, ...eventCardSx }}
+          />
+          <div className="mb-3 flex gap-2">
+            <Skeleton
+              variant="rounded"
+              width={88}
+              height={22}
+              sx={{ borderRadius: '0.3125rem', ...eventCardSx }}
+            />
+            <Skeleton
+              variant="rounded"
+              width={72}
+              height={22}
+              sx={{ borderRadius: '0.3125rem', ...eventCardSx }}
+            />
+          </div>
+          <div className="mt-2 flex items-center justify-between gap-3">
+            <Skeleton variant="text" width="30%" height={16} sx={eventCardSx} />
+            <Skeleton variant="text" width="28%" height={16} sx={eventCardSx} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}

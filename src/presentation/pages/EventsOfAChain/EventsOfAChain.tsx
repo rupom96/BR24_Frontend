@@ -31,7 +31,7 @@ import { ISANextEvent } from '../../../domain/interfaces/SANextEventInterface';
 import AttachmentLoader from '../../components/AttachmentLoader';
 import { useGetFirstPageOfChainByFixedTaskTemplateIdQuery } from '../../../infrastructure/api/BiznessEventProcessConigurationApiSlice';
 import { checkArrayContents } from '../../Utils/Util';
-import { Br24InlineLoader } from '../../components/Br24Loader';
+import { Br24EventCardsSkeleton } from '../../components/Br24Loader';
 
 const jsondummy = [
   {
@@ -577,7 +577,7 @@ const EventsOfAChain = ({
                         {/* <MaterialReactTable table={tableInitializer} /> */}
                       </div>
                     ) : (
-                      <Br24InlineLoader label="Loading events…" />
+                      <Br24EventCardsSkeleton label="Loading events…" />
                     )}
                   </div>
                 </form>
