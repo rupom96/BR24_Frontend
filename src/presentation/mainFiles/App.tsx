@@ -32,7 +32,7 @@ import { falsifyActiveMenu } from '../../application/Redux/slices/ActiveMenuSlic
 
 import ThemeSettings from '../components/ThemeSettings';
 import PageTransition from '../components/PageTransition';
-import { adjustHex, applyAccentCssVars } from '../Utils/colorUtils';
+import { adjustHex, applyAccentCssVars, onAccentColor } from '../Utils/colorUtils';
 // import BiznessEventProcConfig from '../pages/BiznessEventProcConfig/BiznessEventProcConfig';
 import Navbar from '../components/Navbar';
 import EventsOfAChain from '../pages/EventsOfAChain/EventsOfAChain';
@@ -151,16 +151,20 @@ function ThemeSettingsFab() {
   if (isAuthRoute) return null;
 
   return (
-    <div className="fixed bottom-4 right-4" style={{ zIndex: 1000 }}>
+    <div className="br24-theme-fab-wrap fixed bottom-3 right-3" style={{ zIndex: 1000 }}>
+      <span className="br24-theme-fab-orbit" aria-hidden />
+      <span className="br24-theme-fab-orbit br24-theme-fab-orbit--soft" aria-hidden />
       <Tooltip title="Theme settings" placement="top-start" arrow>
         <button
           type="button"
           aria-label="Open theme settings"
           onClick={() => dispatch(truthifyThemeSettings())}
-          className="br24-theme-fab text-2xl text-white"
-          style={{ background: currentColor }}
+          className="br24-theme-fab text-lg"
+          style={{
+            color: currentColor,
+          }}
         >
-          <FiSettings />
+          <FiSettings className="br24-theme-fab-icon" />
         </button>
       </Tooltip>
     </div>
@@ -169,6 +173,7 @@ function ThemeSettingsFab() {
 
 const App = () => {
   const activeMenu = useAppSelector((state) => state.activeMenu.active);
+  const sidebarMode = useAppSelector((state) => state.activeMenu.mode);
   const showPanel = useAppSelector((state) => state.showPanel.bool);
   const showNavbar = useAppSelector((state) => state.showNavbar.bool);
   const currentMode = useAppSelector((state) => state.currentMode.mode);
@@ -269,7 +274,7 @@ const App = () => {
             main: currentColor,
             dark: adjustHex(currentColor, -22),
             light: adjustHex(currentColor, 40),
-            contrastText: '#f8f9fb',
+            contrastText: onAccentColor(currentColor),
           },
         },
         components: {
@@ -277,8 +282,10 @@ const App = () => {
             styleOverrides: {
               containedPrimary: {
                 backgroundColor: currentColor,
+                color: onAccentColor(currentColor),
                 '&:hover': {
                   backgroundColor: adjustHex(currentColor, -22),
+                  color: onAccentColor(adjustHex(currentColor, -22)),
                 },
               },
               outlinedPrimary: {
@@ -349,34 +356,26 @@ const App = () => {
             <div className="flex  relative dark:bg-main-dark-bg">
               <ThemeSettingsFab />
 
-              {/* --Sidebar depending on 'activeMenu' var--  */}
-              {activeMenu ? (
+              {/* --Sidebar: full | rail (icon + hover overlay) | hidden (slide off, stays mounted)--  */}
+              {showPanel ? (
                 <div
-                  className={`br24-sidebar-panel w-72 fixed sidebar transition-all duration-300 ${
-                    showPanel ? '' : 'hidden'
-                  }`}
+                  className={`br24-sidebar-panel sidebar fixed br24-sidebar--${sidebarMode}`}
                   id="sidebarDiv"
+                  aria-hidden={sidebarMode === 'hidden'}
                 >
                   <Sidebar />
                 </div>
-              ) : (
-                <div
-                  className={`br24-sidebar-panel transition-all duration-300 w-0 ${
-                    showPanel ? '' : 'hidden'
-                  }`}
-                >
-                  <Sidebar />
-                </div>
-              )}
-              {/* --Sidebar depending on 'activeMenu' var--ENDS----  */}
+              ) : null}
+              {/* --Sidebar ends--  */}
 
               {/* --All Routes declaration and main background starts--STARTS----  */}
               <div
-                className={`dark:bg-main-dark-bg bg-main-bg min-h-screen w-full
-                        ${activeMenu && showPanel ? 'md:ml-72' : 'flex-2'}`}
+                className={`br24-shell-main dark:bg-main-dark-bg bg-main-bg min-h-screen w-full br24-shell-main--${
+                  showPanel ? sidebarMode : 'hidden'
+                }`}
               >
                 <div
-                  className={`fixed md:static navbar w-full bg-transparent ${
+                  className={`sticky top-0 z-[10000] navbar w-full bg-transparent ${
                     showNavbar ? '' : 'hidden'
                   }`}
                 >

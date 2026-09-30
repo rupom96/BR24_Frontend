@@ -11,8 +11,8 @@
 
 # Current State
 
-**Idle** — last completed: auto build-info bump for Navbar (`scripts/bump-build-info.mjs`)
+**Idle** — last completed: micro navbar + 3-mode sidebar (`full` | `rail` hover-overlay | `hidden`)
 
 # Next Action
 
-Smoke-test: `npm run build` → Navbar version + timestamp update.
+Smoke-test menu cycle: full → icon rail (hover expands overlay) → hidden → full. Confirm micro navbar (menu + avatar + username only).

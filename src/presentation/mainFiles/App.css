@@ -54,6 +54,67 @@ body:has(.MuiPaper-root[style*="100dvh"]) {
     scrollbar-width: thin;
 }
 
+/* Sidebar menu — smooth scroll + ultra-slim accent scrollbar */
+.br24-shell-sidebar.scroller {
+    scroll-behavior: smooth;
+    overscroll-behavior: contain;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--br24-accent, #94a3b8) 18%, #d6dbe3)
+        transparent;
+}
+
+.br24-shell-sidebar.scroller::-webkit-scrollbar {
+    width: 3px;
+}
+
+.br24-shell-sidebar.scroller::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 0.65rem 0;
+}
+
+.br24-shell-sidebar.scroller::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--br24-accent, #cbd5e1) 12%, rgba(148, 163, 184, 0.28));
+    border-radius: 999px;
+}
+
+.br24-shell-sidebar.scroller:hover::-webkit-scrollbar-thumb,
+.br24-shell-sidebar.scroller:focus-within::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--br24-accent, #94a3b8) 28%, #e2e8f0),
+        color-mix(in srgb, var(--br24-accent, #94a3b8) 16%, #f1f5f9)
+    );
+}
+
+.br24-shell-sidebar.scroller::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--br24-accent, #94a3b8) 35%, #cbd5e1);
+}
+
+.br24-shell-sidebar.scroller::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+.dark .br24-shell-sidebar.scroller {
+    scrollbar-color: color-mix(in srgb, var(--br24-accent, #64748b) 22%, #64748b)
+        transparent;
+}
+
+.dark .br24-shell-sidebar.scroller::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--br24-accent, #94a3b8) 14%, rgba(148, 163, 184, 0.22));
+}
+
+.dark .br24-shell-sidebar.scroller:hover::-webkit-scrollbar-thumb,
+.dark .br24-shell-sidebar.scroller:focus-within::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--br24-accent, #94a3b8) 30%, #64748b),
+        color-mix(in srgb, var(--br24-accent, #94a3b8) 18%, #475569)
+    );
+}
+
 /* material-react-table — slim sleek scrollbars */
 .MuiTableContainer-root {
     scrollbar-width: thin;

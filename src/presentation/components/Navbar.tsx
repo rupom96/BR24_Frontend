@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { AiOutlineMenu } from 'react-icons/ai';
-import { MdKeyboardArrowDown } from 'react-icons/md';
 
 import { Tooltip } from '@mui/material';
 import avatar from '../assets/data/avatar.jpg';
@@ -17,49 +16,15 @@ import { changeScreenSize } from '../../application/Redux/slices/ScreenSizeSlice
 import {
   falsifyActiveMenu,
   toggleActiveMenu,
-  truthifyActiveMenu,
 } from '../../application/Redux/slices/ActiveMenuSlice';
 import { toggleACertainFeatureClick } from '../../application/Redux/slices/IsClickedSlice';
-import {
-  APP_BUILD_STAMP,
-  APP_VERSION,
-} from '../constants/buildInfo';
-
-interface NavButtonProps {
-  title?: string;
-  customFunc?: () => void;
-  icon?: React.ReactNode;
-  color?: string;
-  dotColor?: string;
-}
-
-const NavButton: React.FC<NavButtonProps> = ({
-  title,
-  customFunc,
-  icon,
-  color,
-  dotColor,
-}) => (
-  <Tooltip title={title} placement="bottom" arrow>
-    <button
-      type="button"
-      onClick={customFunc}
-      style={{ color }}
-      className="br24-nav-icon-btn relative rounded-xl p-2.5 text-xl transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[color-mix(in_srgb,var(--br24-accent)_35%,transparent)] active:scale-95"
-    >
-      <span
-        style={{ background: dotColor }}
-        className="absolute right-2 top-2 inline-flex h-2 w-2 rounded-full"
-      />
-      {icon}
-    </button>
-  </Tooltip>
-);
+import { APP_BUILD_STAMP, APP_VERSION } from '../constants/buildInfo';
 
 const Navbar = () => {
   const screenSize = useAppSelector((state) => state.screenSize.size);
   const isClicked = useAppSelector((state) => state.isClicked);
   const currentColor = useAppSelector((state) => state.currentColor.color);
+  const sidebarMode = useAppSelector((state) => state.activeMenu.mode);
   const dispatch = useAppDispatch();
 
   let userInfo;
@@ -67,6 +32,13 @@ const Navbar = () => {
   if (jsonUserInfo) {
     userInfo = JSON.parse(jsonUserInfo);
   }
+
+  const menuTip =
+    sidebarMode === 'full'
+      ? 'Sidebar: icon rail'
+      : sidebarMode === 'rail'
+        ? 'Sidebar: hide'
+        : 'Sidebar: full';
 
   useEffect(() => {
     const handleResize = () => {
@@ -80,36 +52,42 @@ const Navbar = () => {
   }, [dispatch]);
 
   useEffect(() => {
+    // Mobile: force hide. Desktop: leave mode alone (full / rail / hidden cycle).
     if (screenSize && screenSize <= 900) {
       dispatch(falsifyActiveMenu());
-    } else {
-      dispatch(truthifyActiveMenu());
     }
   }, [screenSize, dispatch]);
 
   return (
-    <div className="br24-shell-navbar br24-anim-fade-in relative flex justify-between px-3 py-2 md:mx-4 md:mt-2 md:rounded-2xl">
-      <NavButton
-        title="Menu"
-        customFunc={() => {
-          dispatch(toggleActiveMenu());
-        }}
-        color={currentColor}
-        dotColor=""
-        icon={<AiOutlineMenu />}
-      />
+    <div className="br24-shell-navbar br24-shell-navbar--micro br24-anim-fade-in relative flex items-center justify-between gap-2 px-2 md:mx-3 md:mt-1.5 md:rounded-xl">
+      <Tooltip title={menuTip} placement="bottom" arrow>
+        <button
+          type="button"
+          aria-label={menuTip}
+          onClick={() => dispatch(toggleActiveMenu())}
+          style={{ color: currentColor }}
+          className="br24-nav-icon-btn relative shrink-0 rounded-lg p-1.5 text-base transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[color-mix(in_srgb,var(--br24-accent)_35%,transparent)] active:scale-95"
+        >
+          <AiOutlineMenu />
+        </button>
+      </Tooltip>
 
-      <div className="flex items-center gap-3">
-        <div className="hidden text-right sm:block">
-          <p className="text-[0.625rem] font-medium uppercase tracking-wider text-slate-400">
+      <div className="flex min-w-0 items-center gap-2.5">
+        <div
+          className="br24-navbar-build min-w-0 max-w-[11rem] text-right leading-tight sm:max-w-[14rem]"
+          title={`Version ${APP_VERSION} · ${APP_BUILD_STAMP}`}
+        >
+          <p className="truncate text-[0.65rem] font-semibold tracking-wide text-slate-600 dark:text-slate-300">
             Version {APP_VERSION}
           </p>
-          <p className="text-[0.625rem] text-slate-400">{APP_BUILD_STAMP}</p>
+          <p className="truncate text-[0.58rem] text-slate-500 dark:text-slate-400">
+            {APP_BUILD_STAMP}
+          </p>
         </div>
 
         <Tooltip title="Profile" placement="bottom" arrow>
           <div
-            className="br24-nav-icon-btn flex cursor-pointer items-center gap-2 rounded-xl p-1.5 transition-all duration-300 hover:scale-[1.02] focus:outline-none active:scale-95"
+            className="br24-nav-profile-btn br24-nav-icon-btn flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg px-1.5 py-0.5 transition-all duration-200 hover:scale-[1.02] focus:outline-none active:scale-95"
             role="button"
             tabIndex={0}
             onKeyDown={() => {
@@ -125,16 +103,12 @@ const Navbar = () => {
           >
             <img
               alt="userProfilePic"
-              className="h-8 w-8 rounded-full shadow-md ring-2 ring-white/70 dark:ring-slate-600/80"
+              className="br24-nav-profile-avatar h-5 w-5 rounded-full shadow-sm ring-1 ring-white/70 dark:ring-slate-600/80"
               src={avatar}
             />
-            <p className="hidden md:block">
-              <span className="text-14 text-slate-400">Hi, </span>
-              <span className="ml-1 text-14 font-semibold text-slate-700 dark:text-slate-100">
-                {userInfo?.userName ? userInfo.userName : 'Anonymous'}
-              </span>
-            </p>
-            <MdKeyboardArrowDown className="text-14 text-slate-400" />
+            <span className="br24-nav-profile-name max-w-[6.5rem] truncate text-[0.7rem] font-semibold leading-none text-slate-700 dark:text-slate-100">
+              {userInfo?.userName ? userInfo.userName : 'Anonymous'}
+            </span>
           </div>
         </Tooltip>
 

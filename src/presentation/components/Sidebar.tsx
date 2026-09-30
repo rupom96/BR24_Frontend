@@ -19,6 +19,10 @@ import {
 } from '../../application/Redux/slices/ActiveMenuSlice.js';
 import { useGetSAChainMenuByCompanyLocationUserIdQuery } from '../../infrastructure/api/SAChainMenuApiSlice.js';
 import { Br24MenuSkeleton } from './Br24Loader';
+import SidebarBrandParticles from './SidebarBrandParticles';
+import ActiveMenuShine from './ActiveMenuShine';
+import { getMenuIcon } from '../Utils/menuIcons';
+import { onAccentColor } from '../Utils/colorUtils';
 
 const Sidebar = () => {
   // const { activeMenu, setActiveMenu, screenSize, currentColor } =
@@ -526,75 +530,93 @@ const Sidebar = () => {
   ]);
 
   const activeMenu = useAppSelector((state) => state.activeMenu.active);
+  const sidebarMode = useAppSelector((state) => state.activeMenu.mode);
   const screenSize = useAppSelector((state) => state.screenSize.size);
   const currentColor = useAppSelector((state) => state.currentColor.color);
+  const currentMode = useAppSelector((state) => state.currentMode.mode);
   const dispatch = useAppDispatch();
 
   const handleCloseSidebar = () => {
     if (activeMenu && screenSize && screenSize <= 900) {
       dispatch(falsifyActiveMenu());
     }
+    // Rail expand was hover-only; blur so click-focus can't pin it open
+    if (sidebarMode === 'rail') {
+      const el = document.activeElement;
+      if (el instanceof HTMLElement) el.blur();
+    }
   };
 
   const activeLink =
-    'br24-nav-link flex items-center gap-4 pl-4 pt-2.5 pb-2.5 rounded-xl text-white text-md m-2 shadow-md';
+    'br24-nav-link br24-nav-link--active flex items-center gap-3 pl-3 pr-3 pt-2 pb-2 rounded-xl text-sm m-1.5 shadow-md';
 
   const normalLink =
-    'br24-nav-link flex items-center gap-4 pl-4 pt-2.5 pb-2.5 rounded-xl text-md text-slate-700 dark:text-slate-200 m-2';
+    'br24-nav-link flex items-center gap-3 pl-3 pr-3 pt-2 pb-2 rounded-xl text-sm text-slate-700 dark:text-slate-200 m-1.5';
 
   const subactiveLink =
-    'br24-nav-link flex items-center gap-4 pl-9 pt-2 pb-2.5 rounded-xl text-white text-md m-2 shadow-md';
+    'br24-nav-link br24-nav-link--active flex items-center gap-3 pl-8 pr-3 pt-2 pb-2 rounded-xl text-sm m-1.5 shadow-md';
 
   const subnormalLink =
-    'br24-nav-link flex items-center gap-4 pl-9 pt-2.5 pb-2.5 rounded-xl text-md text-slate-700 dark:text-slate-200 m-2';
+    'br24-nav-link flex items-center gap-3 pl-8 pr-3 pt-2 pb-2 rounded-xl text-sm text-slate-700 dark:text-slate-200 m-1.5';
 
   return (
-    <div className="br24-shell-sidebar scroller ml-2 h-screen overflow-auto pb-10 md:overflow-hidden md:hover:overflow-auto">
-      {activeMenu && (
-        <>
-          <div className="br24-anim-fade-up flex items-center justify-between px-1">
-            <Link
-              to="/"
-              className="ml-2 mt-4 flex items-center gap-3 text-xl font-extrabold tracking-tight text-slate-900 dark:text-white"
-              onClick={handleCloseSidebar}
+    <>
+      <div className="br24-sidebar-brand br24-anim-fade-up flex items-center justify-between overflow-hidden px-1">
+        <SidebarBrandParticles
+          accent={currentColor}
+          isDark={currentMode === 'Dark'}
+        />
+        <Link
+          to="/"
+          className="br24-sidebar-brand-link relative z-[1] ml-1.5 mt-3 flex items-center gap-2.5 text-xl font-extrabold tracking-tight text-slate-900 dark:text-white"
+          onClick={handleCloseSidebar}
+        >
+          <div className="flex items-center gap-2.5 transition-transform duration-300 hover:scale-[1.02]">
+            <span
+              className="br24-sidebar-brand-mark flex h-8 w-8 shrink-0 items-center justify-center rounded-lg shadow-lg"
+              style={{
+                backgroundColor: currentColor,
+                color: onAccentColor(currentColor),
+              }}
             >
-              <div className="flex items-center gap-3 transition-transform duration-300 hover:scale-[1.02]">
-                <span
-                  className="flex h-9 w-9 items-center justify-center rounded-xl text-white shadow-lg"
-                  style={{ backgroundColor: currentColor }}
-                >
-                  <BiAnalyse />
-                </span>
-                <span className="text-base tracking-tight">Bizness Roots 24</span>
-              </div>
-            </Link>
-
-            <Tooltip title="Menu" placement="top-start" arrow>
-              <button
-                type="button"
-                aria-label="Menu"
-                onClick={() => dispatch(toggleActiveMenu())}
-                className="mt-4 block rounded-xl p-3 text-xl transition-all duration-300 hover:bg-slate-100 md:hidden"
-              >
-                <MdOutlineCancel />
-              </button>
-            </Tooltip>
+              <BiAnalyse className="text-sm" />
+            </span>
+            <span className="br24-sidebar-brand-text text-sm tracking-tight">
+              Bizness Roots 24
+            </span>
           </div>
+        </Link>
 
-          {SAChainMenuData && !SAChainMenuIsFetching && !SAChainMenuLoading ? (
-            <div className="br24-anim-fade-up-delay mt-8">
-              {allLinks.map((item) => (
+        <Tooltip title="Menu" placement="top-start" arrow>
+          <button
+            type="button"
+            aria-label="Menu"
+            onClick={() => dispatch(toggleActiveMenu())}
+            className="relative z-[1] mt-3 block rounded-lg p-2 text-lg transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-800 md:hidden"
+          >
+            <MdOutlineCancel />
+          </button>
+        </Tooltip>
+      </div>
+
+      <div className="br24-shell-sidebar scroller overflow-y-auto overflow-x-hidden pb-10">
+        {SAChainMenuData && !SAChainMenuIsFetching && !SAChainMenuLoading ? (
+          <div className="br24-anim-fade-up-delay mt-4">
+            {allLinks.map((item) => {
+              if (!item?.title || !item?.links?.length) return null;
+              return (
                 <div key={item.title}>
-                  <p className="m-3 mt-4 text-[0.6875rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                  <p className="br24-sidebar-section-title m-2 mt-3 text-[0.625rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
                     {item.title}
                   </p>
 
-                  {item?.links?.map((link) => (
+                  {item.links.map((link) => (
                     <div key={link.name}>
                       {!link.sublinks && (
                         <NavLink
                           to={`/${link.path}`}
                           onClick={handleCloseSidebar}
+                          title={link.name}
                           style={({ isActive }) => ({
                             backgroundColor: isActive ? currentColor : '',
                           })}
@@ -602,8 +624,17 @@ const Sidebar = () => {
                             isActive ? activeLink : normalLink
                           }
                         >
-                          {link.icon}
-                          <span className="capitalize">{link.name}</span>
+                          {({ isActive }) => (
+                            <>
+                              {isActive ? <ActiveMenuShine /> : null}
+                              <span className="br24-menu-icon" aria-hidden>
+                                {getMenuIcon(link.name, link.path)}
+                              </span>
+                              <span className="br24-menu-label capitalize">
+                                {link.name}
+                              </span>
+                            </>
+                          )}
                         </NavLink>
                       )}
 
@@ -612,15 +643,20 @@ const Sidebar = () => {
                           <div className="accordion" id="menuAccordion">
                             <div className="accordion-item">
                               <button
-                                className="menu-accordion-button accordion-button collapsed relative m-2 flex w-[94%] items-center gap-4 rounded-xl px-4 pb-2.5 pt-2.5 text-left text-base text-slate-700 transition-all duration-300 dark:text-gray-200"
+                                className="menu-accordion-button accordion-button collapsed relative m-2 flex w-[94%] items-center gap-3 rounded-xl px-3 pb-2 pt-2 text-left text-sm text-slate-700 transition-all duration-300 dark:text-gray-200"
                                 type="button"
                                 data-bs-toggle="collapse"
                                 data-bs-target={`#${link.name}`}
                                 aria-expanded="false"
                                 aria-controls={link.name}
+                                title={link.name}
                               >
-                                {link.icon}
-                                <span className="capitalize">{link.name}</span>
+                                <span className="br24-menu-icon" aria-hidden>
+                                  {getMenuIcon(link.name, link.path)}
+                                </span>
+                                <span className="br24-menu-label capitalize">
+                                  {link.name}
+                                </span>
                               </button>
 
                               <div
@@ -630,29 +666,42 @@ const Sidebar = () => {
                                 data-bs-parent="#menuAccordion"
                               >
                                 <div className="accordion-body ">
-                                  {link.sublinks &&
-                                    link.sublinks.map((sublink) => (
-                                      <NavLink
-                                        to={`/${sublink.path}`}
-                                        key={sublink.name}
-                                        onClick={handleCloseSidebar}
-                                        style={({ isActive }) => ({
-                                          backgroundColor: isActive
-                                            ? currentColor
-                                            : '',
-                                        })}
-                                        className={({ isActive }) =>
-                                          isActive
-                                            ? subactiveLink
-                                            : subnormalLink
-                                        }
-                                      >
-                                        {sublink.icon}
-                                        <span className="capitalize">
-                                          {sublink.name}
-                                        </span>
-                                      </NavLink>
-                                    ))}
+                                  {link.sublinks.map((sublink) => (
+                                    <NavLink
+                                      to={`/${sublink.path}`}
+                                      key={sublink.name}
+                                      onClick={handleCloseSidebar}
+                                      title={sublink.name}
+                                      style={({ isActive }) => ({
+                                        backgroundColor: isActive
+                                          ? currentColor
+                                          : '',
+                                      })}
+                                      className={({ isActive }) =>
+                                        isActive
+                                          ? subactiveLink
+                                          : subnormalLink
+                                      }
+                                    >
+                                      {({ isActive }) => (
+                                        <>
+                                          {isActive ? <ActiveMenuShine /> : null}
+                                          <span
+                                            className="br24-menu-icon"
+                                            aria-hidden
+                                          >
+                                            {getMenuIcon(
+                                              sublink.name,
+                                              sublink.path
+                                            )}
+                                          </span>
+                                          <span className="br24-menu-label capitalize">
+                                            {sublink.name}
+                                          </span>
+                                        </>
+                                      )}
+                                    </NavLink>
+                                  ))}
                                 </div>
                               </div>
                             </div>
@@ -662,14 +711,14 @@ const Sidebar = () => {
                     </div>
                   ))}
                 </div>
-              ))}
-            </div>
-          ) : (
-            <Br24MenuSkeleton />
-          )}
-        </>
-      )}
-    </div>
+              );
+            })}
+          </div>
+        ) : (
+          <Br24MenuSkeleton />
+        )}
+      </div>
+    </>
   );
 };
 

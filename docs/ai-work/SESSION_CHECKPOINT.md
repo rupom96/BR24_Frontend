@@ -1,16 +1,19 @@
 # Session checkpoint
 
-**Last updated:** 2026-09-29
+**Last updated:** 2026-09-30
 
 ## Current task
 
-none (idle) — auto build version + stamp on Navbar
+Sidebar polish — transitions + rail glass + brand particles (done)
 
 ## Completed
 
-- `scripts/bump-build-info.mjs` + `prebuild` bumps last version segment + Dhaka date/time
-- Navbar reads `APP_VERSION` / `APP_BUILD_STAMP` from `buildInfo.ts`
+- Micro navbar: menu | version+stamp (right, before avatar) | profile
+- Sidebar modes: `full` → `rail` → `hidden` (stays mounted; CSS width/opacity spring)
+- Content margin transitions via `br24-shell-main--*`
+- Rail hover: glassy blur overlay over page
+- Sticky brand: theme-palette tsparticles (`SidebarBrandParticles`)
 
 ## Exact next action
 
-User: `npm run build` once — confirm Navbar shows new version + stamp.
+User smoke-test: mode cycle smoothness, rail hover glass, brand particles vs theme color.

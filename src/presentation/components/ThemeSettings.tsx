@@ -304,40 +304,35 @@ const ThemeSettings = () => {
             <div className="br24-theme-section">
               <p className="br24-theme-section-label">Mode</p>
               <div
-                className="br24-theme-mode-toggle"
+                className={`br24-theme-mode-switch ${
+                  currentMode === 'Dark' ? 'is-dark' : 'is-light'
+                }`}
                 role="group"
                 aria-label="Color mode"
               >
                 <button
                   type="button"
-                  className={`br24-theme-mode-btn ${
+                  className={`br24-theme-mode-icon ${
                     currentMode === 'Light' ? 'is-active' : ''
                   }`}
+                  aria-label="Light mode"
+                  aria-pressed={currentMode === 'Light'}
                   onClick={() => dispatch(lightenCurrentMode())}
-                  style={
-                    currentMode === 'Light'
-                      ? { backgroundColor: currentColor, color: '#fff' }
-                      : undefined
-                  }
                 >
                   <FiSun />
-                  Light
                 </button>
                 <button
                   type="button"
-                  className={`br24-theme-mode-btn ${
+                  className={`br24-theme-mode-icon ${
                     currentMode === 'Dark' ? 'is-active' : ''
                   }`}
+                  aria-label="Dark mode"
+                  aria-pressed={currentMode === 'Dark'}
                   onClick={() => dispatch(darkenCurrentMode())}
-                  style={
-                    currentMode === 'Dark'
-                      ? { backgroundColor: currentColor, color: '#fff' }
-                      : undefined
-                  }
                 >
                   <FiMoon />
-                  Dark
                 </button>
+                <span className="br24-theme-mode-knob" aria-hidden />
               </div>
             </div>
 
