@@ -593,7 +593,8 @@
 }
 
 .br24-sidebar--full {
-  z-index: 10010;
+  /* Below app modals (MUI ~1300+, shell popups 10000+). Still above in-flow page content. */
+  z-index: 40;
   width: 18rem;
   transform: translate3d(0, 0, 0);
   opacity: 1;
@@ -612,7 +613,7 @@
 }
 
 .br24-sidebar--hidden {
-  z-index: 10010;
+  z-index: 40;
   width: 0;
   min-width: 0;
   transform: translate3d(-0.35rem, 0, 0);
