@@ -409,8 +409,13 @@ const Sidebar = () => {
             },
 
             {
-              name: 'Current Stock View',
-              path: 'currentStockPreview',
+              name: 'Tender Expense For SP',
+              path: 'tenderExpenseForSalesPerson',
+              icon: <FiShoppingBag />,
+            },
+            {
+              name: 'Tender Approval TopSheet Rpt',
+              path: 'tenderApprovalTopSheetRpt',
               icon: <FiShoppingBag />,
             },
             {
@@ -418,6 +423,7 @@ const Sidebar = () => {
               path: 'currentStockPreview',
               icon: <FiShoppingBag />,
             },
+           
           ],
         },
 

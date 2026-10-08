@@ -281,7 +281,8 @@ export const TenderApiSlice = createApi({
           const parsed = await parseBlobErrorData(result.error.data);
           return {
             error: {
-              status: result.error.status,
+              status: 'CUSTOM_ERROR' as const,
+              error: String(parsed.title || 'Download failed'),
               data: parsed,
             },
           };
