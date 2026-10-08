@@ -76,6 +76,8 @@ type TenderCostingDetailRow = GetTenderCostingDetailDto & {
   // Tax & VAT Three + final pricing
   taxAndVATThreePerProduct: number; // percentage driven from Tax&VATThreeP
   totalAmountTwoPerProduct: number; // virtual
+  /** Virtual: totalAmountOnePerProduct / sum(totalAmountOne) */
+  ratio: number;
 
   /** DB Price at load — used on save when productSource is not FOB/LOCAL/STOCK */
   originalPrice: number | null;
@@ -128,20 +130,79 @@ export type TenderCostingState = Omit<
   // Combined BG + PG + SD
   bgAndPgAndSd: number;
 
+  /** Sales/AG: percent → VT/SE % formula; total → UC×Qty ratio split (% reverse-display only) */
+  salesExpenseMode: 'percent' | 'total';
+  agExpenseMode: 'percent' | 'total';
+
   getTenderCostingDetailDtos: TenderCostingDetailRow[];
 };
 
 const round2 = (n: number): number =>
   Number.isFinite(n) ? Math.round(n * 100) / 100 : 0;
 
+const isTruthyAmount = (v: number | null | undefined): boolean =>
+  v != null && !Number.isNaN(Number(v)) && Number(v) !== 0;
+
+/**
+ * Allocate pot `total` by (unitCost×qty)/Σ; return per-unit = share/qty.
+ * Last row absorbs share remainder so Σ(share) === total.
+ */
+const allocateTotalByUnitCostRatio = (
+  unitCosts: number[],
+  qtys: number[],
+  total: number
+): number[] => {
+  const n = unitCosts.length;
+  if (!n) return [];
+  if (!total) return Array(n).fill(0);
+
+  const weights = unitCosts.map((uc, i) => (uc || 0) * (qtys[i] || 0));
+  const sumW = weights.reduce((a, b) => a + b, 0);
+  if (!sumW) return Array(n).fill(0);
+
+  const shares: number[] = Array(n).fill(0);
+  let allocated = 0;
+  for (let i = 0; i < n - 1; i += 1) {
+    shares[i] = round2((total * weights[i]) / sumW);
+    allocated += shares[i];
+  }
+  shares[n - 1] = round2(total - allocated);
+
+  return shares.map((share, i) => {
+    const q = qtys[i] || 0;
+    return q ? round2(share / q) : 0;
+  });
+};
+
+const reversePctFromLinePot = (
+  total: number,
+  perUnitBases: number[],
+  qtys: number[]
+): number => {
+  const denom = perUnitBases.reduce(
+    (acc, v, i) => acc + (v || 0) * (qtys[i] || 0),
+    0
+  );
+  return denom ? round2((total / denom) * 100) : 0;
+};
+
 // ===== Recompute all (single source of truth) =====
 
 const recomputeAll = (state: TenderCostingState): TenderCostingState => {
   const taxAndVATOnePct = state.taxAndVATOneP ?? 0;
-  const salesExpensePct = state.salesExpenseP ?? 0;
-  const agExpensePct = state.agExpenseP ?? 0;
   const taxAndVATTwoPct = state.taxAndVATTwoP ?? 0;
   const taxAndVATThreePct = state.taxAndVATThreeP ?? 0;
+  const salesExpenseMode = state.salesExpenseMode ?? 'percent';
+  const agExpenseMode = state.agExpenseMode ?? 'percent';
+  let salesExpensePct = state.salesExpenseP ?? 0;
+  let agExpensePct = state.agExpenseP ?? 0;
+  const salesExpenseTotalPot = state.salesExpenseT ?? 0;
+  const agExpenseTotalPot = state.agExpenseT ?? 0;
+  const deliveryTotalPot = state.deliveryT ?? 0;
+  const installationTotalPot = state.installationT ?? 0;
+  const psiTotalPot = state.preShipmentInspectionT ?? 0;
+  const trainingTotalPot = state.trainingT ?? 0;
+  const bufferTotalPot = state.bufferWarrantyT ?? 0;
 
   let sumOfUnit = 0;
   let sumOfTotalFOB = 0;
@@ -153,14 +214,8 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
   let sumDP = 0;
   let sumUnitCost = 0;
 
-  // “Other Costs” totals
-  let sumDelivery = 0;
-  let sumInstallation = 0;
-  let sumPSI = 0;
-  let sumTraining = 0;
   let sumSoftware = 0;
   let sumHardware = 0;
-  let sumBuffer = 0;
 
   // Tax & VAT One total
   let sumTaxAndVATOne = 0;
@@ -182,9 +237,25 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
   let sumTotalAmountOne = 0;
   let sumTotalVatTax = 0;
 
-  // ---- Pass 1: compute all row values up to TotalAmountOne / TotalVatTax ----
-  const firstPassRows: TenderCostingDetailRow[] =
-    state.getTenderCostingDetailDtos.map((row) => {
+  // ---- Pass 1a: unit cost (+ keep software/hardware as row-edited) ----
+  type UnitCostStage = {
+    row: TenderCostingDetailRow;
+    quantity: number;
+    totalFob: number;
+    distMarginPercent: number;
+    distMarginPerProduct: number;
+    lpPerProduct: number;
+    lc: number;
+    profitPercent: number;
+    profitPerProduct: number;
+    dpPerProduct: number;
+    unitCostPerProduct: number;
+    softwareOSOfficePerProduct: number;
+    hardwareAccessoriesPerProduct: number;
+  };
+
+  const unitCostStages: UnitCostStage[] = state.getTenderCostingDetailDtos.map(
+    (row) => {
       const quantity = row.quantity ?? 0;
       const price = row.price ?? 0;
       const factor = row.initialFactor ?? 0;
@@ -194,7 +265,6 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
       const distMarginPercent = row.distMarginPercent ?? 0;
       const profitPercent = row.profitPercent ?? 0;
 
-      // FOB: Dist value from row %; non-FOB: keep stored Dist cost
       const distMarginPerProduct = isFobSource(row.productSource)
         ? price && distMarginPercent
           ? round2(price * (distMarginPercent / 100))
@@ -221,18 +291,90 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
           (profitPerProduct || 0)
       );
 
-      // keep editable “Other Costs” as-is
-      const deliveryPerProduct = row.deliveryPerProduct ?? 0;
-      const installationPerProduct = row.installationPerProduct ?? 0;
-      const preShipmentInspectionPerProduct =
-        row.preShipmentInspectionPerProduct ?? 0;
-      const trainingPerProduct = row.trainingPerProduct ?? 0;
-      const softwareOSOfficePerProduct = row.softwareOSOfficePerProduct ?? 0;
-      const hardwareAccessoriesPerProduct =
-        row.hardwareAccessoriesPerProduct ?? 0;
-      const bufferWarrantyPerProduct = row.bufferWarrantyPerProduct ?? 0;
+      return {
+        row,
+        quantity,
+        totalFob,
+        distMarginPercent,
+        distMarginPerProduct,
+        lpPerProduct,
+        lc,
+        profitPercent,
+        profitPerProduct,
+        dpPerProduct,
+        unitCostPerProduct,
+        softwareOSOfficePerProduct: row.softwareOSOfficePerProduct ?? 0,
+        hardwareAccessoriesPerProduct: row.hardwareAccessoriesPerProduct ?? 0,
+      };
+    }
+  );
 
-      // Unit Price (No V&T + Others)
+  const unitCosts = unitCostStages.map((s) => s.unitCostPerProduct);
+  const qtys = unitCostStages.map((s) => s.quantity);
+
+  // Ratio-split pots → per-unit cells (Option X)
+  const deliveryPerUnits = allocateTotalByUnitCostRatio(
+    unitCosts,
+    qtys,
+    deliveryTotalPot
+  );
+  const installationPerUnits = allocateTotalByUnitCostRatio(
+    unitCosts,
+    qtys,
+    installationTotalPot
+  );
+  const psiPerUnits = allocateTotalByUnitCostRatio(
+    unitCosts,
+    qtys,
+    psiTotalPot
+  );
+  const trainingPerUnits = allocateTotalByUnitCostRatio(
+    unitCosts,
+    qtys,
+    trainingTotalPot
+  );
+  const bufferPerUnits = allocateTotalByUnitCostRatio(
+    unitCosts,
+    qtys,
+    bufferTotalPot
+  );
+  const salesTotalPerUnits =
+    salesExpenseMode === 'total'
+      ? allocateTotalByUnitCostRatio(unitCosts, qtys, salesExpenseTotalPot)
+      : null;
+  const agTotalPerUnits =
+    agExpenseMode === 'total'
+      ? allocateTotalByUnitCostRatio(unitCosts, qtys, agExpenseTotalPot)
+      : null;
+
+  // ---- Pass 1b: VT → SE → AG → Total Amount One ----
+  const vtPerUnits: number[] = [];
+  const seBasePerUnits: number[] = [];
+
+  const firstPassRows: TenderCostingDetailRow[] = unitCostStages.map(
+    (stage, idx) => {
+      const {
+        row,
+        quantity,
+        totalFob,
+        distMarginPercent,
+        distMarginPerProduct,
+        lpPerProduct,
+        lc,
+        profitPercent,
+        profitPerProduct,
+        dpPerProduct,
+        unitCostPerProduct,
+        softwareOSOfficePerProduct,
+        hardwareAccessoriesPerProduct,
+      } = stage;
+
+      const deliveryPerProduct = deliveryPerUnits[idx] ?? 0;
+      const installationPerProduct = installationPerUnits[idx] ?? 0;
+      const preShipmentInspectionPerProduct = psiPerUnits[idx] ?? 0;
+      const trainingPerProduct = trainingPerUnits[idx] ?? 0;
+      const bufferWarrantyPerProduct = bufferPerUnits[idx] ?? 0;
+
       const unitPriceWithoutVTOtherExpPerProduct = round2(
         unitCostPerProduct +
           (deliveryPerProduct || 0) +
@@ -244,7 +386,6 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
           (bufferWarrantyPerProduct || 0)
       );
 
-      // Tax & VAT One per row (non-virtual)
       const taxAndVATOnePerProduct =
         taxAndVATOnePct && unitPriceWithoutVTOtherExpPerProduct
           ? round2(
@@ -255,20 +396,26 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
       const unitPriceWithVTPerProduct = round2(
         unitPriceWithoutVTOtherExpPerProduct + (taxAndVATOnePerProduct || 0)
       );
+      vtPerUnits.push(unitPriceWithVTPerProduct);
 
       const salesExpensePerProduct =
-        salesExpensePct && unitPriceWithVTPerProduct
-          ? round2(unitPriceWithVTPerProduct * (salesExpensePct / 100))
-          : 0;
+        salesExpenseMode === 'total'
+          ? salesTotalPerUnits?.[idx] ?? 0
+          : salesExpensePct && unitPriceWithVTPerProduct
+            ? round2(unitPriceWithVTPerProduct * (salesExpensePct / 100))
+            : 0;
 
       const unitPriceWithSePerProduct = round2(
         unitPriceWithVTPerProduct + (salesExpensePerProduct || 0)
       );
+      seBasePerUnits.push(unitPriceWithSePerProduct);
 
       const agExpensePerProduct =
-        agExpensePct && unitPriceWithSePerProduct
-          ? round2(unitPriceWithSePerProduct * (agExpensePct / 100))
-          : 0;
+        agExpenseMode === 'total'
+          ? agTotalPerUnits?.[idx] ?? 0
+          : agExpensePct && unitPriceWithSePerProduct
+            ? round2(unitPriceWithSePerProduct * (agExpensePct / 100))
+            : 0;
 
       const unitPriceWithAgPerProduct = round2(
         unitPriceWithSePerProduct + (agExpensePerProduct || 0)
@@ -304,13 +451,8 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
       sumDP += dpPerProduct || 0;
       sumUnitCost += unitCostPerProduct || 0;
 
-      sumDelivery += deliveryPerProduct || 0;
-      sumInstallation += installationPerProduct || 0;
-      sumPSI += preShipmentInspectionPerProduct || 0;
-      sumTraining += trainingPerProduct || 0;
       sumSoftware += softwareOSOfficePerProduct || 0;
       sumHardware += hardwareAccessoriesPerProduct || 0;
-      sumBuffer += bufferWarrantyPerProduct || 0;
 
       sumTaxAndVATOne += taxAndVATOnePerProduct || 0;
       sumUnitPriceWithVT += unitPriceWithVTPerProduct || 0;
@@ -357,7 +499,20 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
         totalAmountOnePerProduct,
         totalVatTaxPerProduct,
       };
-    });
+    }
+  );
+
+  // Option X: total mode → % is reverse-display only (does not re-drive cells)
+  if (salesExpenseMode === 'total') {
+    salesExpensePct = reversePctFromLinePot(
+      salesExpenseTotalPot,
+      vtPerUnits,
+      qtys
+    );
+  }
+  if (agExpenseMode === 'total') {
+    agExpensePct = reversePctFromLinePot(agExpenseTotalPot, seBasePerUnits, qtys);
+  }
 
   const sumOfUnitSafe = sumOfUnit || 0;
   const totalAmountOneTSafe = sumTotalAmountOne || 0;
@@ -398,8 +553,8 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
     ? round2(fixedExpWithPgTotalQtChargeAWithPgTotalYearsA / sumOfUnitSafe)
     : 0;
 
-  // SD
-  const securityDeposit = state.securityDeposit ?? 0;
+  // SD — Option B: always mirror Total Amount One sum (UI read-only)
+  const securityDeposit = totalAmountOneTSafe;
   const securityDepositP = state.securityDepositP ?? 0;
   const sdBankFinanceChargeP = state.sdBankFinanceChargeP ?? 0;
   const sdTotalYears = state.sdTotalYears ?? 0;
@@ -409,6 +564,9 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
     (sdBankFinanceChargeP / 100) * securityDepositA
   );
   const sdTotalYearsA = round2(sdTotalYears * sdBankFinanceChargeA);
+  // Margin: display + save only — does not feed sdValuePerUnit / bgAndPgAndSd
+  const sdMarginP = state.sdMarginP ?? 0;
+  const sdMarginAmount = round2((sdMarginP / 100) * sdTotalYearsA);
   const sdValuePerUnit = sumOfUnitSafe
     ? round2(sdTotalYearsA / sumOfUnitSafe)
     : 0;
@@ -438,6 +596,10 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
 
     const calculatedProfit = round2(quantity * (row.profitPerProduct || 0));
 
+    const ratio = totalAmountOneTSafe
+      ? round2((row.totalAmountOnePerProduct || 0) / totalAmountOneTSafe)
+      : 0;
+
     sumTaxAndVATThree += taxAndVATThreePerProduct || 0;
     sumTotalAmountTwo += totalAmountTwoPerProduct || 0;
 
@@ -446,6 +608,7 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
       taxAndVATThreePerProduct,
       calculatedPrice,
       totalAmountTwoPerProduct,
+      ratio,
       calculatedProfit,
     };
   });
@@ -462,22 +625,29 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
     profitT: round2(sumProfit),
     dpt: round2(sumDP),
     unitCostT: round2(sumUnitCost),
-    // “Other Costs” totals
-    deliveryT: round2(sumDelivery),
-    installationT: round2(sumInstallation),
-    preShipmentInspectionT: round2(sumPSI),
-    trainingT: round2(sumTraining),
+    // Other Costs: pots stay as header totals (ratio-split into cells); software/hardware still sum of cells
+    deliveryT: round2(deliveryTotalPot),
+    installationT: round2(installationTotalPot),
+    preShipmentInspectionT: round2(psiTotalPot),
+    trainingT: round2(trainingTotalPot),
     softwareOSOfficeT: round2(sumSoftware),
     hardwareAccessoriesT: round2(sumHardware),
-    bufferWarrantyT: round2(sumBuffer),
+    bufferWarrantyT: round2(bufferTotalPot),
     // Tax & VAT One total
     taxAndVATOneT: round2(sumTaxAndVATOne),
     unitPriceWithVTT: round2(sumUnitPriceWithVT),
-    // Sales Expense + Unit Price With SE
-    salesExpenseT: round2(sumSalesExpense),
+    // Sales / AG: total mode keeps pot; percent mode footer = Σ per-unit cells
+    salesExpenseP: round2(salesExpensePct),
+    salesExpenseT: round2(
+      salesExpenseMode === 'total' ? salesExpenseTotalPot : sumSalesExpense
+    ),
+    salesExpenseMode,
     unitPriceWithSeT: round2(sumUnitPriceWithSe),
-    // AG Expense + Unit Price With AG
-    agExpenseT: round2(sumAgExpense),
+    agExpenseP: round2(agExpensePct),
+    agExpenseT: round2(
+      agExpenseMode === 'total' ? agExpenseTotalPot : sumAgExpense
+    ),
+    agExpenseMode,
     unitPriceWithAgT: round2(sumUnitPriceWithAg),
     // Tax & VAT Two + Unit Price(TaxVat2+SE+AG)
     taxAndVATTwoT: round2(sumTaxAndVATTwo),
@@ -505,8 +675,10 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
     // BG derived
     bgValuePerUnit,
 
-    // SD derived
+    // SD — persist Option B Total + Margin amount (display/save only)
+    securityDeposit,
     securityDepositA,
+    sdMarginAmount,
     sdBankFinanceChargeA,
     sdTotalYearsA,
     sdValuePerUnit,
@@ -586,10 +758,43 @@ const buildInitialStateFromDto = (
         taxAndVATThreePerProduct: d.taxAndVATThreePerProduct ?? 0,
         calculatedPrice: d.calculatedPrice ?? 0,
         totalAmountTwoPerProduct: 0,
+        ratio: 0,
         calculatedProfit: d.calculatedProfit ?? 0,
       };
     }
   );
+
+  const seedLinePot = (
+    headerT: number | null | undefined,
+    perKey:
+      | 'deliveryPerProduct'
+      | 'installationPerProduct'
+      | 'preShipmentInspectionPerProduct'
+      | 'trainingPerProduct'
+      | 'bufferWarrantyPerProduct'
+      | 'salesExpensePerProduct'
+      | 'agExpensePerProduct'
+  ): number => {
+    if (isTruthyAmount(headerT)) return headerT ?? 0;
+    return round2(
+      rows.reduce(
+        (acc, r) => acc + ((r[perKey] as number) || 0) * (r.quantity || 0),
+        0
+      )
+    );
+  };
+
+  // Both P and T truthy → prefer % (mode percent)
+  const salesExpenseMode: 'percent' | 'total' = isTruthyAmount(dto.salesExpenseP)
+    ? 'percent'
+    : isTruthyAmount(dto.salesExpenseT)
+      ? 'total'
+      : 'percent';
+  const agExpenseMode: 'percent' | 'total' = isTruthyAmount(dto.agExpenseP)
+    ? 'percent'
+    : isTruthyAmount(dto.agExpenseT)
+      ? 'total'
+      : 'percent';
 
   const baseState: TenderCostingState = {
     ...dto,
@@ -598,6 +803,30 @@ const buildInitialStateFromDto = (
     // Profit % and total from DB (totals will be recomputed)
     profitP: dto.profitP ?? 0,
     profitT: dto.profitT ?? 0,
+    deliveryT: seedLinePot(dto.deliveryT, 'deliveryPerProduct'),
+    installationT: seedLinePot(dto.installationT, 'installationPerProduct'),
+    preShipmentInspectionT: seedLinePot(
+      dto.preShipmentInspectionT,
+      'preShipmentInspectionPerProduct'
+    ),
+    trainingT: seedLinePot(dto.trainingT, 'trainingPerProduct'),
+    bufferWarrantyT: seedLinePot(dto.bufferWarrantyT, 'bufferWarrantyPerProduct'),
+    salesExpenseMode,
+    salesExpenseT:
+      salesExpenseMode === 'total'
+        ? seedLinePot(dto.salesExpenseT, 'salesExpensePerProduct')
+        : dto.salesExpenseT ?? 0,
+    agExpenseMode,
+    agExpenseT:
+      agExpenseMode === 'total'
+        ? seedLinePot(dto.agExpenseT, 'agExpensePerProduct')
+        : dto.agExpenseT ?? 0,
+    // Other % fields unused for Delivery…Buffer — keep 0
+    deliveryP: 0,
+    installationP: 0,
+    preShipmentInspectionP: 0,
+    trainingP: 0,
+    bufferWarrantyP: 0,
     unitCostT: 0,
     unitPriceWithVTT: 0,
     unitPriceWithSeT: 0,
@@ -1154,7 +1383,13 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
     const val = Number(raw);
     const next = !raw || Number.isNaN(val) ? 0 : Math.max(0, val);
     setTenderCostingState((prev) =>
-      prev ? recomputeAll({ ...prev, salesExpenseP: next }) : prev
+      prev
+        ? recomputeAll({
+            ...prev,
+            salesExpenseP: next,
+            salesExpenseMode: 'percent',
+          })
+        : prev
     );
   };
 
@@ -1163,8 +1398,37 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
     const val = Number(raw);
     const next = !raw || Number.isNaN(val) ? 0 : Math.max(0, val);
     setTenderCostingState((prev) =>
-      prev ? recomputeAll({ ...prev, agExpenseP: next }) : prev
+      prev
+        ? recomputeAll({
+            ...prev,
+            agExpenseP: next,
+            agExpenseMode: 'percent',
+          })
+        : prev
     );
+  };
+
+  const handleExpenseTotalBlur = (
+    field:
+      | 'salesExpenseT'
+      | 'agExpenseT'
+      | 'deliveryT'
+      | 'installationT'
+      | 'preShipmentInspectionT'
+      | 'trainingT'
+      | 'bufferWarrantyT',
+    raw: string
+  ) => {
+    if (!tenderCostingState) return;
+    const val = Number(raw);
+    const next = !raw || Number.isNaN(val) ? 0 : Math.max(0, val);
+    setTenderCostingState((prev) => {
+      if (!prev) return prev;
+      const patch: Partial<TenderCostingState> = { [field]: next };
+      if (field === 'salesExpenseT') patch.salesExpenseMode = 'total';
+      if (field === 'agExpenseT') patch.agExpenseMode = 'total';
+      return recomputeAll({ ...prev, ...patch });
+    });
   };
 
   const handleTaxAndVATTwoPercentBlur = (raw: string) => {
@@ -1437,6 +1701,39 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
       );
     };
 
+  const editableTotalFooter = (
+    value: number,
+    field:
+      | 'salesExpenseT'
+      | 'agExpenseT'
+      | 'deliveryT'
+      | 'installationT'
+      | 'preShipmentInspectionT'
+      | 'trainingT'
+      | 'bufferWarrantyT'
+  ) => (
+    <TextField
+      key={`${field}-${value}`}
+      type="number"
+      variant="standard"
+      size="small"
+      defaultValue={value ?? 0}
+      InputProps={{
+        disableUnderline: true,
+        style: { fontSize: '0.8125rem', fontWeight: 600 },
+      }}
+      sx={{ width: '100%' }}
+      onClick={(e) => e.stopPropagation()}
+      onMouseDown={(e) => e.stopPropagation()}
+      onBlur={(e) => handleExpenseTotalBlur(field, e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          (e.target as HTMLInputElement).blur();
+        }
+      }}
+    />
+  );
+
   // ---- columns & footers ----
 
   const columns = useMemo<MRT_ColumnDef<TenderCostingDetailRow>[]>(() => {
@@ -1558,39 +1855,49 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
             accessorKey: 'deliveryPerProduct',
             header: 'Delivery',
             size: 120,
-            Cell: numberCell('deliveryPerProduct'),
-            enableEditing: true,
+            Cell: readonlyNumberCell('deliveryPerProduct'),
+            enableEditing: false,
             Footer: () =>
-              ((tenderCostingState as any)?.deliveryT ?? 0).toFixed(2),
+              editableTotalFooter(
+                tenderCostingState?.deliveryT ?? 0,
+                'deliveryT'
+              ),
           },
           {
             accessorKey: 'installationPerProduct',
             header: 'Installation',
             size: 140,
-            Cell: numberCell('installationPerProduct'),
-            enableEditing: true,
+            Cell: readonlyNumberCell('installationPerProduct'),
+            enableEditing: false,
             Footer: () =>
-              ((tenderCostingState as any)?.installationT ?? 0).toFixed(2),
+              editableTotalFooter(
+                tenderCostingState?.installationT ?? 0,
+                'installationT'
+              ),
           },
           {
             accessorKey: 'preShipmentInspectionPerProduct',
             header: 'Pre Shipment Inspection',
             size: 180,
-            Cell: numberCell('preShipmentInspectionPerProduct'),
-            enableEditing: true,
+            Cell: readonlyNumberCell('preShipmentInspectionPerProduct'),
+            enableEditing: false,
             Footer: () =>
-              (
-                (tenderCostingState as any)?.preShipmentInspectionT ?? 0
-              ).toFixed(2),
+              editableTotalFooter(
+                tenderCostingState?.preShipmentInspectionT ?? 0,
+                'preShipmentInspectionT'
+              ),
           },
           {
             accessorKey: 'trainingPerProduct',
             header: 'Training',
             size: 120,
-            Cell: numberCell('trainingPerProduct'),
-            enableEditing: true,
+            Cell: readonlyNumberCell('trainingPerProduct'),
+            enableEditing: false,
             Footer: () =>
-              ((tenderCostingState as any)?.trainingT ?? 0).toFixed(2),
+              editableTotalFooter(
+                tenderCostingState?.trainingT ?? 0,
+                'trainingT'
+              ),
           },
           {
             accessorKey: 'softwareOSOfficePerProduct',
@@ -1614,12 +1921,15 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
           },
           {
             accessorKey: 'bufferWarrantyPerProduct',
-            header: 'Buffer (warranty)',
+            header: 'Buffer/Others (warranty)',
             size: 160,
-            Cell: numberCell('bufferWarrantyPerProduct'),
-            enableEditing: true,
+            Cell: readonlyNumberCell('bufferWarrantyPerProduct'),
+            enableEditing: false,
             Footer: () =>
-              ((tenderCostingState as any)?.bufferWarrantyT ?? 0).toFixed(2),
+              editableTotalFooter(
+                tenderCostingState?.bufferWarrantyT ?? 0,
+                'bufferWarrantyT'
+              ),
           },
         ],
       },
@@ -1719,7 +2029,10 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
             Cell: readonlyNumberCell('salesExpensePerProduct' as any),
             enableEditing: false,
             Footer: () =>
-              ((tenderCostingState as any)?.salesExpenseT ?? 0).toFixed(2),
+              editableTotalFooter(
+                tenderCostingState?.salesExpenseT ?? 0,
+                'salesExpenseT'
+              ),
           },
         ],
       },
@@ -1769,7 +2082,10 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
             Cell: readonlyNumberCell('agExpensePerProduct' as any),
             enableEditing: false,
             Footer: () =>
-              ((tenderCostingState as any)?.agExpenseT ?? 0).toFixed(2),
+              editableTotalFooter(
+                tenderCostingState?.agExpenseT ?? 0,
+                'agExpenseT'
+              ),
           },
         ],
       },
@@ -1926,6 +2242,14 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
         Footer: () => (tenderCostingState?.totalAmountTwoT ?? 0).toFixed(2),
       },
       {
+        accessorKey: 'ratio',
+        header: 'Ratio',
+        size: 100,
+        Cell: readonlyNumberCell('ratio'),
+        enableEditing: false,
+        Footer: () => null,
+      },
+      {
         accessorKey: 'calculatedProfit',
         header: 'Profit(Calculated)',
         size: 190,
@@ -2069,6 +2393,9 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
 
         bgValuePerUnit,
 
+        salesExpenseMode,
+        agExpenseMode,
+
         securityDepositA,
         sdBankFinanceChargeA,
         sdTotalYearsA,
@@ -2095,6 +2422,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
             totalAmountOnePerProduct,
             totalVatTaxPerProduct,
             totalAmountTwoPerProduct,
+            ratio,
             originalPrice,
             distMarginPercent,
             profitPercent,

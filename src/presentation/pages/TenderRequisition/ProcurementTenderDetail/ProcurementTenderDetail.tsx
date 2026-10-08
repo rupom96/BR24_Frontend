@@ -588,33 +588,25 @@ const ProcurementTenderDetail: React.FC<
   ); // Empty dependency array as PopperMy doesn't depend on any external variables
 
   // -----------------[validation functions]-----------------------
-  const validatePreworkShareOfLoadDeliveryTime = (
+  // Feature gate for Prework + Delivery Timeline only (Share Of Load is always optional)
+  const validatePreworkDeliveryTime = (
     value: any,
     allFields: IProcurementTenderDetail
   ) => {
-    // console.log('Validation function, VALUE:--->');
-    // console.log(value);
-    // console.log('Validation function, ROW:--->');
-    // console.log(allFields);
-    // Check if all other attributes of the row are empty
-
     console.log('current row');
     console.log(allFields);
 
-    const isPreworkShareOfLoadDeliveryTimeMandatory =
+    const isPreworkDeliveryTimeMandatory =
       userInfo.brFeatureList.find(
-        (f: any) => f.featureName === 'PreworkShareOfLoadDeliveryTimeMandatory'
+        (f: any) => f.featureName === 'PreworkDeliveryTimeMandatory'
       )?.isAllowed ?? false;
 
     const allFieldsAsAny = allFields as {
       [key: string]: any;
     };
     const otherAttributesAreEmpty = Object.keys(allFieldsAsAny).every((key) => {
-      // Assuming `key` is not `productGroup` and `allFields[key]` is empty
-      // return key === `productGroup_row${row.index}` || !allFields[key];
       return !allFieldsAsAny[key];
     });
-    // If other attributes are empty, productGroup is required
     console.log('otherAttributesAreEmpty');
 
     console.log(value);
@@ -624,7 +616,7 @@ const ProcurementTenderDetail: React.FC<
     if (
       !otherAttributesAreEmpty &&
       !value &&
-      isPreworkShareOfLoadDeliveryTimeMandatory
+      isPreworkDeliveryTimeMandatory
     ) {
       return '*Required';
     }
@@ -1475,7 +1467,7 @@ const ProcurementTenderDetail: React.FC<
               rules={{
                 // required: '*Required',
                 validate: (value) =>
-                  validatePreworkShareOfLoadDeliveryTime(value, row.original),
+                  validatePreworkDeliveryTime(value, row.original),
               }}
               render={({
                 field: { onChange, onBlur, value, ref },
@@ -1594,11 +1586,6 @@ const ProcurementTenderDetail: React.FC<
             <Controller
               name={`shareOfLoad_row${row.index}`}
               control={control}
-              rules={{
-                // required: '*Required',
-                validate: (value) =>
-                  validatePreworkShareOfLoadDeliveryTime(value, row.original),
-              }}
               render={({
                 field: { onChange, onBlur, value, ref },
                 fieldState: { error },
@@ -1811,10 +1798,7 @@ const ProcurementTenderDetail: React.FC<
                   // optional: disabled hole validate skip
                   if (disabled) return true;
 
-                  return validatePreworkShareOfLoadDeliveryTime(
-                    value,
-                    row.original
-                  );
+                  return validatePreworkDeliveryTime(value, row.original);
                 },
               }}
               render={({

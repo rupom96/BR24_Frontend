@@ -95,16 +95,16 @@ For each product row:
 | Unit Price (no V&T + others) | Unit Cost + Delivery + Installation + PSI + Training + Software + Hardware + Buffer |
 | Tax & VAT 1 | that unit price × `(taxAndVATOneP / 100)` |
 | Unit Price with V&T | unit price + Tax&VAT1 |
-| Sales Expense | unit-with-VT × `(salesExpenseP / 100)` |
+| Sales Expense | **percent mode:** `unit-with-VT × (salesExpenseP/100)`. **total mode (Option X):** allocate `salesExpenseT` by `(unitCost×qty)/Σ`, cell = share÷qty; `%` = reverse display `T/Σ(VT×qty)×100` (does not re-drive cells). Load: both P&T truthy → prefer %. |
 | Unit Price with SE | unit-with-VT + SE |
-| AG Expense | unit-with-SE × `(agExpenseP / 100)` |
+| AG Expense | Same dual mode as Sales; percent base = unit-with-SE; total mode still splits by UC×qty. |
 | Unit Price with AG | unit-with-SE + AG |
 | Tax & VAT 2 | `(AG + SE) × (taxAndVATTwoP / 100)` |
 | Unit Price (TV2+SE+AG) | unit-with-AG + Tax&VAT2 |
 | Total Amount One (row) | `qty × unitPriceWithTv2SeAg` |
 | Total Vat & Tax (row) | `(Tax&VAT1 + Tax&VAT2) × qty` |
 
-Header totals (`*T`, `totalAmountOneT`, …) are sums of the per-row values (note: many “other cost” totals sum per-unit amounts, not qty-scaled).
+**Delivery / Installation / PSI / Training / Buffer:** header `*T` is the pot; cells RO, split by UC×qty (share÷qty); footer Total editable; UC change re-splits; last-row share absorbs rounding. Software/Hardware unchanged (per-cell editable). `deliveryP`…`bufferWarrantyP` kept 0 on load/save path.
 
 ### 4.3 BG / PG / SD (header, after Pass 1)
 
@@ -112,9 +112,9 @@ Uses `sumOfUnit` and `totalAmountOneT`:
 
 | Block | Key formulas |
 |-------|----------------|
-| **BG** | `bgValuePerUnit = bgAmount / sumOfUnit` |
+| **BG** | Editable `bgAmount`. UI also shows read-only **BG/Pay Order/Schedule Purchase Expense** = `bgAmount + schedulePrice + bgPayOrderExpense` (sisters on same GET DTO; BE may add later). Pricing still uses `bgValuePerUnit = bgAmount / sumOfUnit` only. |
 | **PG** | `performanceGuaranteeA = (performanceGuaranteeP/100) × totalAmountOneT` → margin amount → bank finance charge × years; quarterly charges from `pgPerQtChargeP`; `pgTotalQuarter = pgTotalYears × 4 + 1`; fixed expense folded in → `pgValuePerUnit` |
-| **SD** | `securityDepositA = (securityDepositP/100) × securityDeposit` → BFC × years → `sdValuePerUnit` |
+| **SD** | Total (`securityDeposit`) always = `totalAmountOneT` (Option B; UI read-only). Then `securityDepositA = (securityDepositP/100) × securityDeposit` → BFC × years → `sdValuePerUnit`. **Margin** (`sdMarginP` editable): `sdMarginAmount = (sdMarginP/100) × sdTotalYearsA` — display + save only; does not feed `sdValuePerUnit` / `bgAndPgAndSd`. |
 | **Combined** | `bgAndPgAndSd = bgValuePerUnit + pgValuePerUnit + sdValuePerUnit` |
 
 ### 4.4 Pass 2 (final price)
@@ -124,6 +124,7 @@ Uses `sumOfUnit` and `totalAmountOneT`:
 | Tax & VAT 3 / product | `bgAndPgAndSd × (taxAndVATThreeP / 100)` |
 | Calculated Price | `unitPriceWithTv2SeAg + bgAndPgAndSd + taxAndVATThree` |
 | Total Amount Two (row) | `qty × calculatedPrice` |
+| Ratio (row, virtual) | `totalAmountOnePerProduct / totalAmountOneT` (read-only; no footer; not saved) |
 | Calculated Profit (row) | `qty × profitPerProduct` |
 
 ---

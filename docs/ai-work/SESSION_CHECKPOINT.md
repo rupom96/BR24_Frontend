@@ -1,19 +1,17 @@
 # Session checkpoint
 
-**Last updated:** 2026-09-30
+**Last updated:** 2026-10-08
 
 ## Current task
 
-Sidebar polish — transitions + rail glass + brand particles (done)
+Tender Approval Top Sheet Rpt — FE page implemented; awaiting smoke-test vs BE.
 
-## Completed
+## Completed this session
 
-- Micro navbar: menu | version+stamp (right, before avatar) | profile
-- Sidebar modes: `full` → `rail` → `hidden` (stays mounted; CSS width/opacity spring)
-- Content margin transitions via `br24-shell-main--*`
-- Rail hover: glassy blur overlay over page
-- Sticky brand: theme-palette tsparticles (`SidebarBrandParticles`)
+- Observed BE `getTenderApprovalTopSheet` (param `TenderNo`, binary xlsx, ProblemDetails errors).
+- Added blob download endpoint + error parse in `TenderApiSlice`.
+- Page + App route `/tenderApprovalTopSheetRpt` + `DynamicPageDeclaration` entry.
 
 ## Exact next action
 
-User smoke-test: mode cycle smoothness, rail hover glass, brand particles vs theme color.
+Open `/tenderApprovalTopSheetRpt`, pick a Tender No, click **Report Download**. Confirm Excel downloads and 404/400 show toast from API `title`. Add menu label **"Tender Approval Top Sheet Rpt"** in menu config if not already present.

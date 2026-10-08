@@ -79,6 +79,8 @@ import LPurchaseInEdit from '../pages/LPurchaseInEdit/LPurchaseInEdit';
 import PurchaseReturnEdit from '../pages/PurchaseReturnEdit/PurchaseReturnEdit';
 import SalesImport from '../pages/DataImportPages/SalesImport/SalesImport';
 import TenderCosting from '../pages/TenderCosting/TenderCosting';
+import TenderExpenseForSalesPerson from '../pages/TenderExpenseForSalesPerson/TenderExpenseForSalesPerson';
+import TenderApprovalTopSheetRpt from '../pages/TenderApprovalTopSheetRpt/TenderApprovalTopSheetRpt';
 import { CostingForm } from '../pages/TenderCosting/CostingFormTabular';
 import PaymentEditGh from '../pages/PaymentEditGh/PaymentEditGh';
 import CollectionEditGh from '../pages/CollectionEditGh/CollectionEditGh';
@@ -797,6 +799,22 @@ const App = () => {
                           path="tenderCosting"
                           // element={<ChequeBookRegistration />}
                           element={<PrivateRoute element={<TenderCosting />} />}
+                        />
+                        <Route
+                          path="tenderExpenseForSalesPerson"
+                          element={
+                            <PrivateRoute
+                              element={<TenderExpenseForSalesPerson />}
+                            />
+                          }
+                        />
+                        <Route
+                          path="tenderApprovalTopSheetRpt"
+                          element={
+                            <PrivateRoute
+                              element={<TenderApprovalTopSheetRpt />}
+                            />
+                          }
                         />
                         {/* //--------------------------------------------------------// */}
                         <Route

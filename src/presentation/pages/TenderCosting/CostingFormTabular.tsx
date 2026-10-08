@@ -53,11 +53,22 @@ export const CostingForm: React.FC<CostingFormProps> = ({
               className="text-center font-bold py-1 border-b border-gray-300"
               style={{ backgroundColor: accentBand }}
             >
-              BG
+              BG/Pay Order/Schedule Purchase Expense
             </div>
 
-            <div className="grid grid-cols-[80px_1fr]">
-              {/* BG row */}
+            <div className="grid grid-cols-[minmax(0,1.4fr)_1fr]">
+              {/* Sum: bgAmount + schedulePrice + bgPayOrderExpense (read-only) */}
+              <Cell label="BG/Pay Order/Schedule Purchase Expense">
+                <span className="text-left w-full">
+                  {fmt(
+                    (state?.bgAmount ?? 0) +
+                      (state?.schedulePrice ?? 0) +
+                      (state?.bgPayOrderExpense ?? 0)
+                  )}
+                </span>
+              </Cell>
+
+              {/* BG = bgAmount (editable; drives sum + bgValuePerUnit) */}
               <Cell label="BG">
                 <TextField
                   variant="standard"
@@ -72,14 +83,14 @@ export const CostingForm: React.FC<CostingFormProps> = ({
 
               {/* QTY row */}
               <Cell label="QTY">
-                <span className="text-right w-full">
+                <span className="text-left w-full">
                   {sumOfUnit ? sumOfUnit.toFixed(2) : ''}
                 </span>
               </Cell>
 
               {/* Per-unit row — LAST ROW → ADD BORDER-B */}
               <Cell label="" lastRow>
-                <span className="text-right w-full">
+                <span className="text-left w-full">
                   {fmt(state?.bgValuePerUnit)}
                 </span>
               </Cell>
@@ -239,24 +250,11 @@ export const CostingForm: React.FC<CostingFormProps> = ({
             </div>
 
             <div className="grid grid-cols-[120px_70px_1fr]">
-              {/* Total row */}
+              {/* Total row — always totalAmountOneT (read-only) */}
               <HeaderCell>Total</HeaderCell>
               <HeaderCell />
               <HeaderCell className="text-right">
-                <div className="flex justify-end items-center">
-                  <span className="mr-1">BDT</span>
-                  <TextField
-                    variant="standard"
-                    fullWidth
-                    defaultValue={state?.securityDeposit ?? ''}
-                    type="number"
-                    InputProps={commonInputProps}
-                    onBlur={(e) =>
-                      onFieldBlur('securityDeposit', e.target.value)
-                    }
-                    onKeyDown={handleEnterBlur}
-                  />
-                </div>
+                BDT {fmt(state?.securityDeposit)}
               </HeaderCell>
 
               {/* SD Amount */}
@@ -298,7 +296,7 @@ export const CostingForm: React.FC<CostingFormProps> = ({
               <PlainCell>BDT {fmt(state?.sdBankFinanceChargeA)}</PlainCell>
 
               {/* No. Year */}
-              <Cell label="N0. Year">
+              <Cell label="No. Year">
                 <TextField
                   variant="standard"
                   fullWidth
@@ -310,6 +308,23 @@ export const CostingForm: React.FC<CostingFormProps> = ({
                 />
               </Cell>
               <PlainCell>BDT {fmt(state?.sdTotalYearsA)}</PlainCell>
+
+              {/* Margin — % editable; amount = (sdMarginP/100)*sdTotalYearsA (display+save only) */}
+              <Cell label="Margin">
+                <TextField
+                  variant="standard"
+                  fullWidth
+                  defaultValue={state?.sdMarginP ?? ''}
+                  type="number"
+                  InputProps={{
+                    ...commonInputProps,
+                    endAdornment: <span className="ml-1">%</span>,
+                  }}
+                  onBlur={(e) => onFieldBlur('sdMarginP', e.target.value)}
+                  onKeyDown={handleEnterBlur}
+                />
+              </Cell>
+              <PlainCell>BDT {fmt(state?.sdMarginAmount)}</PlainCell>
 
               {/* No. of Unit — LAST ROW */}
               <Cell label="No. of Unit" lastRow>

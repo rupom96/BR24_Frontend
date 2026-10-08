@@ -369,9 +369,17 @@ const TenderRequisiton = ({ modalPageOpenerClose, clickedCardInfo }: any) => {
             getValues('bgExpiryDate')
           ).format('HH:mm')}:00`
         : `${dayjs().format('YYYY-MM-DD')}T${dayjs().format('HH:mm')}:00`,
+      schedulePurchaseExpiryDate: procurementTenderState?.schedulePurchaseExpiryDate
+        ? `${dayjs(getValues('schedulePurchaseExpiryDate')).format(
+            'YYYY-MM-DD'
+          )}T${dayjs(getValues('schedulePurchaseExpiryDate')).format(
+            'HH:mm'
+          )}:00`
+        : null,
       buyerId: getValues('buyer')?.buyerId || null,
       buyerName: getValues('buyer')?.buyerName || null,
       bgAmount: parseFloat(getValues('bgAmount')) || null,
+      bgPayOrderExpense: parseFloat(getValues('bgPayOrderExpense')) || null,
       // salesPersonId: getValues('salesPerson').salesPersonId,
       // salesPersonName: getValues('salesPerson').salesPersonName,
       salesPersonId: procurementTenderState?.salesPersonId || null,
@@ -419,16 +427,31 @@ const TenderRequisiton = ({ modalPageOpenerClose, clickedCardInfo }: any) => {
     ) {
       createProcurementTenderCommand = {
         procurementTenderId: 0,
-        tenderNo: null,
+        // AutoTenderNo on → always null (BE auto-gen). Off → typed tenderNo if present.
+        tenderNo: (() => {
+          const isAutoTenderNo =
+            userInfo?.brFeatureList?.find(
+              (f: any) => f.featureName === 'AutoTenderNo'
+            )?.isAllowed ?? false;
+          if (isAutoTenderNo) return null;
+          return tenderInfo?.tenderNo?.trim().slice(0, 50) || null;
+        })(),
         tenderEntryDate: currentProcurementTender.tenderEntryDate
           ? (currentProcurementTender.tenderEntryDate as string)
           : null,
         bgExpiryDate: currentProcurementTender.bgExpiryDate
           ? (currentProcurementTender.bgExpiryDate as string)
           : null,
+        schedulePurchaseExpiryDate:
+          currentProcurementTender.schedulePurchaseExpiryDate
+            ? (currentProcurementTender.schedulePurchaseExpiryDate as string)
+            : null,
         buyerId: currentProcurementTender.buyerId,
         bgAmount: currentProcurementTender.bgAmount
           ? currentProcurementTender.bgAmount
+          : null,
+        bgPayOrderExpense: currentProcurementTender.bgPayOrderExpense
+          ? currentProcurementTender.bgPayOrderExpense
           : null,
         salesPersonId: currentProcurementTender.salesPersonId
           ? currentProcurementTender.salesPersonId
@@ -465,9 +488,16 @@ const TenderRequisiton = ({ modalPageOpenerClose, clickedCardInfo }: any) => {
         bgExpiryDate: currentProcurementTender.bgExpiryDate
           ? (currentProcurementTender.bgExpiryDate as string)
           : null,
+        schedulePurchaseExpiryDate:
+          currentProcurementTender.schedulePurchaseExpiryDate
+            ? (currentProcurementTender.schedulePurchaseExpiryDate as string)
+            : null,
         buyerId: currentProcurementTender.buyerId,
         bgAmount: currentProcurementTender.bgAmount
           ? currentProcurementTender.bgAmount
+          : null,
+        bgPayOrderExpense: currentProcurementTender.bgPayOrderExpense
+          ? currentProcurementTender.bgPayOrderExpense
           : null,
         salesPersonId: currentProcurementTender.salesPersonId
           ? currentProcurementTender.salesPersonId

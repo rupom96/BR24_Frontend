@@ -3,6 +3,8 @@ import PurchaseComparativeSheet from '../pages/PurchaseComparativeSheet/Purchase
 import SalesOrderAdditionalCost from '../pages/SalesAdditionalCost/SalesOrderAdditionalCost';
 import TaskReporting from '../pages/TaskReporting/TaskReporting';
 import TenderCosting from '../pages/TenderCosting/TenderCosting';
+import TenderExpenseForSalesPerson from '../pages/TenderExpenseForSalesPerson/TenderExpenseForSalesPerson';
+import TenderApprovalTopSheetRpt from '../pages/TenderApprovalTopSheetRpt/TenderApprovalTopSheetRpt';
 // import TenderRequisiton from '../pages/TenderRequisition/TenderRequisiton';
 import TenderWon from '../pages/TenderWon/TenderWon';
 import TransactionEventVoucher from '../pages/TransactionEventVoucher/TransactionEventVoucher';
@@ -28,6 +30,8 @@ const componentMap: { [key: string]: React.ComponentType<any> } = {
   SalesOrderAdditionalCost,
   LPurchaseInAdditionalCost,
   TenderCosting,
+  TenderExpenseForSalesPerson,
+  TenderApprovalTopSheetRpt,
   // Add more components as needed
 };
 

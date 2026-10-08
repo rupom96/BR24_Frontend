@@ -83,6 +83,10 @@ export interface GetTenderCostingDto {
   // new end
 
   bgAmount?: number | null;
+  /** Sister of bgAmount — from same getTenderCosting object (BE may add later). */
+  schedulePrice?: number | null;
+  /** Sister of bgAmount — from same getTenderCosting object (BE may add later). */
+  bgPayOrderExpense?: number | null;
 
   performanceGuaranteeP?: number | null;
   performanceGuaranteeA?: number | null;
@@ -96,6 +100,8 @@ export interface GetTenderCostingDto {
 
   securityDepositP?: number | null;
   securityDeposit?: number | null;
+  sdMarginP?: number | null;
+  sdMarginAmount?: number | null;
   sdBankFinanceChargeP?: number | null;
   sdTotalYears?: number | null;
 
