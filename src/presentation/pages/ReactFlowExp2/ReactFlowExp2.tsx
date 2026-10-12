@@ -4,18 +4,24 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable react/no-unstable-nested-components */
-import React, { useEffect, useState } from 'react';
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import './ReactFlowExp2.css';
 import {
-  BezierEdge,
   Controls,
   Handle,
   NodeProps,
   Position,
   ReactFlow,
   SmoothStepEdge,
-  StepEdge,
 } from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
 import { toast } from 'react-toastify';
 import {
   Autocomplete,
@@ -25,27 +31,20 @@ import {
   Modal,
   Popover,
   TextField,
-  Typography,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
 import { Controller, useForm, useWatch } from 'react-hook-form';
-import { v4 as uuid } from 'uuid';
 import {
   useGetPreviewPageInfoByFixedTaskTemplateIdSequenceQuery,
   useLazyGetPermittedUserAndLocationByBiznessEventProcessConfigurationIdQuery,
+  useLazyGetPreviewPageInfoByFixedTaskTemplateIdSequenceQuery,
 } from '../../../infrastructure/api/BiznessEventProcessConigurationApiSlice';
-import TaskReporting from '../TaskReporting/TaskReporting';
-// import TenderRequisiton from '../TenderRequisition/TenderRequisiton';
-import TransactionEventVoucher from '../TransactionEventVoucher/TransactionEventVoucher';
-import TenderWon from '../TenderWon/TenderWon';
-import PurchaseComparativeSheet from '../PurchaseComparativeSheet/PurchaseComparativeSheet';
 import ComponentMissing from '../Status/ComponentMissing/ComponentMissing';
 import { IUserInfo } from '../../../domain/interfaces/UserInfoInterface';
 import ModalPageOpener from '../../components/biz24Components/ModalPageOpener';
 import { ISANextEvent } from '../../../domain/interfaces/SANextEventInterface';
 import {
-  useGetAllEventNoQuery,
   useLazyGetAllEventNoQuery,
   useLazyGetAllFirstEventNoQuery,
   useLazyGetChainFlowChartQuery,
@@ -57,16 +56,48 @@ import {
   IFirstEventNo,
 } from '../../../domain/interfaces/ChainDataInterface';
 import { IFixedTaskTemplateAutoComp } from '../../../domain/interfaces/FixedTaskTemplateInterface';
-import {
-  useGetFixedTaskTemplateComboOptionsQuery,
-  useLazyGetFixedTaskTemplateComboOptionsQuery,
-} from '../../../infrastructure/api/FixedTaskTemplateApiSlice';
-import SalesOrderAdditionalCost from '../SalesAdditionalCost/SalesOrderAdditionalCost';
-import LPurchaseInAdditionalCost from '../LPurchaseInAdditionalCost/LPurchaseInAdditionalCost';
+import { useLazyGetFixedTaskTemplateComboOptionsQuery } from '../../../infrastructure/api/FixedTaskTemplateApiSlice';
 import componentMap from '../../Utils/DynamicPageDeclaration';
 
 const BR2_URL = window.BR2_URL;
 type Props = {};
+
+const normalizeFilterValue = (value?: string | null) =>
+  !value || value === 'All' ? null : value;
+
+const formatEventName = (name?: string) =>
+  (name || '').replace(/([A-Z])/g, ' $1').trim();
+
+const CHAIN_PAGE_SIZE = 10;
+const FILTER_DEBOUNCE_MS = 280;
+const EMPTY_TASKS: IEventTask[] = [];
+
+type ChainNodeData = {
+  biznessEventPCTrackId: number;
+  biznessEventProcessConfigurationId: number;
+  eventNo: string;
+  biznessEventId: number;
+  biznessEventName: string;
+  performedById: number;
+  performedByName: string;
+  performedByImage: string;
+  startDate: string;
+  endDate: string;
+  firstEventNo: string;
+  biznessEventFrequency: number;
+  note: string;
+  progressPReported: number;
+  originalSequence: number;
+  nextSequence: number;
+  attachmentList: any | null;
+  extendedBiznessEventId: string | null;
+  extendedBiznessEventName: string[];
+  notes: string;
+  fixedTaskTemplateId?: number | null;
+  fixedTaskTemplateName?: string;
+  onCompletedClick?: (nodeData: ChainNodeData) => void;
+  onPendingClick?: (nodeData: ChainNodeData) => void;
+};
 
 // ------------NB: This code has been transfered to Utils/DynamicPageDeclaration------------
 
@@ -124,7 +155,7 @@ const PreviewEditModal = ({
       firstEventNo: clickedCardInfo?.firstEventNo,
     }, // this overrules the api definition setting,
     // forcing the query to always fetch when this component is mounted
-    { skip: !sequence || !clickedCardInfo?.firstEventNo }
+    { skip: sequence == null || !clickedCardInfo?.firstEventNo }
   );
 
   useEffect(() => {
@@ -716,6 +747,356 @@ const PreviewEditModal = ({
 //     ],
 //   },
 // ];
+
+const CustomNode: React.FC<NodeProps> = ({ data }) => {
+  const nodeData = (data || null) as ChainNodeData | null;
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [hoveredData, setHoveredData] = useState<ChainNodeData | null>(null);
+  const open = Boolean(anchorEl);
+  const popoverId = open ? 'chain-hover-popover' : undefined;
+  const isDone = Boolean(nodeData?.biznessEventPCTrackId);
+
+  const [
+    triggerGetPermittedUsers,
+    {
+      data: permittedUsersData,
+      error: permittedUsersError,
+      isError: permittedUsersIsError,
+      isSuccess: permittedUsersIsSuccess,
+      isLoading: permittedUsersIsLoading,
+      isFetching: permittedUsersIsFetching,
+      originalArgs: permittedUsersOriginalArgs,
+    },
+  ] = useLazyGetPermittedUserAndLocationByBiznessEventProcessConfigurationIdQuery();
+
+  useEffect(() => {
+    if (permittedUsersIsError) {
+      toast.error('Could not load permitted users.');
+      console.log(permittedUsersError);
+    }
+  }, [permittedUsersIsError, permittedUsersError]);
+
+  useEffect(() => {
+    if (hoveredData?.biznessEventProcessConfigurationId) {
+      triggerGetPermittedUsers({
+        biznessEventProcessConfigurationId:
+          hoveredData.biznessEventProcessConfigurationId,
+      });
+    }
+  }, [hoveredData, triggerGetPermittedUsers]);
+
+  if (!nodeData) {
+    return null;
+  }
+
+  const handleNode = (
+    <>
+      <Handle
+        type="target"
+        position={Position.Left}
+        id="input1"
+        style={{ width: 8, height: 8, background: '#64748b', border: 'none' }}
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        id="output1"
+        style={{ width: 8, height: 8, background: '#64748b', border: 'none' }}
+      />
+    </>
+  );
+
+  if (isDone) {
+    return (
+      <div className="chain-node chain-node--done nodrag nopan">
+        <div className="chain-node-name">
+          {formatEventName(nodeData.biznessEventName)}
+        </div>
+        <div className="chain-node-meta">
+          Event <span>{nodeData.eventNo || '—'}</span>
+        </div>
+        <div className="chain-node-meta">
+          Done by {nodeData.performedByName || '—'}
+        </div>
+        <div className="chain-node-status">Completed</div>
+        {handleNode}
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div
+        aria-describedby={popoverId}
+        className="chain-node chain-node--pending nodrag nopan"
+        onMouseEnter={(e) => {
+          setHoveredData(nodeData);
+          setAnchorEl(e.currentTarget);
+        }}
+        onMouseLeave={() => setAnchorEl(null)}
+      >
+        <div className="chain-node-name">
+          {formatEventName(nodeData.biznessEventName)}
+        </div>
+        <div className="chain-node-meta">Awaiting action</div>
+        <div className="chain-node-status">Pending</div>
+        {handleNode}
+      </div>
+      <Popover
+        id={popoverId}
+        open={open}
+        anchorEl={anchorEl}
+        onClose={() => setAnchorEl(null)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        disableRestoreFocus
+        sx={{ pointerEvents: 'none' }}
+        PaperProps={{
+          onMouseEnter: (e: React.MouseEvent<HTMLElement>) =>
+            setAnchorEl(e.currentTarget),
+          onMouseLeave: () => setAnchorEl(null),
+          sx: {
+            pointerEvents: 'auto',
+            borderRadius: '10px',
+            border: '1px solid #e2e8f0',
+            boxShadow: '0 10px 30px rgb(15 23 42 / 12%)',
+          },
+        }}
+      >
+        <div className="chain-popover">
+          <div className="chain-popover-title">Permitted users</div>
+          {(permittedUsersIsLoading || permittedUsersIsFetching) && (
+            <div className="br24-anim-fade-in flex justify-center py-3">
+              <div className="br24-spinner" aria-label="Loading" />
+            </div>
+          )}
+          {permittedUsersIsError && (
+            <div className="chain-popover-row">Could not load users</div>
+          )}
+          {permittedUsersIsSuccess &&
+            !permittedUsersIsLoading &&
+            !permittedUsersIsFetching &&
+            hoveredData?.biznessEventProcessConfigurationId &&
+            permittedUsersOriginalArgs?.biznessEventProcessConfigurationId ===
+              hoveredData.biznessEventProcessConfigurationId &&
+            (permittedUsersData?.length ? (
+              permittedUsersData.map((perUserRow) => (
+                <div
+                  className="chain-popover-row"
+                  key={`${perUserRow.userName}-${perUserRow.locationName}`}
+                >
+                  {perUserRow.userName} · {perUserRow.locationName}
+                </div>
+              ))
+            ) : (
+              <div className="chain-popover-row">No users listed</div>
+            ))}
+        </div>
+      </Popover>
+    </div>
+  );
+};
+
+const nodeTypes = { customNode: CustomNode };
+const edgeTypes = { smoothstep: SmoothStepEdge };
+
+const generateEdges = (tasks: IEventTask[]) => {
+  const taskIds = new Set(
+    tasks.map((task) => task.originalSequence.toString())
+  );
+  return tasks.flatMap((task) => {
+    const targetId = task.nextSequence?.toString();
+    if (!targetId || !taskIds.has(targetId)) {
+      return [];
+    }
+    return [
+      {
+        id: `${task.originalSequence}-${task.nextSequence}-${task.firstEventNo}`,
+        source: task.originalSequence.toString(),
+        sourceHandle: 'output1',
+        target: targetId,
+        targetHandle: 'input1',
+        type: 'smoothstep',
+        animated: true,
+        className: 'chain-flow-edge',
+        style: {
+          stroke: '#0e7490',
+          strokeWidth: 2,
+        },
+      },
+    ];
+  });
+};
+
+const generateNodes = (
+  tasks: IEventTask[],
+  chainMeta: { fixedTaskTemplateId: number; fixedTaskTemplateName: string },
+  onCompletedClick: (nodeData: ChainNodeData) => void,
+  onPendingClick: (nodeData: ChainNodeData) => void
+) =>
+  tasks.map((task, index) => ({
+    id: task.originalSequence.toString(),
+    type: 'customNode',
+    data: {
+      biznessEventPCTrackId: task.biznessEventPCTrackId,
+      biznessEventProcessConfigurationId:
+        task.biznessEventProcessConfigurationId,
+      eventNo: task.eventNo,
+      biznessEventId: task.biznessEventId,
+      biznessEventName: task.biznessEventName,
+      performedById: task.performedById,
+      performedByName: task.performedByName,
+      performedByImage: task.performedByImage,
+      startDate: task.startDate,
+      endDate: task.endDate,
+      firstEventNo: task.firstEventNo,
+      biznessEventFrequency: task.biznessEventFrequency,
+      note: task.note,
+      progressPReported: task.progressPReported,
+      originalSequence: task.originalSequence,
+      nextSequence: task.nextSequence,
+      attachmentList: task.attachmentList,
+      extendedBiznessEventId: task.extendedBiznessEventId,
+      extendedBiznessEventName: task.extendedBiznessEventName,
+      notes: task.notes,
+      fixedTaskTemplateId:
+        task.fixedTaskTemplateId ?? chainMeta.fixedTaskTemplateId,
+      fixedTaskTemplateName: chainMeta.fixedTaskTemplateName,
+      onCompletedClick,
+      onPendingClick,
+    } satisfies ChainNodeData,
+    position: { x: index * 250, y: 12 },
+  }));
+
+type ChainFlowCardProps = {
+  event: IChain;
+  onCompletedClick: (nodeData: ChainNodeData) => void;
+  onPendingClick: (nodeData: ChainNodeData) => void;
+};
+
+const ChainFlowCard = memo(function ChainFlowCard({
+  event,
+  onCompletedClick,
+  onPendingClick,
+}: ChainFlowCardProps) {
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const [activated, setActivated] = useState(false);
+
+  useEffect(() => {
+    const el = rootRef.current;
+    if (!el) return undefined;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setActivated(true);
+          observer.disconnect();
+        }
+      },
+      { root: null, rootMargin: '220px 0px', threshold: 0.01 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const tasks = event.tasks ?? EMPTY_TASKS;
+
+  const nodes = useMemo(
+    () =>
+      activated
+        ? generateNodes(
+            tasks,
+            {
+              fixedTaskTemplateId: event.fixedTaskTemplateId,
+              fixedTaskTemplateName: event.fixedTaskTemplateName,
+            },
+            onCompletedClick,
+            onPendingClick
+          )
+        : [],
+    [
+      activated,
+      tasks,
+      event.fixedTaskTemplateId,
+      event.fixedTaskTemplateName,
+      onCompletedClick,
+      onPendingClick,
+    ]
+  );
+
+  const edges = useMemo(
+    () => (activated ? generateEdges(tasks) : []),
+    [activated, tasks]
+  );
+
+  return (
+    <article
+      ref={rootRef}
+      className="chain-flow-card"
+      aria-label={`Chain ${event.firstEventNo}`}
+    >
+      <div className="chain-flow-card-head">
+        <div>
+          <div className="chain-flow-card-label">First event</div>
+          <div className="chain-flow-card-title">{event.firstEventNo}</div>
+          <div className="chain-flow-card-type">
+            {event.fixedTaskTemplateName || 'Chain'}
+          </div>
+        </div>
+      </div>
+      <div className="chain-flow-canvas">
+        {activated ? (
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
+            fitView
+            fitViewOptions={{
+              padding: 0.18,
+              includeHiddenNodes: false,
+              minZoom: 0.35,
+              maxZoom: 1,
+              duration: 0,
+            }}
+            nodesConnectable={false}
+            nodesDraggable={false}
+            elementsSelectable
+            nodesFocusable
+            panOnDrag
+            zoomOnScroll={false}
+            zoomOnPinch={false}
+            panOnScroll={false}
+            zoomOnDoubleClick={false}
+            preventScrolling={false}
+            proOptions={{ hideAttribution: true }}
+            onlyRenderVisibleElements
+            minZoom={0.25}
+            maxZoom={1.2}
+            onNodeClick={(_event, node) => {
+              const data = node.data as ChainNodeData;
+              if (!data) return;
+              if (data.biznessEventPCTrackId) {
+                data.onCompletedClick?.(data);
+              } else {
+                data.onPendingClick?.(data);
+              }
+            }}
+          >
+            <Controls
+              position="top-right"
+              showInteractive={false}
+              className="horizontal-controls"
+            />
+          </ReactFlow>
+        ) : (
+          <div className="chain-flow-canvas-placeholder">
+            <div className="chain-flow-skeleton" style={{ width: '100%' }} />
+          </div>
+        )}
+      </div>
+    </article>
+  );
+});
+
 type FormValues = {
   fixedTaskTemplate: IFixedTaskTemplateAutoComp | null;
   firstEventNo: IFirstEventNo | null;
@@ -723,11 +1104,6 @@ type FormValues = {
 };
 
 const ReactFlowExp2 = (props: Props) => {
-  const handleNodeClick = (nodeLabel: string) => {
-    console.log(`Node clicked: ${nodeLabel}`);
-    alert(`You clicked on: ${nodeLabel}`);
-  };
-
   const {
     register,
     getValues,
@@ -757,13 +1133,19 @@ const ReactFlowExp2 = (props: Props) => {
     userInfo = JSON.parse(jsonUserInfo);
   }
 
-  if (!userInfo?.securityUserId) {
-    if (localStorage.getItem('userInfo') || localStorage.getItem('brFeature')) {
-      localStorage.removeItem('userInfo');
-      localStorage.removeItem('brFeature');
+  useEffect(() => {
+    if (!userInfo?.securityUserId) {
+      if (
+        localStorage.getItem('userInfo') ||
+        localStorage.getItem('brFeature')
+      ) {
+        localStorage.removeItem('userInfo');
+        localStorage.removeItem('brFeature');
+      }
+      navigate('/loginUsername');
     }
-    navigate('/loginUsername');
-  }
+  }, [navigate, userInfo?.securityUserId]);
+
   const userInfoBr2: IUserInfo = {
     securityUserId: userInfo?.securityUserId || 0,
     userName: userInfo?.userName || '',
@@ -776,6 +1158,15 @@ const ReactFlowExp2 = (props: Props) => {
   };
 
   const [chainDataState, setChainDataState] = useState<IChain[]>([]);
+  const [chainPage, setChainPage] = useState(1);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [totalChainCount, setTotalChainCount] = useState(0);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const chainPageRef = useRef(1);
+  const hasNextPageRef = useRef(false);
+  const loadingMoreRef = useRef(false);
+  const filterDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const [previewEditModalOpen, setPreviewEditModalOpen] = useState(false);
   const [currentOperationMode, setCurrentOperationMode] = useState('preview');
   const [currentPreviewSequence, setCurrentPreviewSequence] = useState(0);
@@ -787,473 +1178,191 @@ const ReactFlowExp2 = (props: Props) => {
   };
   const [modalOpen, setModalOpen] = useState(false);
 
-  const handleCloseModal = () => {
-    setModalOpen(false);
-    // reftech saiful vai er api
-  };
-
-  const CustomNode: React.FC<NodeProps> = ({ data }) => {
-    const handleNodeClick = (clickedBoxInfoParam: any) => {
-      console.log(`Node clicked: ${clickedBoxInfoParam.biznessEventName}`);
-      // alert(`You clicked on: ${clickedBoxInfoParam.biznessEventName}`);
-      setClickedBoxInfo(clickedBoxInfoParam);
-      setCurrentPreviewSequence(clickedBoxInfoParam.originalSequence);
-
-      setPreviewEditModalOpen(true);
-    };
-    const handleNodeClickPendingTask = (clickedBoxInfoParam: any) => {
-      console.log(`Node clicked: ${clickedBoxInfoParam.biznessEventName}`);
-      // alert(`You clicked on: ${clickedBoxInfoParam.biznessEventName}`);
-      setClickedBoxInfo(clickedBoxInfoParam);
-      // setCurrentPreviewSequence(clickedBoxInfoParam.originalSequence);
-
-      // setPreviewEditModalOpen(true);
-      setModalOpen(true);
-    };
-
-    const dataCopy: any = data ? JSON.parse(JSON.stringify(data)) : null;
-
-    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-    const [hoveredData, setHoveredData] = useState<any>(null);
-
-    const handleMouseEnter = (event: React.MouseEvent<HTMLElement>) => {
-      setAnchorEl(event.currentTarget);
-      console.log('Taglifico rupom see----> event.currentTarget');
-      console.log(event.currentTarget);
-    };
-
-    const handleMouseLeave = () => {
-      setAnchorEl(null);
-    };
-
-    const open = Boolean(anchorEl);
-    const id = open ? 'hover-popover' : undefined;
-
-    const [
-      triggerGetPermittedUsers,
-      {
-        data: permittedUsersData,
-        error: permittedUsersError,
-        isError: permittedUsersIsError,
-        isSuccess: permittedUsersIsSuccess,
-        isLoading: permittedUsersIsLoading,
-        isFetching: permittedUsersIsFetching,
-      },
-    ] =
-      useLazyGetPermittedUserAndLocationByBiznessEventProcessConfigurationIdQuery(); // RTK Query lazy fetch
-
-    useEffect(() => {
-      if (permittedUsersIsError) {
-        toast.error(
-          'Something wrong from backend while fetching permittedUsersData, see console!'
-        );
-        console.log(
-          'Something wrong from backend while fetching permittedUsersData, see console--->:'
-        );
-        console.log(permittedUsersError);
-      }
-      if (permittedUsersIsSuccess) {
-        console.log('permittedUsersIsSuccess');
-        console.log(permittedUsersData);
-      }
-    }, [
-      permittedUsersData,
-      permittedUsersIsLoading,
-      permittedUsersError,
-      permittedUsersIsError,
-      permittedUsersIsFetching,
-      permittedUsersIsSuccess,
-    ]);
-
-    useEffect(() => {
-      console.log('hovered data');
-      console.log(hoveredData);
-
-      if (hoveredData?.biznessEventProcessConfigurationId) {
-        triggerGetPermittedUsers({
-          biznessEventProcessConfigurationId:
-            hoveredData?.biznessEventProcessConfigurationId,
-        });
-      }
-    }, [hoveredData, triggerGetPermittedUsers]);
-
-    return (
-      <div>
-        {dataCopy.biznessEventPCTrackId ? (
-          <div
-            className="bg-white border border-gray-300 rounded p-2 text-center shadow-md relative w-40"
-            onClick={() => {
-              handleNodeClick(dataCopy);
-              console.log(data);
-            }}
-            style={{
-              width: '15.625rem', // Set fixed width
-              height: 'auto', // Auto height based on text
-              padding: '0.625rem',
-              whiteSpace: 'normal', // Allow text wrapping
-              wordWrap: 'break-word', // Break long words
-              overflowWrap: 'break-word', // Ensure word breaking
-              textAlign: 'center',
-            }}
-          >
-            <div className="text-[0.8125rem] font-bold text-slate-800">
-              {(dataCopy.biznessEventName || '')
-                .replace(/([A-Z])/g, ' $1')
-                .trim()}{' '}
-            </div>
-            <div className="text-[0.6875rem]">
-              Event:{' '}
-              <span className="text-cyan-700">{dataCopy.eventNo || ''}</span>
-            </div>
-            <div className="text-[0.5625rem]">
-              Done By: {dataCopy.performedByName || ''}
-            </div>
-
-            {/* Input Handle (LEFT side) */}
-            {/* {data.next.map((row, index) => {
-          return (
-            <Handle
-              type="source"
-              position={Position.Right} // Place output on the RIGHT
-              id={`output${index}`}
-              // style={{ background: '#555' }}
-              style={{
-                background: '#555',
-                top: `${index === 0 ? 1 : index + 30}%`, // Evenly distribute
-                transform: 'translateY(-50%)',
-              }}
-            />
-          );
-        })} */}
-
-            <Handle
-              type="target"
-              position={Position.Left} // Place input on the LEFT
-              id="input1"
-              style={{ background: '#555' }}
-            />
-            {/* <Handle
-          type="target"
-          position={Position.Bottom} // Place input on the LEFT
-          id="input2"
-          style={{ background: '#555' }}
-        />
-        <Handle
-          type="target"
-          position={Position.Bottom} // Place input on the LEFT
-          id="input3"
-          style={{ background: '#555' }}
-        /> */}
-
-            {/* Output Handle (RIGHT side) */}
-            <Handle
-              type="source"
-              position={Position.Right} // Place output on the RIGHT
-              id="output1"
-              style={{ background: '#555' }}
-            />
-            {/* <Handle
-          type="source"
-          position={Position.Right} // Place output on the RIGHT
-          id="output2"
-          // style={{ background: '#555' }}
-          style={{
-            background: '#555',
-            top: `5%`, // Evenly distribute
-            transform: 'translateY(-50%)',
-          }}
-        />
-        <Handle
-          type="source"
-          position={Position.Right} // Place output on the RIGHT
-          id="output3"
-          // style={{ background: '#555' }}
-          style={{
-            background: '#555',
-            top: `25%`, // Evenly distribute
-            transform: 'translateY(-50%)',
-          }}
-        /> */}
-          </div>
-        ) : (
-          <div>
-            <div
-              aria-describedby={id}
-              onMouseEnter={(e) => {
-                setHoveredData(dataCopy);
-                handleMouseEnter(e);
-              }}
-              onMouseLeave={handleMouseLeave}
-              className="bg-lime-700 text-white border border-gray-300 rounded cursor-pointer p-2 text-center shadow-md relative w-40"
-              onClick={() => {
-                handleNodeClickPendingTask(dataCopy);
-                console.log(data);
-              }}
-              style={{
-                width: '15.625rem', // Set fixed width
-                height: 'auto', // Auto height based on text
-                padding: '0.625rem',
-                whiteSpace: 'normal', // Allow text wrapping
-                wordWrap: 'break-word', // Break long words
-                overflowWrap: 'break-word', // Ensure word breaking
-                textAlign: 'center',
-                // backgroundColor: 'red',
-              }}
-            >
-              <div>{dataCopy.biznessEventName || ''}</div>
-
-              {/* Input Handle (LEFT side) */}
-              {/* {data.next.map((row, index) => {
-                return (
-                  <Handle
-                    type="source"
-                    position={Position.Right} // Place output on the RIGHT
-                    id={`output${index}`}
-                    // style={{ background: '#555' }}
-                    style={{
-                      background: '#555',
-                      top: `${index === 0 ? 1 : index + 30}%`, // Evenly distribute
-                      transform: 'translateY(-50%)',
-                    }}
-                  />
-                );
-              })} */}
-
-              <Handle
-                type="target"
-                position={Position.Left} // Place input on the LEFT
-                id="input1"
-                style={{ background: '#555' }}
-              />
-              {/* <Handle
-                type="target"
-                position={Position.Bottom} // Place input on the LEFT
-                id="input2"
-                style={{ background: '#555' }}
-              />
-              <Handle
-                type="target"
-                position={Position.Bottom} // Place input on the LEFT
-                id="input3"
-                style={{ background: '#555' }}
-              /> */}
-
-              {/* Output Handle (RIGHT side) */}
-              <Handle
-                type="source"
-                position={Position.Right} // Place output on the RIGHT
-                id="output1"
-                style={{ background: '#555' }}
-              />
-              {/* <Handle
-                type="source"
-                position={Position.Right} // Place output on the RIGHT
-                id="output2"
-                // style={{ background: '#555' }}
-                style={{
-                  background: '#555',
-                  top: `5%`, // Evenly distribute
-                  transform: 'translateY(-50%)',
-                }}
-              />
-              <Handle
-                type="source"
-                position={Position.Right} // Place output on the RIGHT
-                id="output3"
-                // style={{ background: '#555' }}
-                style={{
-                  background: '#555',
-                  top: `25%`, // Evenly distribute
-                  transform: 'translateY(-50%)',
-                }}
-              /> */}
-            </div>
-
-            <Popover
-              id={id}
-              open={open}
-              anchorEl={anchorEl}
-              onClose={handleMouseLeave}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'center',
-              }}
-              disableRestoreFocus
-              sx={{ pointerEvents: 'none' }} // to avoid flickering
-              PaperProps={{
-                onMouseEnter: handleMouseEnter,
-                onMouseLeave: handleMouseLeave,
-              }}
-            >
-              <div className="p-4">
-                <Typography>Permitted Users:</Typography>
-                {(permittedUsersIsLoading || permittedUsersIsFetching) && (
-                  <div className="br24-anim-fade-in flex justify-center py-6">
-                    <div className="br24-spinner" aria-label="Loading" />
-                  </div>
-                )}
-                {permittedUsersIsError && <div>Error while fetching data</div>}
-                {permittedUsersIsSuccess &&
-                  !permittedUsersIsLoading &&
-                  !permittedUsersIsFetching &&
-                  hoveredData?.biznessEventProcessConfigurationId &&
-                  permittedUsersData?.map((perUserRow, index) => (
-                    <div>
-                      {perUserRow.userName} - {perUserRow.locationName}
-                    </div>
-                  ))}
-              </div>
-            </Popover>
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const nodeTypes = {
-    customNode: CustomNode, // Register the custom node type
-  };
-
-  const generateNodes = (tasks: IEventTask[]) =>
-    tasks.map((task, index) => ({
-      id: task.originalSequence.toString(),
-      type: 'customNode', // Set type to the registered custom node
-      // data: { label: `${task.name} (${task.duration})` },
-      data: {
-        biznessEventPCTrackId: task.biznessEventPCTrackId,
-        biznessEventProcessConfigurationId:
-          task.biznessEventProcessConfigurationId,
-        eventNo: task.eventNo,
-        biznessEventId: task.biznessEventId,
-        biznessEventName: task.biznessEventName,
-        performedById: task.performedById,
-        performedByName: task.performedByName,
-        performedByImage: task.performedByImage,
-        startDate: task.startDate,
-        endDate: task.endDate,
-        firstEventNo: task.firstEventNo,
-        biznessEventFrequency: task.biznessEventFrequency,
-        note: task.note,
-        progressPReported: task.progressPReported,
-        originalSequence: task.originalSequence,
-        nextSequence: task.nextSequence,
-        attachmentList: task.attachmentList,
-        extendedBiznessEventId: task.extendedBiznessEventId,
-        extendedBiznessEventName: task.extendedBiznessEventName, // Adjust type if needed
-        notes: task.notes,
-        fixedTaskTemplateId: task.fixedTaskTemplateId,
-      },
-      position: { x: index * 350, y: 0 }, // Calculate positions dynamically
-      onClick: handleNodeClick, // Pass the click handler
-    }));
-
-  // const generateEdges = (tasks: Task[]) =>
-  //   tasks.flatMap((task) =>
-  //     task.next.map((nextId) => ({
-  //       id: `${task.id}-${nextId}`,
-  //       source: task.id,
-  //       target: nextId,
-  //       type: 'smoothstep', // Use smooth arrows for loops
-  //       animated: true,
-  //     }))
-  //   );
-
-  const generateEdges = (tasks: IEventTask[]) =>
-    tasks.flatMap((task) => {
-      // task.next.map((nextId) => {
-      // const isLoopback = parseInt(nextId, 10) < parseInt(task.id, 10); // Check if it's a backward loop
-
-      return {
-        id: `${task.originalSequence}-${task.nextSequence}_${
-          task.firstEventNo
-        }-${uuid()}`,
-        source: task.originalSequence.toString(),
-        sourceHandle: 'output1',
-        target: task.nextSequence.toString(),
-        targetHandle: 'input1',
-        type: 'smoothstep', // Use `bezier` for loops, `step` for normal flow
-        animated: true, // Make loopback edges animated for better visualization
-        // style: isLoopback
-        //   ? { stroke: 'red', strokeWidth: 2 } // Highlight loops for clarity
-        //   : { stroke: 'black', strokeWidth: 1 },
-      };
-      // })
-    });
+  const [triggerGetPreviewPageInfo] =
+    useLazyGetPreviewPageInfoByFixedTaskTemplateIdSequenceQuery();
 
   // -----------------------------------API HOOK INIT-----------------------------------------
 
   const [
     triggerGetChainFlowchartData,
     {
-      data: chainFlowchartData,
       error: chainFlowchartError,
       isError: chainFlowchartIsError,
-      isSuccess: chainFlowchartIsSuccess,
       isLoading: chainFlowchartIsLoading,
       isFetching: chainFlowchartIsFetching,
     },
   ] = useLazyGetChainFlowChartQuery(); // RTK Query lazy fetch
+
+  const fetchChainPage = useCallback(
+    async (pageNumber: number, append: boolean) => {
+      const { fixedTaskTemplate, firstEventNo, eventNo } = getValues();
+      if (append) {
+        setIsLoadingMore(true);
+        loadingMoreRef.current = true;
+      }
+
+      try {
+        const result = await triggerGetChainFlowchartData({
+          fixedTaskTemplateId: fixedTaskTemplate?.fixedTaskTemplateId || null,
+          firstEventNo: normalizeFilterValue(firstEventNo?.firstEventNo),
+          eventNo: normalizeFilterValue(eventNo?.eventNo),
+          pageNumber,
+          pageSize: CHAIN_PAGE_SIZE,
+        }).unwrap();
+
+        const pageData = result?.data || [];
+        const current = result?.currentPage || pageNumber;
+        const totalPages = result?.totalPages || 0;
+        const nextHasNext =
+          typeof result?.hasNextPage === 'boolean'
+            ? result.hasNextPage
+            : current < totalPages;
+
+        chainPageRef.current = current;
+        hasNextPageRef.current = nextHasNext;
+        setChainPage(current);
+        setHasNextPage(nextHasNext);
+        setTotalChainCount(result?.totalCount || 0);
+        setChainDataState((prev) =>
+          append ? [...prev, ...pageData] : pageData
+        );
+      } catch (error) {
+        console.log(error);
+        toast.error(
+          'Something wrong from backend while fetching chain flowchart!'
+        );
+      } finally {
+        setIsLoadingMore(false);
+        loadingMoreRef.current = false;
+      }
+    },
+    [getValues, triggerGetChainFlowchartData]
+  );
+
+  const refetchChainFlowchart = useCallback(() => {
+    chainPageRef.current = 1;
+    hasNextPageRef.current = false;
+    setChainPage(1);
+    setHasNextPage(false);
+    setChainDataState([]);
+    fetchChainPage(1, false);
+  }, [fetchChainPage]);
+
+  const handleCloseModal = useCallback(() => {
+    setModalOpen(false);
+    refetchChainFlowchart();
+  }, [refetchChainFlowchart]);
+
+  const handleChainListScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      const el = e.currentTarget;
+      const nearBottom =
+        el.scrollHeight - el.scrollTop - el.clientHeight < 160;
+      if (
+        nearBottom &&
+        hasNextPageRef.current &&
+        !chainFlowchartIsFetching &&
+        !loadingMoreRef.current
+      ) {
+        fetchChainPage(chainPageRef.current + 1, true);
+      }
+    },
+    [chainFlowchartIsFetching, fetchChainPage]
+  );
+
+  const handleCompletedNodeClick = useCallback((nodeData: ChainNodeData) => {
+    setClickedBoxInfo(nodeData);
+    setCurrentPreviewSequence(nodeData.originalSequence);
+    setPreviewEditModalOpen(true);
+  }, []);
+
+  const handlePendingNodeClick = useCallback(
+    async (nodeData: ChainNodeData) => {
+      if (!nodeData.fixedTaskTemplateId || !nodeData.firstEventNo) {
+        toast.error('Missing chain info for this pending task.');
+        return;
+      }
+
+      try {
+        const pageInfo = await triggerGetPreviewPageInfo({
+          fixedTaskTemplateId: nodeData.fixedTaskTemplateId,
+          sequence: nodeData.originalSequence,
+          firstEventNo: nodeData.firstEventNo,
+        }).unwrap();
+
+        const nextEvent: ISANextEvent = {
+          fixedTaskTemplateId:
+            pageInfo.fixedTaskTemplateId || nodeData.fixedTaskTemplateId,
+          fixedTaskTemplateName:
+            pageInfo.fixedTaskTemplateName ||
+            nodeData.fixedTaskTemplateName ||
+            '',
+          biznessEventId:
+            pageInfo.biznessEventId || nodeData.biznessEventId || 0,
+          biznessEventName:
+            pageInfo.biznessEventName || nodeData.biznessEventName || '',
+          controllerPath: pageInfo.controllerPath || '',
+          controllerPathType: pageInfo.controllerPathType || '',
+          sequence: pageInfo.sequence || nodeData.originalSequence,
+          eventNo: pageInfo.eventNo || nodeData.eventNo || '',
+          firstEventNo: pageInfo.firstEventNo || nodeData.firstEventNo || '',
+          firstEventPerformedBy: pageInfo.firstEventPerformedBy || '',
+          biznessEventProcessConfigurationId:
+            pageInfo.biznessEventProcessConfigurationId ||
+            nodeData.biznessEventProcessConfigurationId ||
+            0,
+          assignedDate: pageInfo.assignedDate || '',
+          dueDate: pageInfo.dueDate || '',
+          actionType: pageInfo.actionType || '',
+          biznessEventFrequency:
+            pageInfo.biznessEventFrequency ||
+            nodeData.biznessEventFrequency ||
+            0,
+          eventLocationName: pageInfo.eventLocationName || '',
+          eventLocationId: pageInfo.eventLocationId || 0,
+          extendedBiznessEventName:
+            pageInfo.extendedBiznessEventName ||
+            nodeData.extendedBiznessEventName ||
+            [],
+        };
+
+        setClickedBoxInfo(nextEvent);
+        setModalOpen(true);
+      } catch (error) {
+        console.log(error);
+        toast.error('Could not open pending task page.');
+      }
+    },
+    [triggerGetPreviewPageInfo]
+  );
 
   useEffect(() => {
     if (chainFlowchartIsError) {
       toast.error(
         'Something wrong from backend while fetching chainFlowchartData, see console!'
       );
-      console.log(
-        'Something wrong from backend while fetching chainFlowchartData, see console--->:'
-      );
       console.log(chainFlowchartError);
-    } else if (
-      chainFlowchartIsSuccess &&
-      !chainFlowchartIsLoading &&
-      !chainFlowchartIsFetching &&
-      !chainFlowchartIsError &&
-      chainFlowchartData
-    ) {
-      console.log('chainFlowchartIsSuccess');
-      console.log(chainFlowchartData);
     }
-  }, [
-    chainFlowchartData,
-    chainFlowchartIsLoading,
-    chainFlowchartError,
-    chainFlowchartIsError,
-    chainFlowchartIsFetching,
-    chainFlowchartIsSuccess,
-  ]);
+  }, [chainFlowchartIsError, chainFlowchartError]);
 
+  // Debounced filter → page 1 (avoids rapid refetch while typing/selecting)
   useEffect(() => {
-    const { fixedTaskTemplate, firstEventNo, eventNo } = watchedFields;
-    triggerGetChainFlowchartData({
-      fixedTaskTemplateId: fixedTaskTemplate?.fixedTaskTemplateId || null,
-      firstEventNo: firstEventNo?.firstEventNo || null,
-      eventNo: eventNo?.eventNo || null,
-    });
-  }, []);
-
-  useEffect(() => {
-    const { fixedTaskTemplate, firstEventNo, eventNo } = watchedFields;
-
-    // Trigger your RTK Query
-
-    const tempVar = chainFlowchartData?.filter((w) => {
-      return (
-        (!fixedTaskTemplate?.fixedTaskTemplateId ||
-          w.fixedTaskTemplateId === fixedTaskTemplate.fixedTaskTemplateId) &&
-        (!firstEventNo?.firstEventNo ||
-          w.firstEventNo === firstEventNo.firstEventNo) &&
-        (!eventNo?.eventNo ||
-          (Array.isArray(w.tasks) &&
-            w.tasks.some((task) => task.eventNo === eventNo.eventNo)))
-      );
-    });
-
-    setChainDataState(JSON.parse(JSON.stringify(tempVar || [])));
+    if (filterDebounceRef.current) {
+      clearTimeout(filterDebounceRef.current);
+    }
+    filterDebounceRef.current = setTimeout(() => {
+      refetchChainFlowchart();
+    }, FILTER_DEBOUNCE_MS);
+    return () => {
+      if (filterDebounceRef.current) {
+        clearTimeout(filterDebounceRef.current);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    watchedFields.fixedTaskTemplate,
-    watchedFields.firstEventNo,
-    watchedFields.eventNo,
-    chainFlowchartData,
+    watchedFields.fixedTaskTemplate?.fixedTaskTemplateId,
+    watchedFields.firstEventNo?.firstEventNo,
+    watchedFields.eventNo?.eventNo,
   ]);
 
   // ------------------------- API CALLS and with associated useEffects --------------------------------------
@@ -1365,22 +1474,24 @@ const ReactFlowExp2 = (props: Props) => {
 
   useEffect(() => {
     const { fixedTaskTemplate, firstEventNo, eventNo } = watchedFields;
-
-    // Trigger your RTK Query
+    const selectedFirstEventNo = normalizeFilterValue(
+      firstEventNo?.firstEventNo
+    );
+    const selectedEventNo = normalizeFilterValue(eventNo?.eventNo);
 
     triggerGetFixedTaskTemplate({
       companyId: userInfo?.companyId || 0,
-      eventNo: eventNo?.eventNo || null,
-      firstEventNo: firstEventNo?.firstEventNo || null,
+      eventNo: selectedEventNo,
+      firstEventNo: selectedFirstEventNo,
     });
 
     triggerGetEventNo({
-      firstEventNo: firstEventNo?.firstEventNo,
-      fixedTaskTemplateId: fixedTaskTemplate?.fixedTaskTemplateId,
+      firstEventNo: selectedFirstEventNo,
+      fixedTaskTemplateId: fixedTaskTemplate?.fixedTaskTemplateId || null,
     });
     triggerGetFirstEventNo({
-      eventNo: eventNo?.eventNo,
-      fixedTaskTemplateId: fixedTaskTemplate?.fixedTaskTemplateId,
+      eventNo: selectedEventNo,
+      fixedTaskTemplateId: fixedTaskTemplate?.fixedTaskTemplateId || null,
     });
   }, [
     watchedFields.fixedTaskTemplate?.fixedTaskTemplateId,
@@ -1430,368 +1541,237 @@ const ReactFlowExp2 = (props: Props) => {
   //   });
   // };
 
+  const filterFieldSx = {
+    width: '100%',
+    '& .MuiInputLabel-root': { fontSize: '0.8rem' },
+    '& .MuiInputBase-root': { fontSize: '0.8125rem' },
+  };
+
   return (
-    <div className="mt-16 md:mt-2">
+    <div className="chain-status-page mt-16 md:mt-2">
       <div className="flex justify-center">
-        <div className="block w-[98%]">
-          {/* Main Card */}
-          {/* <form onSubmit={handleSubmit(downloadReport)}> */}
+        <div className="w-[98%]">
           <form>
-            <div className="block rounded-lg shadow-lg bg-white dark:bg-secondary-dark-bg  text-center">
-              {/* Main Card header */}
-              <div className="py-3 bg-white text-xl dark:text-gray-200 text-start px-6 border-b border-gray-300">
-                {/* -----[TransactionEventVoucher experimental place starts here]----- */}
-                {/* {biznessEventName
-                  ? biznessEventName.replace(/([A-Z])(?=[A-Z][a-z])/g, '$1 ')
-                  : 'Chain Flows'} */}
-                Chain Flows
-                {/* ---//--[TransactionEventVoucher experimental place ENDS here]----- */}
-              </div>
-              {/* Main Card header--/-- */}
-
-              {/* Main Card body */}
-              <div className="px-6 pb-4 text-start grid grid-cols-1 gap-y-1  mt-5">
-                <div className="grid grid-cols-3 gap-2 mb-5">
-                  <Controller
-                    name="fixedTaskTemplate"
-                    control={control}
-                    // rules={{
-                    //   required: '*Required',
-                    // }}
-                    render={({
-                      field: { onChange, onBlur, value, ref },
-                      fieldState: { error },
-                    }) => (
-                      <Autocomplete
-                        id=""
-                        size="small"
-                        loading={false}
-                        options={[
-                          { fixedTaskTemplateId: 0, name: 'All' },
-                          ...(Array.from(
-                            new Map(
-                              fixedTaskTemplateOptions?.map(
-                                (fixedTaskTemplateOption) => [
-                                  fixedTaskTemplateOption.name,
-                                  fixedTaskTemplateOption,
-                                ]
-                              )
-                            ).values()
-                          ) || []),
-                        ]}
-                        value={value || null}
-                        // onChange={(event, item) => {}} // React-hook-form manages the state
-                        onChange={(event, selectedItem) => {
-                          onChange(selectedItem);
-                        }}
-                        onBlur={onBlur} // Trigger validation on blur
-                        getOptionLabel={(option) => (option ? option.name : '')}
-                        isOptionEqualToValue={(option, selectedValue) =>
-                          option.name === selectedValue?.name &&
-                          option.fixedTaskTemplateId ===
-                            selectedValue?.fixedTaskTemplateId
-                        }
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Chain Type"
-                            variant="standard"
-                            error={!!error}
-                            helperText={error ? error.message : null}
-                            InputLabelProps={{
-                              ...params.InputLabelProps,
-                              style: { fontSize: '0.875rem' },
-                            }}
-                            InputProps={{
-                              ...params.InputProps,
-                              style: { fontSize: '0.8125rem' },
-                              // endAdornment: (
-                              //   <>
-                              //     {buyerOptionsAutoCompLoading ? (
-                              //       <CircularProgress color="inherit" size={20} />
-                              //     ) : null}
-                              //     {params.InputProps.endAdornment}
-                              //   </>
-                              // ),
-                            }}
-                            sx={{ width: '100%', marginTop: 1 }}
-                            inputRef={ref}
-                          />
-                        )}
-                      />
-                    )}
-                  />
-                  <Controller
-                    name="firstEventNo"
-                    control={control}
-                    // rules={{
-                    //   required: '*Required',
-                    // }}
-                    render={({
-                      field: { onChange, onBlur, value, ref },
-                      fieldState: { error },
-                    }) => (
-                      <Autocomplete
-                        id=""
-                        size="small"
-                        loading={false}
-                        options={[
-                          { biznessEvent_PCTrackId: 0, firstEventNo: 'All' },
-                          ...(Array.from(
-                            new Map(
-                              firstEventNoOptionsData?.map(
-                                (firstEventNoOption) => [
-                                  firstEventNoOption.firstEventNo,
-                                  firstEventNoOption,
-                                ]
-                              )
-                            ).values()
-                          ) || []),
-                        ]}
-                        value={value || null}
-                        // onChange={(event, item) => {}} // React-hook-form manages the state
-                        onChange={(event, selectedItem) => {
-                          onChange(selectedItem);
-                        }}
-                        onBlur={onBlur} // Trigger validation on blur
-                        getOptionLabel={(option) =>
-                          option ? option.firstEventNo : ''
-                        }
-                        isOptionEqualToValue={(option, selectedValue) =>
-                          option.firstEventNo === selectedValue?.firstEventNo &&
-                          option.biznessEvent_PCTrackId ===
-                            selectedValue?.biznessEvent_PCTrackId
-                        }
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="First Event No."
-                            variant="standard"
-                            error={!!error}
-                            helperText={error ? error.message : null}
-                            InputLabelProps={{
-                              ...params.InputLabelProps,
-                              style: { fontSize: '0.875rem' },
-                            }}
-                            InputProps={{
-                              ...params.InputProps,
-                              style: { fontSize: '0.8125rem' },
-                              // endAdornment: (
-                              //   <>
-                              //     {buyerOptionsAutoCompLoading ? (
-                              //       <CircularProgress color="inherit" size={20} />
-                              //     ) : null}
-                              //     {params.InputProps.endAdornment}
-                              //   </>
-                              // ),
-                            }}
-                            sx={{ width: '100%', marginTop: 1 }}
-                            inputRef={ref}
-                          />
-                        )}
-                      />
-                    )}
-                  />
-                  <Controller
-                    name="eventNo"
-                    control={control}
-                    // rules={{
-                    //   required: '*Required',
-                    // }}
-                    render={({
-                      field: { onChange, onBlur, value, ref },
-                      fieldState: { error },
-                    }) => (
-                      <Autocomplete
-                        id=""
-                        size="small"
-                        loading={false}
-                        options={[
-                          { biznessEvent_PCTrackId: 0, eventNo: 'All' },
-                          ...(Array.from(
-                            new Map(
-                              eventNoOptionsData?.map((eventNoOption) => [
-                                eventNoOption.eventNo,
-                                eventNoOption,
-                              ])
-                            ).values()
-                          ) || []),
-                        ]}
-                        value={value || null}
-                        // onChange={(event, item) => {}} // React-hook-form manages the state
-                        onChange={(event, selectedItem) => {
-                          onChange(selectedItem);
-                        }}
-                        onBlur={onBlur} // Trigger validation on blur
-                        getOptionLabel={(option) =>
-                          option ? option.eventNo : ''
-                        }
-                        isOptionEqualToValue={(option, selectedValue) =>
-                          option.eventNo === selectedValue?.eventNo &&
-                          option.biznessEvent_PCTrackId ===
-                            selectedValue?.biznessEvent_PCTrackId
-                        }
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Event No."
-                            variant="standard"
-                            error={!!error}
-                            helperText={error ? error.message : null}
-                            InputLabelProps={{
-                              ...params.InputLabelProps,
-                              style: { fontSize: '0.875rem' },
-                            }}
-                            InputProps={{
-                              ...params.InputProps,
-                              style: { fontSize: '0.8125rem' },
-                              // endAdornment: (
-                              //   <>
-                              //     {buyerOptionsAutoCompLoading ? (
-                              //       <CircularProgress color="inherit" size={20} />
-                              //     ) : null}
-                              //     {params.InputProps.endAdornment}
-                              //   </>
-                              // ),
-                            }}
-                            sx={{ width: '100%', marginTop: 1 }}
-                            inputRef={ref}
-                          />
-                        )}
-                      />
-                    )}
-                  />
+            <div className="chain-status-shell text-start">
+              <header className="chain-status-header">
+                <div>
+                  <h1 className="chain-status-title">Available Chain Status</h1>
+                  <p className="chain-status-subtitle">
+                    Browse live process chains. Completed steps open preview;
+                    pending steps continue the workflow.
+                  </p>
                 </div>
-                <div className="h-[37.5rem] w-[100%] overflow-scroll">
-                  {chainDataState?.map((event) => (
-                    <div key={uuid()} className=" box-border border m-4">
-                      <div className="">
-                        <div className=" text-[0.8125rem]">
-                          First Event No.:{' '}
-                          <span className=" font-bold">
-                            {event.firstEventNo}
-                          </span>
-                        </div>
-
-                        <div className=" text-[0.8125rem]">
-                          Chain Type: {event.fixedTaskTemplateName}
-                        </div>
-                      </div>
-
-                      <div
-                        key={event.fixedTaskTemplateId + event.firstEventNo}
-                        className="w-[100%] h-[9.375rem] mt-4"
-                      >
-                        <ReactFlow
-                          nodes={generateNodes(event.tasks)}
-                          edges={generateEdges(event.tasks)}
-                          nodeTypes={nodeTypes} // Register custom node type
-                          fitView
-                          edgeTypes={{
-                            bezier: (props) => <BezierEdge {...props} />, // Custom edge type for loops
-                            step: (props) => <StepEdge {...props} />, // Default step edge
-                          }}
-                          nodesConnectable={false}
-                          // elementsSelectable={false}
-                          nodesDraggable={false} // Disable dragging of nodes
-                          // panOnDrag={false} // Prevent background drag
-                          zoomOnScroll={false} // Disable zoom on scroll
-                          zoomOnPinch={false} // Disable zoom on pinch gestures
-                          panOnScroll={false} // scrolling e j whole page upore niche jaay oita
-                          zoomOnDoubleClick={false}
-                          // maxZoom={0.7}
-                          fitViewOptions={{
-                            padding: 0.2,
-                            includeHiddenNodes: false,
-                            minZoom: 0.1,
-                            maxZoom: 1,
-                            duration: 800,
-                            nodes: [{ id: 'node-1' }, { id: 'node-2' }],
-                          }}
-                          // minZoom={0.7}
-                        >
-                          <Controls
-                            position="top-right"
-                            className="horizontal-controls"
-                          />
-                          {/* <Background /> */}
-                        </ReactFlow>
-                      </div>
-                    </div>
-                  ))}
+                <div className="chain-status-meta">
+                  <span className="chain-status-pill">
+                    Loaded <strong>{chainDataState.length}</strong>
+                  </span>
+                  <span className="chain-status-pill">
+                    Total <strong>{totalChainCount || '—'}</strong>
+                  </span>
+                  <span className="chain-status-pill">
+                    Page <strong>{chainPage}</strong>
+                  </span>
                 </div>
-              </div>
-              {/* Main Card Body--/-- */}
+              </header>
 
-              {/* Main Card footer */}
-              <div className="py-3 px-6 border-t text-start border-gray-300 text-gray-600">
-                <div className="flex gap-x-3">
-                  {/* <button
-                    type="button"
-                    data-mdb-ripple="true"
-                    data-mdb-ripple-color="light"
-                    className={`inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out ${
-                      chainFlowchartIsLoading ||
-                      chainFlowchartIsFetching ||
-                      isChainFlowchartLoading ||
-                      processBuyerWiseCommissionAchievementLoading ||
-                      operationMode === 'preview'
-                        ? 'opacity-50 cursor-not-allowed'
-                        : ''
-                    }`}
-                    onClick={(e) => {
-                      if (
-                        chainFlowchartIsLoading ||
-                        chainFlowchartIsFetching ||
-                        isChainFlowchartLoading ||
-                        processBuyerWiseCommissionAchievementLoading
-                      ) {
-                        toast.warning(
-                          'Please wait until the data is fetched/saved!'
-                        );
-                      } else if (operationMode === 'preview') {
-                        toast.warning(
-                          'You are in preview mode, you cannot update the tender status'
-                        );
-                      } else {
-                        saveBtn();
-                        // testFunct();
+              <div className="chain-status-filters">
+                <Controller
+                  name="fixedTaskTemplate"
+                  control={control}
+                  render={({
+                    field: { onChange, onBlur, value, ref },
+                    fieldState: { error },
+                  }) => (
+                    <Autocomplete
+                      size="small"
+                      loading={
+                        fixedTaskTemplateOptionsLoading ||
+                        fixedTaskTemplateOptionsIsFetching
                       }
-                    }}
-                  >
-                    {chainFlowchartIsLoading ||
-                    chainFlowchartIsFetching ||
-                    isChainFlowchartLoading ||
-                    processBuyerWiseCommissionAchievementLoading ? (
-                      <CircularProgress size={12} color="inherit" />
-                    ) : (
-                      ''
-                    )}
-                    {'  '}
-                    {chainFlowchartIsLoading ||
-                    chainFlowchartIsFetching ||
-                    isChainFlowchartLoading ||
-                    processBuyerWiseCommissionAchievementLoading
-                      ? 'Please wait..'
-                      : 'Save'}
-                  </button> */}
-                  <button
-                    type="button"
-                    data-mdb-ripple="true"
-                    data-mdb-ripple-color="light"
-                    className="inline-block px-6 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
-                    onClick={(e) => {
-                      // getPermittedUserInfo();
-                    }}
-                  >
-                    Test
-                  </button>
-                </div>
+                      options={[
+                        { fixedTaskTemplateId: 0, name: 'All' },
+                        ...(Array.from(
+                          new Map(
+                            fixedTaskTemplateOptions?.map(
+                              (fixedTaskTemplateOption) => [
+                                fixedTaskTemplateOption.name,
+                                fixedTaskTemplateOption,
+                              ]
+                            )
+                          ).values()
+                        ) || []),
+                      ]}
+                      value={value || null}
+                      onChange={(_event, selectedItem) =>
+                        onChange(selectedItem)
+                      }
+                      onBlur={onBlur}
+                      getOptionLabel={(option) => (option ? option.name : '')}
+                      isOptionEqualToValue={(option, selectedValue) =>
+                        option.name === selectedValue?.name &&
+                        option.fixedTaskTemplateId ===
+                          selectedValue?.fixedTaskTemplateId
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Chain Type"
+                          variant="outlined"
+                          error={!!error}
+                          helperText={error ? error.message : null}
+                          inputRef={ref}
+                          sx={filterFieldSx}
+                        />
+                      )}
+                    />
+                  )}
+                />
+                <Controller
+                  name="firstEventNo"
+                  control={control}
+                  render={({
+                    field: { onChange, onBlur, value, ref },
+                    fieldState: { error },
+                  }) => (
+                    <Autocomplete
+                      size="small"
+                      loading={
+                        firstEventNoOptionsIsLoading ||
+                        firstEventNoOptionsIsFetching
+                      }
+                      options={[
+                        { biznessEvent_PCTrackId: 0, firstEventNo: 'All' },
+                        ...(Array.from(
+                          new Map(
+                            firstEventNoOptionsData?.map(
+                              (firstEventNoOption) => [
+                                firstEventNoOption.firstEventNo,
+                                firstEventNoOption,
+                              ]
+                            )
+                          ).values()
+                        ) || []),
+                      ]}
+                      value={value || null}
+                      onChange={(_event, selectedItem) =>
+                        onChange(selectedItem)
+                      }
+                      onBlur={onBlur}
+                      getOptionLabel={(option) =>
+                        option ? option.firstEventNo : ''
+                      }
+                      isOptionEqualToValue={(option, selectedValue) =>
+                        option.firstEventNo === selectedValue?.firstEventNo &&
+                        option.biznessEvent_PCTrackId ===
+                          selectedValue?.biznessEvent_PCTrackId
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="First Event No."
+                          variant="outlined"
+                          error={!!error}
+                          helperText={error ? error.message : null}
+                          inputRef={ref}
+                          sx={filterFieldSx}
+                        />
+                      )}
+                    />
+                  )}
+                />
+                <Controller
+                  name="eventNo"
+                  control={control}
+                  render={({
+                    field: { onChange, onBlur, value, ref },
+                    fieldState: { error },
+                  }) => (
+                    <Autocomplete
+                      size="small"
+                      loading={
+                        eventNoOptionsIsLoading || eventNoOptionsIsFetching
+                      }
+                      options={[
+                        { biznessEvent_PCTrackId: 0, eventNo: 'All' },
+                        ...(Array.from(
+                          new Map(
+                            eventNoOptionsData?.map((eventNoOption) => [
+                              eventNoOption.eventNo,
+                              eventNoOption,
+                            ])
+                          ).values()
+                        ) || []),
+                      ]}
+                      value={value || null}
+                      onChange={(_event, selectedItem) =>
+                        onChange(selectedItem)
+                      }
+                      onBlur={onBlur}
+                      getOptionLabel={(option) =>
+                        option ? option.eventNo : ''
+                      }
+                      isOptionEqualToValue={(option, selectedValue) =>
+                        option.eventNo === selectedValue?.eventNo &&
+                        option.biznessEvent_PCTrackId ===
+                          selectedValue?.biznessEvent_PCTrackId
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Event No."
+                          variant="outlined"
+                          error={!!error}
+                          helperText={error ? error.message : null}
+                          inputRef={ref}
+                          sx={filterFieldSx}
+                        />
+                      )}
+                    />
+                  )}
+                />
               </div>
-              {/* Main Card footer--/-- */}
+
+              <div
+                className="chain-status-list"
+                onScroll={handleChainListScroll}
+              >
+                {chainFlowchartIsLoading && chainDataState.length === 0 && (
+                  <div className="br24-anim-fade-in flex justify-center py-14">
+                    <div className="br24-spinner" aria-label="Loading" />
+                  </div>
+                )}
+                {!chainFlowchartIsLoading && chainDataState.length === 0 && (
+                  <div className="chain-status-empty">
+                    No chains match these filters. Try widening Chain Type or
+                    clearing Event No.
+                  </div>
+                )}
+                {chainDataState.map((event) => (
+                  <ChainFlowCard
+                    key={`${event.fixedTaskTemplateId}-${event.firstEventNo}`}
+                    event={event}
+                    onCompletedClick={handleCompletedNodeClick}
+                    onPendingClick={handlePendingNodeClick}
+                  />
+                ))}
+                {(isLoadingMore ||
+                  (chainFlowchartIsFetching &&
+                    chainDataState.length > 0)) && (
+                  <div className="br24-anim-fade-in flex justify-center py-4">
+                    <div
+                      className="br24-spinner"
+                      aria-label="Loading more"
+                    />
+                  </div>
+                )}
+                {!hasNextPage && chainDataState.length > 0 && (
+                  <div className="chain-status-footer-note">
+                    End of results · page {chainPage}
+                  </div>
+                )}
+              </div>
             </div>
           </form>
-          {/* Main Card--/-- */}
         </div>
       </div>
       <PreviewEditModal

@@ -1,29 +1,384 @@
-.sticky {
-    position: sticky;
-    top: 0;
-    left: 0;
-    background: white;
-    z-index: 10;
-  }
-  
-  .overflow-x-scroll {
-    overflow-x: auto;
-    display: flex;
+.chain-status-page {
+  --cs-surface: #ffffff;
+  --cs-surface-muted: #f4f7f9;
+  --cs-ink: #0f172a;
+  --cs-ink-soft: #64748b;
+  --cs-line: #e2e8f0;
+  --cs-accent: #0e7490;
+  --cs-accent-soft: #ecfeff;
+  --cs-done: #0f766e;
+  --cs-pending: #ca8a04;
+  --cs-pending-bg: #fef9c3;
+  --cs-shadow: 0 1px 2px rgb(15 23 42 / 4%), 0 8px 24px rgb(15 23 42 / 6%);
+  --cs-radius: 14px;
+}
+
+.dark .chain-status-page {
+  --cs-surface: #1f2937;
+  --cs-surface-muted: #111827;
+  --cs-ink: #f8fafc;
+  --cs-ink-soft: #94a3b8;
+  --cs-line: #334155;
+  --cs-accent: #22d3ee;
+  --cs-accent-soft: #083344;
+  --cs-done: #2dd4bf;
+  --cs-pending: #facc15;
+  --cs-pending-bg: #422006;
+  --cs-shadow: 0 1px 2px rgb(0 0 0 / 25%), 0 10px 28px rgb(0 0 0 / 28%);
+}
+
+.chain-status-shell {
+  background: var(--cs-surface);
+  border: 1px solid var(--cs-line);
+  border-radius: var(--cs-radius);
+  box-shadow: var(--cs-shadow);
+  overflow: hidden;
+}
+
+.chain-status-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 1.35rem;
+  border-bottom: 1px solid var(--cs-line);
+  background:
+    linear-gradient(180deg, var(--cs-accent-soft) 0%, transparent 100%),
+    var(--cs-surface);
+}
+
+.chain-status-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--cs-ink);
+}
+
+.chain-status-subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.78rem;
+  color: var(--cs-ink-soft);
+}
+
+.chain-status-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  justify-content: flex-end;
+}
+
+.chain-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid var(--cs-line);
+  background: var(--cs-surface);
+  color: var(--cs-ink-soft);
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.chain-status-pill strong {
+  color: var(--cs-ink);
+  font-weight: 700;
+}
+
+.chain-status-filters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+  padding: 0.85rem 1.35rem 1rem;
+  border-bottom: 1px solid var(--cs-line);
+  background: var(--cs-surface-muted);
+}
+
+@media (max-width: 900px) {
+  .chain-status-filters {
+    grid-template-columns: 1fr;
   }
 
-  .horizontal-controls {
-    /* display: flex !important;
-    flex-direction: row; */
+  .chain-status-header {
+    flex-direction: column;
   }
-  .react-flow__controls-interactive{
-    display: none;
+
+  .chain-status-meta {
+    justify-content: flex-start;
   }
-  .react-flow__attribution{
-    display: none !important;
+}
+
+.chain-status-list {
+  height: min(37.5rem, calc(100vh - 16rem));
+  overflow: auto;
+  padding: 0.85rem 1rem 1.25rem;
+  background:
+    radial-gradient(circle at top left, rgb(14 116 144 / 5%), transparent 40%),
+    var(--cs-surface-muted);
+  scroll-behavior: smooth;
+}
+
+.chain-status-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chain-status-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+.dark .chain-status-list::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+.chain-flow-card {
+  margin: 0 0 0.85rem;
+  border: 1px solid var(--cs-line);
+  border-radius: 12px;
+  background: var(--cs-surface);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 4%);
+  overflow: hidden;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 220px;
+}
+
+.chain-flow-card:hover {
+  border-color: rgb(14 116 144 / 35%);
+  box-shadow: var(--cs-shadow);
+}
+
+.chain-flow-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.9rem 0.55rem;
+}
+
+.chain-flow-card-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cs-ink-soft);
+  margin-bottom: 0.15rem;
+}
+
+.chain-flow-card-title {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--cs-ink);
+  word-break: break-word;
+}
+
+.chain-flow-card-type {
+  font-size: 0.74rem;
+  color: var(--cs-ink-soft);
+  margin-top: 0.15rem;
+}
+
+.chain-flow-canvas {
+  height: 10.5rem;
+  width: 100%;
+  border-top: 1px solid var(--cs-line);
+  background:
+    linear-gradient(90deg, transparent 49.5%, rgb(148 163 184 / 18%) 50%, transparent 50.5%),
+    linear-gradient(0deg, transparent 49.5%, rgb(148 163 184 / 12%) 50%, transparent 50.5%),
+    var(--cs-surface);
+  background-size: 24px 24px;
+}
+
+.chain-flow-canvas-placeholder {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cs-ink-soft);
+  font-size: 0.75rem;
+}
+
+.chain-flow-skeleton {
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(148 163 184 / 18%),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: chain-shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes chain-shimmer {
+  0% {
+    background-position: 100% 0;
   }
-  /* .horizontal-cntrl >Children-Container   upPathSimplifications %}
-  better cl-range      .newSimplifications !!
-  customSimplifications  >validate-HorizontalBranch
-  
-  
-  .%VERTICAL_SIMPLIFICATIONS-THEMS */
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+.chain-status-empty,
+.chain-status-footer-note {
+  text-align: center;
+  color: var(--cs-ink-soft);
+  font-size: 0.8rem;
+  padding: 2rem 1rem;
+}
+
+.chain-status-footer-note {
+  padding: 0.85rem 1rem 0.4rem;
+  font-size: 0.72rem;
+}
+
+.chain-node {
+  width: 13.5rem;
+  min-height: 4.1rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 10px;
+  border: 1px solid var(--cs-line);
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 6%);
+  cursor: pointer;
+  pointer-events: all;
+  user-select: none;
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    border-color 140ms ease;
+}
+
+.chain-flow-canvas .react-flow__node {
+  cursor: pointer;
+  pointer-events: all;
+}
+
+.dark .chain-node {
+  background: #0f172a;
+}
+
+.chain-node:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgb(15 23 42 / 10%);
+}
+
+.chain-node--done {
+  border-left: 3px solid var(--cs-done);
+}
+
+.chain-node--pending {
+  border-left: 3px solid var(--cs-pending);
+  background: linear-gradient(180deg, #fffbeb 0%, #fff 70%);
+}
+
+.dark .chain-node--pending {
+  background: linear-gradient(180deg, #422006 0%, #0f172a 70%);
+}
+
+.chain-node-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--cs-ink);
+  line-height: 1.25;
+  margin-bottom: 0.25rem;
+}
+
+.chain-node-meta {
+  font-size: 0.66rem;
+  color: var(--cs-ink-soft);
+  line-height: 1.35;
+}
+
+.chain-node-meta span {
+  color: var(--cs-accent);
+  font-weight: 600;
+}
+
+.chain-node-status {
+  display: inline-block;
+  margin-top: 0.3rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--cs-done);
+}
+
+.chain-node--pending .chain-node-status {
+  color: #a16207;
+}
+
+.dark .chain-node--pending .chain-node-status {
+  color: var(--cs-pending);
+}
+
+.chain-popover {
+  padding: 0.75rem 0.9rem;
+  min-width: 11rem;
+}
+
+.chain-popover-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--cs-ink);
+  margin-bottom: 0.45rem;
+}
+
+.chain-popover-row {
+  font-size: 0.72rem;
+  color: var(--cs-ink-soft);
+  padding: 0.18rem 0;
+}
+
+.react-flow__controls-interactive {
+  display: none;
+}
+
+.react-flow__attribution {
+  display: none !important;
+}
+
+.chain-flow-canvas .react-flow__controls {
+  box-shadow: none;
+  border: 1px solid var(--cs-line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.chain-flow-canvas .react-flow__controls-button {
+  width: 1.5rem;
+  height: 1.5rem;
+  background: var(--cs-surface);
+  border-bottom: 1px solid var(--cs-line);
+}
+
+/* Flowing left → right connector animation */
+.chain-flow-canvas .react-flow__edge.chain-flow-edge .react-flow__edge-path,
+.chain-flow-canvas .react-flow__edge.animated .react-flow__edge-path {
+  stroke: #0e7490;
+  stroke-width: 2;
+  stroke-linecap: round;
+  fill: none;
+  stroke-dasharray: 6 10;
+  animation: chain-edge-flow 1.1s linear infinite;
+  filter: drop-shadow(0 0 3px rgb(14 116 144 / 35%));
+}
+
+.dark .chain-flow-canvas .react-flow__edge.chain-flow-edge .react-flow__edge-path,
+.dark .chain-flow-canvas .react-flow__edge.animated .react-flow__edge-path {
+  stroke: #22d3ee;
+  filter: drop-shadow(0 0 4px rgb(34 211 238 / 40%));
+}
+
+@keyframes chain-edge-flow {
+  from {
+    stroke-dashoffset: 32;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}

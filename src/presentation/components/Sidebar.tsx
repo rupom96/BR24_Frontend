@@ -397,7 +397,7 @@ const Sidebar = () => {
             },
 
             {
-              name: 'Availiable Chain Status',
+              name: 'Available Chain Status',
               path: 'reactFlowExp2',
               icon: <FiShoppingBag />,
             },

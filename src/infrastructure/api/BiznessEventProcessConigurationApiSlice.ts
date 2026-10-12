@@ -188,6 +188,7 @@ export const {
   useGetBiznessEventProcessConfigurationsByFixedTaskTemplateIdQuery,
   useGetFirstPageOfChainByFixedTaskTemplateIdQuery,
   useGetPreviewPageInfoByFixedTaskTemplateIdSequenceQuery,
+  useLazyGetPreviewPageInfoByFixedTaskTemplateIdSequenceQuery,
   useProcessBiznessEventProcessConfigurationsMutation,
   useGetBiznessEventProcessConfigurationInfoByFixedTaskTemplateIdQuery,
   useGetAllButtonListQuery,

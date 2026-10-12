@@ -1,32 +1,34 @@
 # Task Identity
 
-- **Task ID:** TASK-20261008-tender-approval-top-sheet-rpt
-- **Task title:** Tender Approval Top Sheet Rpt page
-- **Started date:** 2026-10-08
-- **Last updated:** 2026-10-08
+- **Task ID:** TASK-20261010-chain-flowchart-pagination
+- **Task title:** Available Chain Status — paginated getChainFlowChart + infinite scroll
+- **Started date:** 2026-10-10
+- **Last updated:** 2026-10-10
 
 # Objective
 
-New FE page: Tender No autocomplete + Report Download calling `GET ProcurementTender/getTenderApprovalTopSheet?TenderNo=` (binary `.xlsx`). Chain-modal props like TenderExpenseForSalesPerson.
+Paginate `getChainFlowChart` (BE) and load chains on scroll (FE) to fix Transaction Timeout on `fixedTaskTemplateId=0`.
 
 # Current State
 
-**Implemented (FE):**
+**Backend (done):**
 
-- API: `getTenderApprovalTopSheet` lazy query in `TenderApiSlice` (blob + ProblemDetails error parse)
-- Page: `src/presentation/pages/TenderApprovalTopSheetRpt/TenderApprovalTopSheetRpt.tsx`
-- Route: `/tenderApprovalTopSheetRpt` in `App.tsx`
-- Chain modal: `DynamicPageDeclaration` → `TenderApprovalTopSheetRpt`
+- `GetChainFlowChart` returns `PaginatedResult<GetChainFlowChartDto>`
+- Params: `pageNumber` (default 1), `pageSize` (default 10, max 50)
+- Page-then-load: distinct chain keys → Skip/Take → load tasks only for page
+- Removed `TransactionScope` on this read-only service method
+
+**Frontend (done):**
+
+- API slice sends `pageNumber`/`pageSize`, expects `IPaginatedChainFlowChart`
+- `ReactFlowExp2`: page 1 on mount/filter change; append on scroll near bottom
 
 # Next Action
 
-1. Smoke-test: select Tender No → Report Download → `.xlsx` saves.
-2. Error cases: empty TenderNo (client warn), unknown tender → toast shows BE `title` (404).
-3. User adds static menu **"Tender Approval Top Sheet Rpt"** if needed — FE route ready.
+1. Restart IIS Express / API so new BE DLL loads (file lock blocked full Api build copy).
+2. Smoke: `getChainFlowChart?fixedTaskTemplateId=0&pageNumber=1&pageSize=10` → 200 + `hasNextPage`.
+3. UI: open `/reactFlowExp2`, scroll list, confirm page 2+ loads.
 
-# Notes / contract
+# Notes
 
-- Query param is **`TenderNo`** (string), not tenderId.
-- Success: `File` / `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`.
-- Errors via ExceptionMiddleware ProblemDetails (`title`): 400 `TenderNo is required.`, 404 `Tender ({no}) was not found.`
-- Autocomplete: `useGetAllTenderNoQuery` / `ITenderNoComboBox`.
+- Restart backend host after pull — IIS Express had locked Api output during build.
