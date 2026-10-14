@@ -26,7 +26,11 @@ export const AccountsNameApiSlice = createApi({
     },
     // token er kaaj shesh
   }),
-  tagTypes: ['AccountsNameComboBox', 'AccountsChargeTypeComboBox'],
+  tagTypes: [
+    'AccountsNameComboBox',
+    'AccountsNameComboBoxFromDestination',
+    'AccountsChargeTypeComboBox',
+  ],
   endpoints: (builder) => ({
     getAllAccountsNameByCompanyId: builder.query<
       IAccountsNameComboBox[],
@@ -36,6 +40,14 @@ export const AccountsNameApiSlice = createApi({
         `getAllAccountsNameByCompanyId?companyId=${companyId}`,
       // providesTags: () => [], // Disable caching by always providing an empty array of tags
       providesTags: ['AccountsNameComboBox'],
+    }),
+    getAllAccountsNameByCompanyIdFromDestination: builder.query<
+      IAccountsNameComboBox[],
+      { companyId: number }
+    >({
+      query: ({ companyId }) =>
+        `getAllAccountsNameByCompanyIdFromDestination?companyId=${companyId}`,
+      providesTags: ['AccountsNameComboBoxFromDestination'],
     }),
     getAccountsFromChargeType: builder.query<
       IAccountsChargeTypeComboBox[],
@@ -54,6 +66,8 @@ export const AccountsNameApiSlice = createApi({
 export const {
   useGetAllAccountsNameByCompanyIdQuery,
   useLazyGetAllAccountsNameByCompanyIdQuery,
+  useGetAllAccountsNameByCompanyIdFromDestinationQuery,
+  useLazyGetAllAccountsNameByCompanyIdFromDestinationQuery,
   useGetAccountsFromChargeTypeQuery,
   useLazyGetAccountsFromChargeTypeQuery,
 } = AccountsNameApiSlice;
