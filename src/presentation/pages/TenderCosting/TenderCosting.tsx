@@ -49,6 +49,8 @@ import { IBuyer } from '../../../domain/interfaces/BuyerInterface';
 import { ITenderNoComboBox2 } from '../../../domain/interfaces/ProcurementTenderInterface';
 import { CostingForm } from './CostingFormTabular';
 import { ICreateBiznessEventPCTrackCommand } from '../../../domain/interfaces/BiznessEventPCTrackVMInterface';
+import { useAppSelector } from '../../../application/Redux/store/store';
+import { hexToRgba } from '../../Utils/colorUtils';
 
 const API_BASE_URL = (window as any).API_BASE_URL;
 
@@ -74,7 +76,20 @@ type TenderCostingDetailRow = GetTenderCostingDetailDto & {
   // Tax & VAT Three + final pricing
   taxAndVATThreePerProduct: number; // percentage driven from Tax&VATThreeP
   totalAmountTwoPerProduct: number; // virtual
+  /** Virtual: totalAmountOnePerProduct / sum(totalAmountOne) */
+  ratio: number;
+
+  /** DB Price at load — used on save when productSource is not FOB/LOCAL/STOCK */
+  originalPrice: number | null;
+
+  /** Per-row % (virtual) — drives Dist/Profit values */
+  distMarginPercent: number;
+  profitPercent: number;
 };
+
+const isFobSource = (s?: string | null): boolean => s === 'FOB';
+const isLpSource = (s?: string | null): boolean =>
+  s === 'LOCAL' || s === 'STOCK';
 
 export type TenderCostingState = Omit<
   GetTenderCostingDto,
@@ -115,39 +130,92 @@ export type TenderCostingState = Omit<
   // Combined BG + PG + SD
   bgAndPgAndSd: number;
 
+  /** Sales/AG: percent → VT/SE % formula; total → UC×Qty ratio split (% reverse-display only) */
+  salesExpenseMode: 'percent' | 'total';
+  agExpenseMode: 'percent' | 'total';
+
   getTenderCostingDetailDtos: TenderCostingDetailRow[];
 };
 
 const round2 = (n: number): number =>
   Number.isFinite(n) ? Math.round(n * 100) / 100 : 0;
 
+const isTruthyAmount = (v: number | null | undefined): boolean =>
+  v != null && !Number.isNaN(Number(v)) && Number(v) !== 0;
+
+/**
+ * Allocate pot `total` by (unitCost×qty)/Σ; return per-unit = share/qty.
+ * Last row absorbs share remainder so Σ(share) === total.
+ */
+const allocateTotalByUnitCostRatio = (
+  unitCosts: number[],
+  qtys: number[],
+  total: number
+): number[] => {
+  const n = unitCosts.length;
+  if (!n) return [];
+  if (!total) return Array(n).fill(0);
+
+  const weights = unitCosts.map((uc, i) => (uc || 0) * (qtys[i] || 0));
+  const sumW = weights.reduce((a, b) => a + b, 0);
+  if (!sumW) return Array(n).fill(0);
+
+  const shares: number[] = Array(n).fill(0);
+  let allocated = 0;
+  for (let i = 0; i < n - 1; i += 1) {
+    shares[i] = round2((total * weights[i]) / sumW);
+    allocated += shares[i];
+  }
+  shares[n - 1] = round2(total - allocated);
+
+  return shares.map((share, i) => {
+    const q = qtys[i] || 0;
+    return q ? round2(share / q) : 0;
+  });
+};
+
+const reversePctFromLinePot = (
+  total: number,
+  perUnitBases: number[],
+  qtys: number[]
+): number => {
+  const denom = perUnitBases.reduce(
+    (acc, v, i) => acc + (v || 0) * (qtys[i] || 0),
+    0
+  );
+  return denom ? round2((total / denom) * 100) : 0;
+};
+
 // ===== Recompute all (single source of truth) =====
 
 const recomputeAll = (state: TenderCostingState): TenderCostingState => {
-  const distPct = state.distMarginP ?? 0;
-  const profitPct = state.profitP ?? 0;
   const taxAndVATOnePct = state.taxAndVATOneP ?? 0;
-  const salesExpensePct = state.salesExpenseP ?? 0;
-  const agExpensePct = state.agExpenseP ?? 0;
   const taxAndVATTwoPct = state.taxAndVATTwoP ?? 0;
   const taxAndVATThreePct = state.taxAndVATThreeP ?? 0;
+  const salesExpenseMode = state.salesExpenseMode ?? 'percent';
+  const agExpenseMode = state.agExpenseMode ?? 'percent';
+  let salesExpensePct = state.salesExpenseP ?? 0;
+  let agExpensePct = state.agExpenseP ?? 0;
+  const salesExpenseTotalPot = state.salesExpenseT ?? 0;
+  const agExpenseTotalPot = state.agExpenseT ?? 0;
+  const deliveryTotalPot = state.deliveryT ?? 0;
+  const installationTotalPot = state.installationT ?? 0;
+  const psiTotalPot = state.preShipmentInspectionT ?? 0;
+  const trainingTotalPot = state.trainingT ?? 0;
+  const bufferTotalPot = state.bufferWarrantyT ?? 0;
 
   let sumOfUnit = 0;
   let sumOfTotalFOB = 0;
   let distMarginT = 0;
+  let sumDistMarginPercent = 0;
   let sumLP = 0;
   let sumProfit = 0;
+  let sumProfitPercent = 0;
   let sumDP = 0;
   let sumUnitCost = 0;
 
-  // “Other Costs” totals
-  let sumDelivery = 0;
-  let sumInstallation = 0;
-  let sumPSI = 0;
-  let sumTraining = 0;
   let sumSoftware = 0;
   let sumHardware = 0;
-  let sumBuffer = 0;
 
   // Tax & VAT One total
   let sumTaxAndVATOne = 0;
@@ -169,17 +237,39 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
   let sumTotalAmountOne = 0;
   let sumTotalVatTax = 0;
 
-  // ---- Pass 1: compute all row values up to TotalAmountOne / TotalVatTax ----
-  const firstPassRows: TenderCostingDetailRow[] =
-    state.getTenderCostingDetailDtos.map((row) => {
+  // ---- Pass 1a: unit cost (+ keep software/hardware as row-edited) ----
+  type UnitCostStage = {
+    row: TenderCostingDetailRow;
+    quantity: number;
+    totalFob: number;
+    distMarginPercent: number;
+    distMarginPerProduct: number;
+    lpPerProduct: number;
+    lc: number;
+    profitPercent: number;
+    profitPerProduct: number;
+    dpPerProduct: number;
+    unitCostPerProduct: number;
+    softwareOSOfficePerProduct: number;
+    hardwareAccessoriesPerProduct: number;
+  };
+
+  const unitCostStages: UnitCostStage[] = state.getTenderCostingDetailDtos.map(
+    (row) => {
       const quantity = row.quantity ?? 0;
       const price = row.price ?? 0;
       const factor = row.initialFactor ?? 0;
 
       const totalFob = quantity && price ? round2(quantity * price) : 0;
 
-      const distMarginPerProduct =
-        price && distPct ? round2(price * (distPct / 100)) : 0;
+      const distMarginPercent = row.distMarginPercent ?? 0;
+      const profitPercent = row.profitPercent ?? 0;
+
+      const distMarginPerProduct = isFobSource(row.productSource)
+        ? price && distMarginPercent
+          ? round2(price * (distMarginPercent / 100))
+          : 0
+        : row.distMarginPerProduct ?? 0;
 
       const lpPerProduct = row.lpPerProduct ?? 0;
 
@@ -188,7 +278,9 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
 
       const profitBase = (lc || 0) + (lpPerProduct || 0);
       const profitPerProduct =
-        profitPct && profitBase ? round2(profitBase * (profitPct / 100)) : 0;
+        profitPercent && profitBase
+          ? round2(profitBase * (profitPercent / 100))
+          : 0;
 
       const dpPerProduct = row.dpPerProduct ?? 0;
 
@@ -199,18 +291,90 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
           (profitPerProduct || 0)
       );
 
-      // keep editable “Other Costs” as-is
-      const deliveryPerProduct = row.deliveryPerProduct ?? 0;
-      const installationPerProduct = row.installationPerProduct ?? 0;
-      const preShipmentInspectionPerProduct =
-        row.preShipmentInspectionPerProduct ?? 0;
-      const trainingPerProduct = row.trainingPerProduct ?? 0;
-      const softwareOSOfficePerProduct = row.softwareOSOfficePerProduct ?? 0;
-      const hardwareAccessoriesPerProduct =
-        row.hardwareAccessoriesPerProduct ?? 0;
-      const bufferWarrantyPerProduct = row.bufferWarrantyPerProduct ?? 0;
+      return {
+        row,
+        quantity,
+        totalFob,
+        distMarginPercent,
+        distMarginPerProduct,
+        lpPerProduct,
+        lc,
+        profitPercent,
+        profitPerProduct,
+        dpPerProduct,
+        unitCostPerProduct,
+        softwareOSOfficePerProduct: row.softwareOSOfficePerProduct ?? 0,
+        hardwareAccessoriesPerProduct: row.hardwareAccessoriesPerProduct ?? 0,
+      };
+    }
+  );
 
-      // Unit Price (No V&T + Others)
+  const unitCosts = unitCostStages.map((s) => s.unitCostPerProduct);
+  const qtys = unitCostStages.map((s) => s.quantity);
+
+  // Ratio-split pots → per-unit cells (Option X)
+  const deliveryPerUnits = allocateTotalByUnitCostRatio(
+    unitCosts,
+    qtys,
+    deliveryTotalPot
+  );
+  const installationPerUnits = allocateTotalByUnitCostRatio(
+    unitCosts,
+    qtys,
+    installationTotalPot
+  );
+  const psiPerUnits = allocateTotalByUnitCostRatio(
+    unitCosts,
+    qtys,
+    psiTotalPot
+  );
+  const trainingPerUnits = allocateTotalByUnitCostRatio(
+    unitCosts,
+    qtys,
+    trainingTotalPot
+  );
+  const bufferPerUnits = allocateTotalByUnitCostRatio(
+    unitCosts,
+    qtys,
+    bufferTotalPot
+  );
+  const salesTotalPerUnits =
+    salesExpenseMode === 'total'
+      ? allocateTotalByUnitCostRatio(unitCosts, qtys, salesExpenseTotalPot)
+      : null;
+  const agTotalPerUnits =
+    agExpenseMode === 'total'
+      ? allocateTotalByUnitCostRatio(unitCosts, qtys, agExpenseTotalPot)
+      : null;
+
+  // ---- Pass 1b: VT → SE → AG → Total Amount One ----
+  const vtPerUnits: number[] = [];
+  const seBasePerUnits: number[] = [];
+
+  const firstPassRows: TenderCostingDetailRow[] = unitCostStages.map(
+    (stage, idx) => {
+      const {
+        row,
+        quantity,
+        totalFob,
+        distMarginPercent,
+        distMarginPerProduct,
+        lpPerProduct,
+        lc,
+        profitPercent,
+        profitPerProduct,
+        dpPerProduct,
+        unitCostPerProduct,
+        softwareOSOfficePerProduct,
+        hardwareAccessoriesPerProduct,
+      } = stage;
+
+      const deliveryPerProduct = deliveryPerUnits[idx] ?? 0;
+      const installationPerProduct = installationPerUnits[idx] ?? 0;
+      const preShipmentInspectionPerProduct = psiPerUnits[idx] ?? 0;
+      const trainingPerProduct = trainingPerUnits[idx] ?? 0;
+      const bufferWarrantyPerProduct = bufferPerUnits[idx] ?? 0;
+
       const unitPriceWithoutVTOtherExpPerProduct = round2(
         unitCostPerProduct +
           (deliveryPerProduct || 0) +
@@ -222,7 +386,6 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
           (bufferWarrantyPerProduct || 0)
       );
 
-      // Tax & VAT One per row (non-virtual)
       const taxAndVATOnePerProduct =
         taxAndVATOnePct && unitPriceWithoutVTOtherExpPerProduct
           ? round2(
@@ -233,20 +396,26 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
       const unitPriceWithVTPerProduct = round2(
         unitPriceWithoutVTOtherExpPerProduct + (taxAndVATOnePerProduct || 0)
       );
+      vtPerUnits.push(unitPriceWithVTPerProduct);
 
       const salesExpensePerProduct =
-        salesExpensePct && unitPriceWithVTPerProduct
-          ? round2(unitPriceWithVTPerProduct * (salesExpensePct / 100))
-          : 0;
+        salesExpenseMode === 'total'
+          ? salesTotalPerUnits?.[idx] ?? 0
+          : salesExpensePct && unitPriceWithVTPerProduct
+            ? round2(unitPriceWithVTPerProduct * (salesExpensePct / 100))
+            : 0;
 
       const unitPriceWithSePerProduct = round2(
         unitPriceWithVTPerProduct + (salesExpensePerProduct || 0)
       );
+      seBasePerUnits.push(unitPriceWithSePerProduct);
 
       const agExpensePerProduct =
-        agExpensePct && unitPriceWithSePerProduct
-          ? round2(unitPriceWithSePerProduct * (agExpensePct / 100))
-          : 0;
+        agExpenseMode === 'total'
+          ? agTotalPerUnits?.[idx] ?? 0
+          : agExpensePct && unitPriceWithSePerProduct
+            ? round2(unitPriceWithSePerProduct * (agExpensePct / 100))
+            : 0;
 
       const unitPriceWithAgPerProduct = round2(
         unitPriceWithSePerProduct + (agExpensePerProduct || 0)
@@ -275,18 +444,15 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
       sumOfUnit += quantity || 0;
       sumOfTotalFOB += totalFob || 0;
       distMarginT += distMarginPerProduct || 0;
+      sumDistMarginPercent += distMarginPercent || 0;
       sumLP += lpPerProduct || 0;
       sumProfit += profitPerProduct || 0;
+      sumProfitPercent += profitPercent || 0;
       sumDP += dpPerProduct || 0;
       sumUnitCost += unitCostPerProduct || 0;
 
-      sumDelivery += deliveryPerProduct || 0;
-      sumInstallation += installationPerProduct || 0;
-      sumPSI += preShipmentInspectionPerProduct || 0;
-      sumTraining += trainingPerProduct || 0;
       sumSoftware += softwareOSOfficePerProduct || 0;
       sumHardware += hardwareAccessoriesPerProduct || 0;
-      sumBuffer += bufferWarrantyPerProduct || 0;
 
       sumTaxAndVATOne += taxAndVATOnePerProduct || 0;
       sumUnitPriceWithVT += unitPriceWithVTPerProduct || 0;
@@ -306,9 +472,11 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
       return {
         ...row,
         totalFob,
+        distMarginPercent,
         distMarginPerProduct,
         lpPerProduct,
         lc,
+        profitPercent,
         profitPerProduct,
         dpPerProduct,
         unitCostPerProduct,
@@ -331,7 +499,20 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
         totalAmountOnePerProduct,
         totalVatTaxPerProduct,
       };
-    });
+    }
+  );
+
+  // Option X: total mode → % is reverse-display only (does not re-drive cells)
+  if (salesExpenseMode === 'total') {
+    salesExpensePct = reversePctFromLinePot(
+      salesExpenseTotalPot,
+      vtPerUnits,
+      qtys
+    );
+  }
+  if (agExpenseMode === 'total') {
+    agExpensePct = reversePctFromLinePot(agExpenseTotalPot, seBasePerUnits, qtys);
+  }
 
   const sumOfUnitSafe = sumOfUnit || 0;
   const totalAmountOneTSafe = sumTotalAmountOne || 0;
@@ -372,8 +553,8 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
     ? round2(fixedExpWithPgTotalQtChargeAWithPgTotalYearsA / sumOfUnitSafe)
     : 0;
 
-  // SD
-  const securityDeposit = state.securityDeposit ?? 0;
+  // SD — Option B: always mirror Total Amount One sum (UI read-only)
+  const securityDeposit = totalAmountOneTSafe;
   const securityDepositP = state.securityDepositP ?? 0;
   const sdBankFinanceChargeP = state.sdBankFinanceChargeP ?? 0;
   const sdTotalYears = state.sdTotalYears ?? 0;
@@ -383,6 +564,9 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
     (sdBankFinanceChargeP / 100) * securityDepositA
   );
   const sdTotalYearsA = round2(sdTotalYears * sdBankFinanceChargeA);
+  // Margin: display + save only — does not feed sdValuePerUnit / bgAndPgAndSd
+  const sdMarginP = state.sdMarginP ?? 0;
+  const sdMarginAmount = round2((sdMarginP / 100) * sdTotalYearsA);
   const sdValuePerUnit = sumOfUnitSafe
     ? round2(sdTotalYearsA / sumOfUnitSafe)
     : 0;
@@ -412,6 +596,10 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
 
     const calculatedProfit = round2(quantity * (row.profitPerProduct || 0));
 
+    const ratio = totalAmountOneTSafe
+      ? round2((row.totalAmountOnePerProduct || 0) / totalAmountOneTSafe)
+      : 0;
+
     sumTaxAndVATThree += taxAndVATThreePerProduct || 0;
     sumTotalAmountTwo += totalAmountTwoPerProduct || 0;
 
@@ -420,6 +608,7 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
       taxAndVATThreePerProduct,
       calculatedPrice,
       totalAmountTwoPerProduct,
+      ratio,
       calculatedProfit,
     };
   });
@@ -429,27 +618,36 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
     getTenderCostingDetailDtos: finalRows,
     sumOfUnit: round2(sumOfUnit),
     sumOfTotalFOB: round2(sumOfTotalFOB),
+    distMarginP: round2(sumDistMarginPercent),
     distMarginT: round2(distMarginT),
     lpt: round2(sumLP),
+    profitP: round2(sumProfitPercent),
     profitT: round2(sumProfit),
     dpt: round2(sumDP),
     unitCostT: round2(sumUnitCost),
-    // “Other Costs” totals
-    deliveryT: round2(sumDelivery),
-    installationT: round2(sumInstallation),
-    preShipmentInspectionT: round2(sumPSI),
-    trainingT: round2(sumTraining),
+    // Other Costs: pots stay as header totals (ratio-split into cells); software/hardware still sum of cells
+    deliveryT: round2(deliveryTotalPot),
+    installationT: round2(installationTotalPot),
+    preShipmentInspectionT: round2(psiTotalPot),
+    trainingT: round2(trainingTotalPot),
     softwareOSOfficeT: round2(sumSoftware),
     hardwareAccessoriesT: round2(sumHardware),
-    bufferWarrantyT: round2(sumBuffer),
+    bufferWarrantyT: round2(bufferTotalPot),
     // Tax & VAT One total
     taxAndVATOneT: round2(sumTaxAndVATOne),
     unitPriceWithVTT: round2(sumUnitPriceWithVT),
-    // Sales Expense + Unit Price With SE
-    salesExpenseT: round2(sumSalesExpense),
+    // Sales / AG: total mode keeps pot; percent mode footer = Σ per-unit cells
+    salesExpenseP: round2(salesExpensePct),
+    salesExpenseT: round2(
+      salesExpenseMode === 'total' ? salesExpenseTotalPot : sumSalesExpense
+    ),
+    salesExpenseMode,
     unitPriceWithSeT: round2(sumUnitPriceWithSe),
-    // AG Expense + Unit Price With AG
-    agExpenseT: round2(sumAgExpense),
+    agExpenseP: round2(agExpensePct),
+    agExpenseT: round2(
+      agExpenseMode === 'total' ? agExpenseTotalPot : sumAgExpense
+    ),
+    agExpenseMode,
     unitPriceWithAgT: round2(sumUnitPriceWithAg),
     // Tax & VAT Two + Unit Price(TaxVat2+SE+AG)
     taxAndVATTwoT: round2(sumTaxAndVATTwo),
@@ -477,8 +675,10 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
     // BG derived
     bgValuePerUnit,
 
-    // SD derived
+    // SD — persist Option B Total + Margin amount (display/save only)
+    securityDeposit,
     securityDepositA,
+    sdMarginAmount,
     sdBankFinanceChargeA,
     sdTotalYearsA,
     sdValuePerUnit,
@@ -494,26 +694,107 @@ const buildInitialStateFromDto = (
   dto: GetTenderCostingDto
 ): TenderCostingState => {
   const rows: TenderCostingDetailRow[] = dto.getTenderCostingDetailDtos.map(
-    (d) => ({
-      ...d,
-      totalFob: 0,
-      lc: 0,
-      // seed from DTO; will be overwritten by recomputeAll based on profitP
-      profitPerProduct: d.profitPerProduct ?? 0,
-      unitCostPerProduct: 0,
-      unitPriceWithoutVTOtherExpPerProduct: 0,
-      unitPriceWithVTPerProduct: 0,
-      unitPriceWithSePerProduct: 0,
-      unitPriceWithAgPerProduct: 0,
-      unitPriceWithTv2SeAgPerProduct: 0,
-      totalAmountOnePerProduct: 0,
-      totalVatTaxPerProduct: 0,
-      taxAndVATThreePerProduct: d.taxAndVATThreePerProduct ?? 0,
-      calculatedPrice: d.calculatedPrice ?? 0,
-      totalAmountTwoPerProduct: 0,
-      calculatedProfit: d.calculatedProfit ?? 0,
-    })
+    (d) => {
+      const originalPrice = d.price ?? null;
+      const productSource = d.productSource ?? null;
+      const apiPrice = d.price ?? 0;
+      const distCost = d.distMarginPerProduct ?? 0;
+      const profitCost = d.profitPerProduct ?? 0;
+      const factor = d.initialFactor ?? 0;
+
+      // LOCAL/STOCK: Price displays & calculates as LP; FOB-side price = 0
+      // FOB: Price stays in FOB; LP from AdditionalCost as returned
+      // other: leave as returned; both columns read-only later
+      let price = apiPrice;
+      let lpPerProduct = d.lpPerProduct ?? 0;
+      if (isLpSource(productSource)) {
+        lpPerProduct = originalPrice ?? 0;
+        price = 0;
+      }
+
+      // Dist %: reverse from Cost/price when price > 0 (API price before LOCAL remap)
+      let distMarginPercent = 0;
+      if (apiPrice > 0 && distCost) {
+        distMarginPercent = round2((distCost / apiPrice) * 100);
+      }
+      if (isLpSource(productSource)) {
+        distMarginPercent = 0;
+      }
+
+      // Provisional Dist for Profit % reverse (FOB uses %; else keep API cost)
+      const provisionalDist = isFobSource(productSource)
+        ? price && distMarginPercent
+          ? round2(price * (distMarginPercent / 100))
+          : 0
+        : distCost;
+      const provisionalLc =
+        price && factor ? round2((price + provisionalDist) * factor) : 0;
+      const profitBase = (provisionalLc || 0) + (lpPerProduct || 0);
+      let profitPercent = dto.profitP ?? 0;
+      if (profitBase > 0 && profitCost) {
+        profitPercent = round2((profitCost / profitBase) * 100);
+      }
+
+      return {
+        ...d,
+        productSource,
+        price,
+        lpPerProduct,
+        originalPrice,
+        distMarginPercent,
+        distMarginPerProduct: distCost,
+        profitPercent,
+        totalFob: 0,
+        lc: 0,
+        profitPerProduct: profitCost,
+        unitCostPerProduct: 0,
+        unitPriceWithoutVTOtherExpPerProduct: 0,
+        unitPriceWithVTPerProduct: 0,
+        unitPriceWithSePerProduct: 0,
+        unitPriceWithAgPerProduct: 0,
+        unitPriceWithTv2SeAgPerProduct: 0,
+        totalAmountOnePerProduct: 0,
+        totalVatTaxPerProduct: 0,
+        taxAndVATThreePerProduct: d.taxAndVATThreePerProduct ?? 0,
+        calculatedPrice: d.calculatedPrice ?? 0,
+        totalAmountTwoPerProduct: 0,
+        ratio: 0,
+        calculatedProfit: d.calculatedProfit ?? 0,
+      };
+    }
   );
+
+  const seedLinePot = (
+    headerT: number | null | undefined,
+    perKey:
+      | 'deliveryPerProduct'
+      | 'installationPerProduct'
+      | 'preShipmentInspectionPerProduct'
+      | 'trainingPerProduct'
+      | 'bufferWarrantyPerProduct'
+      | 'salesExpensePerProduct'
+      | 'agExpensePerProduct'
+  ): number => {
+    if (isTruthyAmount(headerT)) return headerT ?? 0;
+    return round2(
+      rows.reduce(
+        (acc, r) => acc + ((r[perKey] as number) || 0) * (r.quantity || 0),
+        0
+      )
+    );
+  };
+
+  // Both P and T truthy → prefer % (mode percent)
+  const salesExpenseMode: 'percent' | 'total' = isTruthyAmount(dto.salesExpenseP)
+    ? 'percent'
+    : isTruthyAmount(dto.salesExpenseT)
+      ? 'total'
+      : 'percent';
+  const agExpenseMode: 'percent' | 'total' = isTruthyAmount(dto.agExpenseP)
+    ? 'percent'
+    : isTruthyAmount(dto.agExpenseT)
+      ? 'total'
+      : 'percent';
 
   const baseState: TenderCostingState = {
     ...dto,
@@ -522,6 +803,30 @@ const buildInitialStateFromDto = (
     // Profit % and total from DB (totals will be recomputed)
     profitP: dto.profitP ?? 0,
     profitT: dto.profitT ?? 0,
+    deliveryT: seedLinePot(dto.deliveryT, 'deliveryPerProduct'),
+    installationT: seedLinePot(dto.installationT, 'installationPerProduct'),
+    preShipmentInspectionT: seedLinePot(
+      dto.preShipmentInspectionT,
+      'preShipmentInspectionPerProduct'
+    ),
+    trainingT: seedLinePot(dto.trainingT, 'trainingPerProduct'),
+    bufferWarrantyT: seedLinePot(dto.bufferWarrantyT, 'bufferWarrantyPerProduct'),
+    salesExpenseMode,
+    salesExpenseT:
+      salesExpenseMode === 'total'
+        ? seedLinePot(dto.salesExpenseT, 'salesExpensePerProduct')
+        : dto.salesExpenseT ?? 0,
+    agExpenseMode,
+    agExpenseT:
+      agExpenseMode === 'total'
+        ? seedLinePot(dto.agExpenseT, 'agExpensePerProduct')
+        : dto.agExpenseT ?? 0,
+    // Other % fields unused for Delivery…Buffer — keep 0
+    deliveryP: 0,
+    installationP: 0,
+    preShipmentInspectionP: 0,
+    trainingP: 0,
+    bufferWarrantyP: 0,
     unitCostT: 0,
     unitPriceWithVTT: 0,
     unitPriceWithSeT: 0,
@@ -596,12 +901,6 @@ const handleExportAllData = (
     subHeaderRow[col.id] = ownHeader;
 
     switch (parentHeader) {
-      case 'Dist Margin':
-        subHeaderRow[col.id] = `${state?.distMarginP ?? 0}%`;
-        break;
-      case 'Profit':
-        subHeaderRow[col.id] = `${state?.profitP ?? 0}%`;
-        break;
       case 'Tax & VAT ': // 'Tax & VAT ' here, it was 'Tax & VAT One', but cant show that 'One' to client, so name 'One' has been replaced by a space
         subHeaderRow[col.id] = `${state?.taxAndVATOneP ?? 0}%`;
         break;
@@ -676,11 +975,17 @@ const handleExportAllData = (
       case 'totalFob':
         val = state.sumOfTotalFOB ?? 0;
         break;
+      case 'distMarginPercent':
+        val = (state as any).distMarginP ?? 0;
+        break;
       case 'distMarginPerProduct':
         val = (state as any).distMarginT ?? 0;
         break;
       case 'lpPerProduct':
         val = (state as any).lpt ?? 0;
+        break;
+      case 'profitPercent':
+        val = state.profitP ?? 0;
         break;
       case 'profitPerProduct':
         val = state.profitT ?? 0;
@@ -787,6 +1092,10 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
   clickedCardInfo,
   operationMode,
 }) => {
+  const currentColor = useAppSelector((state) => state.currentColor.color);
+  const accentSoft = hexToRgba(currentColor, 0.08);
+  const accentHeader = hexToRgba(currentColor, 0.16);
+
   const biznessEventName = clickedCardInfo?.biznessEventName?.replace(
     /([A-Z])(?=[A-Z][a-z])/g,
     '$1 '
@@ -1058,25 +1367,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
 
   const rows = tenderCostingState?.getTenderCostingDetailDtos ?? [];
 
-  // ---- handlers for header % fields ----
-
-  const handleDistMarginPercentBlur = (raw: string) => {
-    if (!tenderCostingState) return;
-    const val = Number(raw);
-    const next = !raw || Number.isNaN(val) ? 0 : Math.max(0, val);
-    setTenderCostingState((prev) =>
-      prev ? recomputeAll({ ...prev, distMarginP: next }) : prev
-    );
-  };
-
-  const handleProfitPercentBlur = (raw: string) => {
-    if (!tenderCostingState) return;
-    const val = Number(raw);
-    const next = !raw || Number.isNaN(val) ? 0 : Math.max(0, val);
-    setTenderCostingState((prev) =>
-      prev ? recomputeAll({ ...prev, profitP: next }) : prev
-    );
-  };
+  // ---- handlers for header % fields (Tax/SE/AG still header-level) ----
 
   const handleTaxAndVATOnePercentBlur = (raw: string) => {
     if (!tenderCostingState) return;
@@ -1092,7 +1383,13 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
     const val = Number(raw);
     const next = !raw || Number.isNaN(val) ? 0 : Math.max(0, val);
     setTenderCostingState((prev) =>
-      prev ? recomputeAll({ ...prev, salesExpenseP: next }) : prev
+      prev
+        ? recomputeAll({
+            ...prev,
+            salesExpenseP: next,
+            salesExpenseMode: 'percent',
+          })
+        : prev
     );
   };
 
@@ -1101,8 +1398,37 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
     const val = Number(raw);
     const next = !raw || Number.isNaN(val) ? 0 : Math.max(0, val);
     setTenderCostingState((prev) =>
-      prev ? recomputeAll({ ...prev, agExpenseP: next }) : prev
+      prev
+        ? recomputeAll({
+            ...prev,
+            agExpenseP: next,
+            agExpenseMode: 'percent',
+          })
+        : prev
     );
+  };
+
+  const handleExpenseTotalBlur = (
+    field:
+      | 'salesExpenseT'
+      | 'agExpenseT'
+      | 'deliveryT'
+      | 'installationT'
+      | 'preShipmentInspectionT'
+      | 'trainingT'
+      | 'bufferWarrantyT',
+    raw: string
+  ) => {
+    if (!tenderCostingState) return;
+    const val = Number(raw);
+    const next = !raw || Number.isNaN(val) ? 0 : Math.max(0, val);
+    setTenderCostingState((prev) => {
+      if (!prev) return prev;
+      const patch: Partial<TenderCostingState> = { [field]: next };
+      if (field === 'salesExpenseT') patch.salesExpenseMode = 'total';
+      if (field === 'agExpenseT') patch.agExpenseMode = 'total';
+      return recomputeAll({ ...prev, ...patch });
+    });
   };
 
   const handleTaxAndVATTwoPercentBlur = (raw: string) => {
@@ -1165,7 +1491,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
           variant="standard"
           size="small"
           sx={{ width: '100%' }}
-          InputProps={{ style: { fontSize: 13 }, disableUnderline: true }}
+          InputProps={{ style: { fontSize: '0.8125rem' }, disableUnderline: true }}
           defaultValue={renderedCellValue ?? ''}
           onBlur={(e) => {
             const value = e.target.value || null;
@@ -1189,7 +1515,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
           variant="standard"
           size="small"
           sx={{ width: '100%' }}
-          InputProps={{ style: { fontSize: 13 }, disableUnderline: true }}
+          InputProps={{ style: { fontSize: '0.8125rem' }, disableUnderline: true }}
           defaultValue={renderedCellValue ?? ''}
           onBlur={(e) => {
             const v = e.target.value;
@@ -1206,18 +1532,223 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
       </div>
     );
 
+  // FOB: editable only when productSource === FOB; otherwise empty read-only
+  const fobCell = ({ row }: any) => {
+    const detail = rows[row.index];
+    const source = detail?.productSource || 'unknown';
+    const editable = isFobSource(detail?.productSource);
+    if (!editable) {
+      return (
+        <div
+          className="w-full py-1 flex justify-between items-center cursor-not-allowed"
+          onClick={() =>
+            toast.info(
+              `FOB is editable only when ProductSource is FOB (current: ${source}).`
+            )
+          }
+        >
+          <span style={{ fontSize: '0.8125rem' }} />
+        </div>
+      );
+    }
+    const val = detail?.price;
+    return (
+      <div className="w-full py-1 flex justify-between items-center">
+        <TextField
+          key={`fob-${row.index}-${val ?? ''}`}
+          type="number"
+          variant="standard"
+          size="small"
+          sx={{ width: '100%' }}
+          InputProps={{ style: { fontSize: '0.8125rem' }, disableUnderline: true }}
+          defaultValue={val ?? ''}
+          onBlur={(e) => {
+            const v = e.target.value;
+            const num =
+              v === '' || Number.isNaN(Number(v)) ? null : Math.abs(Number(v));
+            updateCell(row.index, 'price', num);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              (e.target as HTMLInputElement).blur();
+            }
+          }}
+        />
+      </div>
+    );
+  };
+
+  // LP: editable only when LOCAL/STOCK; otherwise read-only display
+  const lpCell = ({ row }: any) => {
+    const detail = rows[row.index];
+    const editable = isLpSource(detail?.productSource);
+    const val = detail?.lpPerProduct;
+    if (!editable) {
+      return (
+        <div className="w-full py-1 flex justify-between items-center">
+          <span style={{ fontSize: '0.8125rem' }}>
+            {val == null ? '' : Number(val).toFixed(2)}
+          </span>
+        </div>
+      );
+    }
+    return (
+      <div className="w-full py-1 flex justify-between items-center">
+        <TextField
+          key={`lp-${row.index}-${val ?? ''}`}
+          type="number"
+          variant="standard"
+          size="small"
+          sx={{ width: '100%' }}
+          InputProps={{ style: { fontSize: '0.8125rem' }, disableUnderline: true }}
+          defaultValue={val ?? ''}
+          onBlur={(e) => {
+            const v = e.target.value;
+            const num =
+              v === '' || Number.isNaN(Number(v)) ? null : Math.abs(Number(v));
+            updateCell(row.index, 'lpPerProduct', num);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              (e.target as HTMLInputElement).blur();
+            }
+          }}
+        />
+      </div>
+    );
+  };
+
+  // Dist Margin %: editable only when productSource === FOB
+  const distMarginPercentCell = ({ row }: any) => {
+    const detail = rows[row.index];
+    const source = detail?.productSource || 'unknown';
+    const editable = isFobSource(detail?.productSource);
+    const val = detail?.distMarginPercent;
+    if (!editable) {
+      return (
+        <div
+          className="w-full py-1 flex justify-between items-center cursor-not-allowed"
+          onClick={() =>
+            toast.info(
+              `Dist Margin % is editable only when ProductSource is FOB (current: ${source}).`
+            )
+          }
+        >
+          <span style={{ fontSize: '0.8125rem' }}>
+            {val == null || val === 0 ? '' : Number(val).toFixed(2)}
+          </span>
+        </div>
+      );
+    }
+    return (
+      <div className="w-full py-1 flex justify-between items-center">
+        <TextField
+          key={`distPct-${row.index}-${val ?? ''}`}
+          type="number"
+          variant="standard"
+          size="small"
+          sx={{ width: '100%' }}
+          InputProps={{
+            style: { fontSize: '0.8125rem' },
+            disableUnderline: true,
+            endAdornment: <span style={{ marginLeft: 4 }}>%</span>,
+          }}
+          defaultValue={val ?? ''}
+          onBlur={(e) => {
+            const v = e.target.value;
+            const num =
+              v === '' || Number.isNaN(Number(v)) ? 0 : Math.max(0, Number(v));
+            updateCell(row.index, 'distMarginPercent', num);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              (e.target as HTMLInputElement).blur();
+            }
+          }}
+        />
+      </div>
+    );
+  };
+
+  // Profit %: editable on all rows
+  const profitPercentCell = ({ row }: any) => {
+    const detail = rows[row.index];
+    const val = detail?.profitPercent;
+    return (
+      <div className="w-full py-1 flex justify-between items-center">
+        <TextField
+          key={`profitPct-${row.index}-${val ?? ''}`}
+          type="number"
+          variant="standard"
+          size="small"
+          sx={{ width: '100%' }}
+          InputProps={{
+            style: { fontSize: '0.8125rem' },
+            disableUnderline: true,
+            endAdornment: <span style={{ marginLeft: 4 }}>%</span>,
+          }}
+          defaultValue={val ?? ''}
+          onBlur={(e) => {
+            const v = e.target.value;
+            const num =
+              v === '' || Number.isNaN(Number(v)) ? 0 : Math.max(0, Number(v));
+            updateCell(row.index, 'profitPercent', num);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              (e.target as HTMLInputElement).blur();
+            }
+          }}
+        />
+      </div>
+    );
+  };
+
   const readonlyNumberCell =
     (key: keyof TenderCostingDetailRow) =>
     ({ row }: any) => {
       const val = rows[row.index][key];
       return (
         <div className="w-full py-1 flex justify-between items-center">
-          <span style={{ fontSize: 13 }}>
+          <span style={{ fontSize: '0.8125rem' }}>
             {val == null ? '' : Number(val).toFixed(2)}
           </span>
         </div>
       );
     };
+
+  const editableTotalFooter = (
+    value: number,
+    field:
+      | 'salesExpenseT'
+      | 'agExpenseT'
+      | 'deliveryT'
+      | 'installationT'
+      | 'preShipmentInspectionT'
+      | 'trainingT'
+      | 'bufferWarrantyT'
+  ) => (
+    <TextField
+      key={`${field}-${value}`}
+      type="number"
+      variant="standard"
+      size="small"
+      defaultValue={value ?? 0}
+      InputProps={{
+        disableUnderline: true,
+        style: { fontSize: '0.8125rem', fontWeight: 600 },
+      }}
+      sx={{ width: '100%' }}
+      onClick={(e) => e.stopPropagation()}
+      onMouseDown={(e) => e.stopPropagation()}
+      onBlur={(e) => handleExpenseTotalBlur(field, e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          (e.target as HTMLInputElement).blur();
+        }
+      }}
+    />
+  );
 
   // ---- columns & footers ----
 
@@ -1251,7 +1782,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
         accessorKey: 'price',
         header: 'FOB',
         size: 110,
-        Cell: numberCell('price'),
+        Cell: fobCell,
         Footer: () => null,
       },
       {
@@ -1263,46 +1794,21 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
         Footer: () => (tenderCostingState?.sumOfTotalFOB ?? 0).toFixed(2),
       },
       {
+        accessorKey: 'distMarginPercent',
+        header: 'Dist Margin %',
+        size: 120,
+        Cell: distMarginPercentCell,
+        Footer: () =>
+          ((tenderCostingState as any)?.distMarginP ?? 0).toFixed(2),
+      },
+      {
+        accessorKey: 'distMarginPerProduct',
         header: 'Dist Margin',
-        columns: [
-          {
-            accessorKey: 'distMarginPerProduct',
-            header: '',
-            Header: (
-              <div
-                onClick={(e) => e.stopPropagation()}
-                onMouseDown={(e) => e.stopPropagation()}
-                onPointerDown={(e) => e.stopPropagation()}
-                style={{ width: '100%' }}
-              >
-                <TextField
-                  key={tenderCostingState?.distMarginP ?? 0}
-                  defaultValue={tenderCostingState?.distMarginP ?? 0}
-                  type="number"
-                  variant="standard"
-                  size="small"
-                  InputProps={{
-                    disableUnderline: true,
-                    endAdornment: <span style={{ marginLeft: 4 }}>%</span>,
-                    style: { fontSize: 13 },
-                  }}
-                  sx={{ width: '100%' }}
-                  onBlur={(e) => handleDistMarginPercentBlur(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      (e.target as HTMLInputElement).blur();
-                    }
-                  }}
-                />
-              </div>
-            ),
-            size: 130,
-            Cell: readonlyNumberCell('distMarginPerProduct' as any),
-            enableEditing: false,
-            Footer: () =>
-              ((tenderCostingState as any)?.distMarginT ?? 0).toFixed(2),
-          },
-        ],
+        size: 120,
+        Cell: readonlyNumberCell('distMarginPerProduct' as any),
+        enableEditing: false,
+        Footer: () =>
+          ((tenderCostingState as any)?.distMarginT ?? 0).toFixed(2),
       },
       {
         accessorKey: 'initialFactor',
@@ -1323,50 +1829,24 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
         accessorKey: 'lpPerProduct',
         header: 'LP',
         size: 110,
-        Cell: numberCell('lpPerProduct'),
+        Cell: lpCell,
         enableEditing: true,
         Footer: () => ((tenderCostingState as any)?.lpt ?? 0).toFixed(2),
       },
       {
+        accessorKey: 'profitPercent',
+        header: 'Profit %',
+        size: 110,
+        Cell: profitPercentCell,
+        Footer: () => (tenderCostingState?.profitP ?? 0).toFixed(2),
+      },
+      {
+        accessorKey: 'profitPerProduct',
         header: 'Profit',
-        columns: [
-          {
-            accessorKey: 'profitPerProduct',
-            header: '',
-            Header: (
-              <div
-                onClick={(e) => e.stopPropagation()}
-                onMouseDown={(e) => e.stopPropagation()}
-                onPointerDown={(e) => e.stopPropagation()}
-                style={{ width: '100%' }}
-              >
-                <TextField
-                  key={tenderCostingState?.profitP ?? 0}
-                  defaultValue={tenderCostingState?.profitP ?? 0}
-                  type="number"
-                  variant="standard"
-                  size="small"
-                  InputProps={{
-                    disableUnderline: true,
-                    endAdornment: <span style={{ marginLeft: 4 }}>%</span>,
-                    style: { fontSize: 13 },
-                  }}
-                  sx={{ width: '100%' }}
-                  onBlur={(e) => handleProfitPercentBlur(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      (e.target as HTMLInputElement).blur();
-                    }
-                  }}
-                />
-              </div>
-            ),
-            size: 130,
-            Cell: readonlyNumberCell('profitPerProduct'),
-            enableEditing: false,
-            Footer: () => (tenderCostingState?.profitT ?? 0).toFixed(2),
-          },
-        ],
+        size: 120,
+        Cell: readonlyNumberCell('profitPerProduct'),
+        enableEditing: false,
+        Footer: () => (tenderCostingState?.profitT ?? 0).toFixed(2),
       },
       {
         accessorKey: 'dpPerProduct',
@@ -1391,39 +1871,49 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
             accessorKey: 'deliveryPerProduct',
             header: 'Delivery',
             size: 120,
-            Cell: numberCell('deliveryPerProduct'),
-            enableEditing: true,
+            Cell: readonlyNumberCell('deliveryPerProduct'),
+            enableEditing: false,
             Footer: () =>
-              ((tenderCostingState as any)?.deliveryT ?? 0).toFixed(2),
+              editableTotalFooter(
+                tenderCostingState?.deliveryT ?? 0,
+                'deliveryT'
+              ),
           },
           {
             accessorKey: 'installationPerProduct',
             header: 'Installation',
             size: 140,
-            Cell: numberCell('installationPerProduct'),
-            enableEditing: true,
+            Cell: readonlyNumberCell('installationPerProduct'),
+            enableEditing: false,
             Footer: () =>
-              ((tenderCostingState as any)?.installationT ?? 0).toFixed(2),
+              editableTotalFooter(
+                tenderCostingState?.installationT ?? 0,
+                'installationT'
+              ),
           },
           {
             accessorKey: 'preShipmentInspectionPerProduct',
             header: 'Pre Shipment Inspection',
             size: 180,
-            Cell: numberCell('preShipmentInspectionPerProduct'),
-            enableEditing: true,
+            Cell: readonlyNumberCell('preShipmentInspectionPerProduct'),
+            enableEditing: false,
             Footer: () =>
-              (
-                (tenderCostingState as any)?.preShipmentInspectionT ?? 0
-              ).toFixed(2),
+              editableTotalFooter(
+                tenderCostingState?.preShipmentInspectionT ?? 0,
+                'preShipmentInspectionT'
+              ),
           },
           {
             accessorKey: 'trainingPerProduct',
             header: 'Training',
             size: 120,
-            Cell: numberCell('trainingPerProduct'),
-            enableEditing: true,
+            Cell: readonlyNumberCell('trainingPerProduct'),
+            enableEditing: false,
             Footer: () =>
-              ((tenderCostingState as any)?.trainingT ?? 0).toFixed(2),
+              editableTotalFooter(
+                tenderCostingState?.trainingT ?? 0,
+                'trainingT'
+              ),
           },
           {
             accessorKey: 'softwareOSOfficePerProduct',
@@ -1447,12 +1937,15 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
           },
           {
             accessorKey: 'bufferWarrantyPerProduct',
-            header: 'Buffer (warranty)',
+            header: 'Buffer/Others (warranty)',
             size: 160,
-            Cell: numberCell('bufferWarrantyPerProduct'),
-            enableEditing: true,
+            Cell: readonlyNumberCell('bufferWarrantyPerProduct'),
+            enableEditing: false,
             Footer: () =>
-              ((tenderCostingState as any)?.bufferWarrantyT ?? 0).toFixed(2),
+              editableTotalFooter(
+                tenderCostingState?.bufferWarrantyT ?? 0,
+                'bufferWarrantyT'
+              ),
           },
         ],
       },
@@ -1486,7 +1979,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                   InputProps={{
                     disableUnderline: true,
                     endAdornment: <span style={{ marginLeft: 4 }}>%</span>,
-                    style: { fontSize: 13 },
+                    style: { fontSize: '0.8125rem' },
                   }}
                   sx={{ width: '100%' }}
                   onBlur={(e) => handleTaxAndVATOnePercentBlur(e.target.value)}
@@ -1536,7 +2029,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                   InputProps={{
                     disableUnderline: true,
                     endAdornment: <span style={{ marginLeft: 4 }}>%</span>,
-                    style: { fontSize: 13 },
+                    style: { fontSize: '0.8125rem' },
                   }}
                   sx={{ width: '100%' }}
                   onBlur={(e) => handleSalesExpensePercentBlur(e.target.value)}
@@ -1552,7 +2045,10 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
             Cell: readonlyNumberCell('salesExpensePerProduct' as any),
             enableEditing: false,
             Footer: () =>
-              ((tenderCostingState as any)?.salesExpenseT ?? 0).toFixed(2),
+              editableTotalFooter(
+                tenderCostingState?.salesExpenseT ?? 0,
+                'salesExpenseT'
+              ),
           },
         ],
       },
@@ -1586,7 +2082,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                   InputProps={{
                     disableUnderline: true,
                     endAdornment: <span style={{ marginLeft: 4 }}>%</span>,
-                    style: { fontSize: 13 },
+                    style: { fontSize: '0.8125rem' },
                   }}
                   sx={{ width: '100%' }}
                   onBlur={(e) => handleAgExpensePercentBlur(e.target.value)}
@@ -1602,7 +2098,10 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
             Cell: readonlyNumberCell('agExpensePerProduct' as any),
             enableEditing: false,
             Footer: () =>
-              ((tenderCostingState as any)?.agExpenseT ?? 0).toFixed(2),
+              editableTotalFooter(
+                tenderCostingState?.agExpenseT ?? 0,
+                'agExpenseT'
+              ),
           },
         ],
       },
@@ -1636,7 +2135,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                   InputProps={{
                     disableUnderline: true,
                     endAdornment: <span style={{ marginLeft: 4 }}>%</span>,
-                    style: { fontSize: 13 },
+                    style: { fontSize: '0.8125rem' },
                   }}
                   sx={{ width: '100%' }}
                   onBlur={(e) => handleTaxAndVATTwoPercentBlur(e.target.value)}
@@ -1689,7 +2188,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
           const val = tenderCostingState?.bgAndPgAndSd ?? 0;
           return (
             <div className="w-full py-1 flex justify-between items-center">
-              <span style={{ fontSize: 13 }}>
+              <span style={{ fontSize: '0.8125rem' }}>
                 {val === 0 ? '' : val.toFixed(2)}
               </span>
             </div>
@@ -1720,7 +2219,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                   InputProps={{
                     disableUnderline: true,
                     endAdornment: <span style={{ marginLeft: 4 }}>%</span>,
-                    style: { fontSize: 13 },
+                    style: { fontSize: '0.8125rem' },
                   }}
                   sx={{ width: '100%' }}
                   onBlur={(e) =>
@@ -1759,6 +2258,14 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
         Footer: () => (tenderCostingState?.totalAmountTwoT ?? 0).toFixed(2),
       },
       {
+        accessorKey: 'ratio',
+        header: 'Ratio',
+        size: 100,
+        Cell: readonlyNumberCell('ratio'),
+        enableEditing: false,
+        Footer: () => null,
+      },
+      {
         accessorKey: 'calculatedProfit',
         header: 'Profit(Calculated)',
         size: 190,
@@ -1791,38 +2298,44 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
       enablePagination: false,
       enableColumnResizing: true,
       enableColumnPinning: true,
-      muiTableContainerProps: {
-        sx: { maxHeight: 400, overflow: 'auto', position: 'relative' },
-      },
+      muiTableContainerProps: ({ table: t }) => ({
+        sx: {
+          maxHeight: t.getState().isFullScreen
+            ? 'calc(100dvh - 6.5rem)'
+            : '25rem',
+          overflow: 'auto',
+          position: 'relative',
+        },
+      }),
       muiTableFooterProps: {
         sx: {
           position: 'sticky',
-          bottom: 0,
+          bottom: '0',
           zIndex: 2,
-          backgroundColor: '#F6F7FF',
+          backgroundColor: accentSoft,
         },
       },
       muiTableFooterCellProps: {
         sx: {
-          backgroundColor: '#F6F7FF',
+          backgroundColor: accentSoft,
           fontWeight: 800,
-          fontSize: '13px',
+          fontSize: '0.8125rem',
           borderTop: '1px solid #e0e0e0',
           borderRight: '1px solid #e0e0e0',
         },
       },
       muiTablePaperProps: {
         elevation: 0,
-        sx: { borderRadius: 0, border: '1px dashed #e0e0e0' },
+        sx: { borderRadius: '0', border: '1px dashed #e0e0e0' },
       },
-      muiTableBodyCellProps: { sx: { fontSize: 13, color: '#1c1c1c' } },
+      muiTableBodyCellProps: { sx: { fontSize: '0.8125rem', color: '#1c1c1c' } },
       muiTableHeadCellProps: {
         sx: {
           borderRight: '1px solid #e0e0e0',
           borderTop: '1px solid #e0e0e0',
-          fontSize: 13,
+          fontSize: '0.8125rem',
           whiteSpace: 'nowrap',
-          backgroundColor: '#ECEFF9',
+          backgroundColor: accentHeader,
           color: '#1c1c1c',
           fontWeight: 800,
         },
@@ -1896,6 +2409,9 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
 
         bgValuePerUnit,
 
+        salesExpenseMode,
+        agExpenseMode,
+
         securityDepositA,
         sdBankFinanceChargeA,
         sdTotalYearsA,
@@ -1922,8 +2438,29 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
             totalAmountOnePerProduct,
             totalVatTaxPerProduct,
             totalAmountTwoPerProduct,
+            ratio,
+            originalPrice,
+            distMarginPercent,
+            profitPercent,
             ...detailDtoPart
-          }) => detailDtoPart
+          }) => {
+            const source = detailDtoPart.productSource;
+            let price = detailDtoPart.price;
+
+            if (isLpSource(source)) {
+              // LOCAL/STOCK: Price column in DB follows edited LP
+              price = detailDtoPart.lpPerProduct ?? 0;
+            } else if (!isFobSource(source)) {
+              // Neither FOB nor LOCAL/STOCK: keep loaded Price unchanged
+              price = originalPrice;
+            }
+            // FOB: price stays as edited FOB value
+
+            return {
+              ...detailDtoPart,
+              price,
+            };
+          }
         );
 
       mappedGetTenderCostingDto = {
@@ -2017,11 +2554,11 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                                   sx={{ width: '100%', marginTop: 1 }}
                                   InputProps={{
                                     ...params.InputProps,
-                                    style: { fontSize: 13 },
+                                    style: { fontSize: '0.8125rem' },
                                   }}
                                   InputLabelProps={{
                                     ...params.InputLabelProps,
-                                    style: { fontSize: 14 },
+                                    style: { fontSize: '0.875rem' },
                                   }}
                                   variant="standard"
                                   size="small"
@@ -2053,11 +2590,11 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                                   sx={{ width: '100%', marginTop: 1 }}
                                   InputProps={{
                                     ...params.InputProps,
-                                    style: { fontSize: 13 },
+                                    style: { fontSize: '0.8125rem' },
                                   }}
                                   InputLabelProps={{
                                     ...params.InputLabelProps,
-                                    style: { fontSize: 14 },
+                                    style: { fontSize: '0.875rem' },
                                   }}
                                   variant="standard"
                                   size="small"
@@ -2112,11 +2649,11 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                                 helperText={error ? error.message : null}
                                 InputLabelProps={{
                                   ...params.InputLabelProps,
-                                  style: { fontSize: 14 },
+                                  style: { fontSize: '0.875rem' },
                                 }}
                                 InputProps={{
                                   ...params.InputProps,
-                                  style: { fontSize: 13 },
+                                  style: { fontSize: '0.8125rem' },
                                   endAdornment: (
                                     <>
                                       {buyerOptionsAutoCompLoading && (
@@ -2144,10 +2681,10 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                         value={tenderCostingState?.salesPersonName || ''}
                         sx={{ width: '100%', marginTop: 1 }}
                         InputLabelProps={{
-                          style: { fontSize: 14 },
+                          style: { fontSize: '0.875rem' },
                         }}
                         InputProps={{
-                          style: { fontSize: 13 },
+                          style: { fontSize: '0.8125rem' },
                           readOnly: true,
                         }}
                       />
@@ -2191,11 +2728,11 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                               helperText={error ? error.message : null}
                               InputLabelProps={{
                                 ...params.InputLabelProps,
-                                style: { fontSize: 14 },
+                                style: { fontSize: '0.875rem' },
                               }}
                               InputProps={{
                                 ...params.InputProps,
-                                style: { fontSize: 13 },
+                                style: { fontSize: '0.8125rem' },
                                 endAdornment: (
                                   <>
                                     {tenderOptionsAutoCompLoading && (
@@ -2217,7 +2754,10 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                     />
                     <div className=" h-8 "> </div>
                     {/* hhohohoho */}
-                    <div className=" bg-indigo-50 border-2 border-spacing-3 grid md:grid-cols-2 grid-cols-1 md:gap-x-2 px-2">
+                    <div
+                      className="border-2 border-spacing-3 grid md:grid-cols-2 grid-cols-1 md:gap-x-2 px-2"
+                      style={{ backgroundColor: accentSoft }}
+                    >
                       <div>
                         <span className=" text-14 font-semibold">
                           Quoted Amount:{' '}
@@ -2228,7 +2768,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                           value={summations.quotedAmount.toFixed(2)}
                           InputProps={{
                             readOnly: true,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           sx={{ width: '100%' }}
                         />
@@ -2243,7 +2783,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                           value={summations.vatTax.toFixed(2)}
                           InputProps={{
                             readOnly: true,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           sx={{ width: '100%' }}
                         />
@@ -2258,7 +2798,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                           value={summations.salesExpense.toFixed(2)}
                           InputProps={{
                             readOnly: true,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           sx={{ width: '100%' }}
                         />
@@ -2271,7 +2811,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                           value={summations.agExpense.toFixed(2)}
                           InputProps={{
                             readOnly: true,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           sx={{ width: '100%' }}
                         />
@@ -2286,7 +2826,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                           value={summations.delivery.toFixed(2)}
                           InputProps={{
                             readOnly: true,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           sx={{ width: '100%' }}
                         />
@@ -2301,7 +2841,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                           value={summations.installation.toFixed(2)}
                           InputProps={{
                             readOnly: true,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           sx={{ width: '100%' }}
                         />
@@ -2316,7 +2856,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                           value={summations.training.toFixed(2)}
                           InputProps={{
                             readOnly: true,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           sx={{ width: '100%' }}
                         />
@@ -2329,7 +2869,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
                           value={summations.pis.toFixed(2)}
                           InputProps={{
                             readOnly: true,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           sx={{ width: '100%' }}
                         />

@@ -113,16 +113,16 @@ const CustomTreeItemWithButton: React.FC<CustomTreeItemWithButtonProps> =
               type="button"
               className={`mr-2 transform ${isExpanded ? 'rotate-90' : ''}`}
             >
-              <i className="fas fa-chevron-circle-right text-[15px] text-blue-600" />
+              <i className="fas fa-chevron-circle-right text-[0.9375rem] text-blue-600" />
             </button>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-              <span className=" mr-3 text-slate-800 text-[14px]">{label}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.125rem' }}>
+              <span className=" mr-3 text-slate-800 text-[0.875rem]">{label}</span>
 
               <Tooltip arrow placement="right" title="Edit Team and Member">
                 <button
                   type="button"
-                  className="ml-[1px] inline-block px-[4px] py-[1px] bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg"
+                  className="ml-[1px] inline-block px-[0.25rem] py-[1px] bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg"
                   onClick={(event) => {
                     event.stopPropagation();
                     // setTeamSetupModalInfo({ teamId: id });
@@ -132,7 +132,7 @@ const CustomTreeItemWithButton: React.FC<CustomTreeItemWithButtonProps> =
                     // setTeamMemberModal(true);
                   }}
                 >
-                  <Edit sx={{ fontSize: '9px' }} />
+                  <Edit sx={{ fontSize: '0.5625rem' }} />
                 </button>
               </Tooltip>
             </div>
@@ -145,7 +145,7 @@ const CustomTreeItemWithButton: React.FC<CustomTreeItemWithButtonProps> =
           >
             <div className="relative">
               <div
-                className={`border-l-2 border-dashed border-gray-400 ml-[14px] transition-all duration-500 ease-in-out ${
+                className={`border-l-2 border-dashed border-gray-400 ml-[0.875rem] transition-all duration-500 ease-in-out ${
                   isExpanded ? 'max-h-screen' : 'h-0'
                 }`}
               >
@@ -299,7 +299,7 @@ const TeamAndTargetNew = React.memo((props: any) => {
                       type="button"
                       data-mdb-ripple="true"
                       data-mdb-ripple-color="light"
-                      className="ml-2 inline-block px-[4px] py-0 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
+                      className="ml-2 inline-block px-[0.25rem] py-0 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
                       onClick={() => {
                         dispatch(changeTeamSetupModalInfo({ teamId: 0 }));
                         dispatch(truthifyShowTeamSetupModal());

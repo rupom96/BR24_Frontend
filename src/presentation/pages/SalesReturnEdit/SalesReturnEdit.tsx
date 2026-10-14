@@ -1273,7 +1273,7 @@ const SalesReturnEdit = ({
     popper: {
       maxWidth: 'fit-content',
       // minWidth: 'inherit',
-      fontSize: '12px',
+      fontSize: '0.75rem',
     },
   };
 
@@ -1481,14 +1481,14 @@ const SalesReturnEdit = ({
                       helperText={error ? error.message : null}
                       FormHelperTextProps={{
                         sx: {
-                          fontSize: 10, // Set the font size
+                          fontSize: '0.625rem', // Set the font size
                           marginTop: 0, // Set the margin
                           color: 'red', // Set the color (example)
                         },
                       }}
                       InputProps={{
                         ...params.InputProps,
-                        style: { fontSize: 13 },
+                        style: { fontSize: '0.8125rem' },
                         disableUnderline: true,
                       }}
                       sx={{ width: '100%' }}
@@ -1522,7 +1522,7 @@ const SalesReturnEdit = ({
       //           type="text"
       //           sx={{ width: '100%' }}
       //           InputProps={{
-      //             style: { fontSize: 13 },
+      //             style: { fontSize: '0.8125rem' },
       //             disableUnderline: true,
       //             readOnly: true,
       //           }}
@@ -1553,7 +1553,7 @@ const SalesReturnEdit = ({
                 type="text"
                 sx={{ width: '100%' }}
                 InputProps={{
-                  style: { fontSize: 13 },
+                  style: { fontSize: '0.8125rem' },
                   disableUnderline: true,
                   readOnly: true,
                 }}
@@ -1583,7 +1583,7 @@ const SalesReturnEdit = ({
                 type="text"
                 sx={{ width: '100%' }}
                 InputProps={{
-                  style: { fontSize: 13 },
+                  style: { fontSize: '0.8125rem' },
                   disableUnderline: true,
                   readOnly: true,
                 }}
@@ -1670,14 +1670,14 @@ const SalesReturnEdit = ({
       //                 helperText={error ? error.message : null}
       //                 FormHelperTextProps={{
       //                   sx: {
-      //                     fontSize: 10, // Set the font size
+      //                     fontSize: '0.625rem', // Set the font size
       //                     marginTop: 0, // Set the margin
       //                     color: 'red', // Set the color (example)
       //                   },
       //                 }}
       //                 InputProps={{
       //                   ...params.InputProps,
-      //                   style: { fontSize: 13 },
+      //                   style: { fontSize: '0.8125rem' },
       //                   disableUnderline: true,
       //                 }}
       //                 sx={{ width: '100%' }}
@@ -1710,7 +1710,7 @@ const SalesReturnEdit = ({
                 type="text"
                 sx={{ width: '100%' }}
                 InputProps={{
-                  style: { fontSize: 13 },
+                  style: { fontSize: '0.8125rem' },
                   disableUnderline: true,
                   readOnly: true,
                 }}
@@ -1740,7 +1740,7 @@ const SalesReturnEdit = ({
                 type="text"
                 sx={{ width: '100%' }}
                 InputProps={{
-                  style: { fontSize: 13 },
+                  style: { fontSize: '0.8125rem' },
                   disableUnderline: true,
                   readOnly: true,
                 }}
@@ -1770,7 +1770,7 @@ const SalesReturnEdit = ({
       //           type="text"
       //           sx={{ width: '100%' }}
       //           InputProps={{
-      //             style: { fontSize: 13 },
+      //             style: { fontSize: '0.8125rem' },
       //             disableUnderline: true,
       //             // readOnly: true,
       //           }}
@@ -1809,7 +1809,7 @@ const SalesReturnEdit = ({
       //           type="text"
       //           sx={{ width: '100%' }}
       //           InputProps={{
-      //             style: { fontSize: 13 },
+      //             style: { fontSize: '0.8125rem' },
       //             disableUnderline: true,
       //             // readOnly: true,
       //           }}
@@ -1911,7 +1911,7 @@ const SalesReturnEdit = ({
       onColumnVisibilityChange: setColumnVisibility,
       muiSkeletonProps: {
         animation: 'pulse',
-        height: 30,
+        height: '1.875rem',
       },
       enableRowSelection: (row) => {
         // if (row.original.lastProcessedDate) {
@@ -1946,7 +1946,7 @@ const SalesReturnEdit = ({
       muiTableBodyCellProps: {
         sx: {
           // borderRight: '1px solid #e0e0e0', // add a border between columns //eigulla shobi use kora jaay but comment out kora
-          fontSize: '13px',
+          fontSize: '0.8125rem',
           color: '#ea1143',
         },
       },
@@ -1956,7 +1956,7 @@ const SalesReturnEdit = ({
           // borderLeft: '1px solid #e0e0e0',
           borderTop: '1px solid #e0e0e0',
           // borderBottom: '1px solid #e0e0e0',
-          fontSize: '13px',
+          fontSize: '0.8125rem',
           whiteSpace: 'nowrap',
           backgroundColor: '#ECEFF9',
           color: '#1c1c1c',
@@ -1964,7 +1964,7 @@ const SalesReturnEdit = ({
         },
       },
 
-      muiTableContainerProps: { sx: { maxHeight: '400px' } },
+      muiTableContainerProps: { sx: { maxHeight: '25rem' } },
       renderToolbarInternalActions: ({ table }) => (
         <>
           {/* built-in buttons (must pass in table prop for them to work!) */}
@@ -1978,7 +1978,7 @@ const SalesReturnEdit = ({
               type="button"
               data-mdb-ripple="true"
               data-mdb-ripple-color="light"
-              className="inline-block px-[6px] py-1 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
+              className="inline-block px-[0.375rem] py-1 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
               onClick={() => {
                 //   handleExportData(
                 //     buyerSalesRptGridState,
@@ -2054,11 +2054,11 @@ const SalesReturnEdit = ({
                               sx={{ width: '100%', marginTop: 1 }}
                               InputProps={{
                                 ...params.InputProps,
-                                style: { fontSize: 13 },
+                                style: { fontSize: '0.8125rem' },
                               }}
                               InputLabelProps={{
                                 ...params.InputLabelProps,
-                                style: { fontSize: 14 },
+                                style: { fontSize: '0.875rem' },
                               }}
                               variant="standard"
                               size="small"
@@ -2095,11 +2095,11 @@ const SalesReturnEdit = ({
                               sx={{ width: '100%', marginTop: 1 }}
                               InputProps={{
                                 ...params.InputProps,
-                                style: { fontSize: 13 },
+                                style: { fontSize: '0.8125rem' },
                               }}
                               InputLabelProps={{
                                 ...params.InputLabelProps,
-                                style: { fontSize: 14 },
+                                style: { fontSize: '0.875rem' },
                               }}
                               variant="standard"
                               size="small"
@@ -2164,11 +2164,11 @@ const SalesReturnEdit = ({
                           helperText={error ? error.message : null}
                           InputLabelProps={{
                             ...params.InputLabelProps,
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                           }}
                           InputProps={{
                             ...params.InputProps,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                             // endAdornment: (
                             //   <>
                             //     {buyerOptionsAutoCompLoading ? (
@@ -2234,11 +2234,11 @@ const SalesReturnEdit = ({
                           helperText={error ? error.message : null}
                           InputLabelProps={{
                             ...params.InputLabelProps,
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                           }}
                           InputProps={{
                             ...params.InputProps,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                             // endAdornment: (
                             //   <>
                             //     {buyerOptionsAutoCompLoading ? (
@@ -2304,11 +2304,11 @@ const SalesReturnEdit = ({
                           helperText={error ? error.message : null}
                           InputLabelProps={{
                             ...params.InputLabelProps,
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                           }}
                           InputProps={{
                             ...params.InputProps,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                             // endAdornment: (
                             //   <>
                             //     {buyerOptionsAutoCompLoading ? (
@@ -2390,11 +2390,11 @@ const SalesReturnEdit = ({
                           helperText={error ? error.message : null}
                           InputLabelProps={{
                             ...params.InputLabelProps,
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                           }}
                           InputProps={{
                             ...params.InputProps,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                             // endAdornment: (
                             //   <>
                             //     {buyerOptionsAutoCompLoading ? (
@@ -2463,11 +2463,11 @@ const SalesReturnEdit = ({
                           helperText={error ? error.message : null}
                           InputLabelProps={{
                             ...params.InputLabelProps,
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                           }}
                           InputProps={{
                             ...params.InputProps,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                             // endAdornment: (
                             //   <>
                             //     {buyerOptionsAutoCompLoading ? (
@@ -2514,9 +2514,9 @@ const SalesReturnEdit = ({
                         helperText={error ? error.message : null}
                         variant="standard"
                         size="small"
-                        InputProps={{ style: { fontSize: 13 } }}
+                        InputProps={{ style: { fontSize: '0.8125rem' } }}
                         InputLabelProps={{
-                          style: { fontSize: 14 },
+                          style: { fontSize: '0.875rem' },
                           shrink: !!value,
                         }}
                         className="w-full"
@@ -2552,9 +2552,9 @@ const SalesReturnEdit = ({
                         helperText={error ? error.message : null}
                         variant="standard"
                         size="small"
-                        InputProps={{ style: { fontSize: 13 } }}
+                        InputProps={{ style: { fontSize: '0.8125rem' } }}
                         InputLabelProps={{
-                          style: { fontSize: 14 },
+                          style: { fontSize: '0.875rem' },
                           shrink: !!value,
                         }}
                         className="w-full"
@@ -2591,9 +2591,9 @@ const SalesReturnEdit = ({
                         helperText={error ? error.message : null}
                         variant="standard"
                         size="small"
-                        InputProps={{ style: { fontSize: 13 } }}
+                        InputProps={{ style: { fontSize: '0.8125rem' } }}
                         InputLabelProps={{
-                          style: { fontSize: 14 },
+                          style: { fontSize: '0.875rem' },
                           shrink: !!value,
                         }}
                         className="w-full"
@@ -2629,9 +2629,9 @@ const SalesReturnEdit = ({
                         helperText={error ? error.message : null}
                         variant="standard"
                         size="small"
-                        InputProps={{ style: { fontSize: 13 } }}
+                        InputProps={{ style: { fontSize: '0.8125rem' } }}
                         InputLabelProps={{
-                          style: { fontSize: 14 },
+                          style: { fontSize: '0.875rem' },
                           shrink: !!value,
                         }}
                         className="w-full"
@@ -2644,7 +2644,7 @@ const SalesReturnEdit = ({
 
                 {/* <div className="w-full col-span-2 mt-4 grid grid-cols-12 gap-x-3 gap-y-0">
                   <div className="col-span-12 text-start">
-                    <p className="text-[13px]">Profitability %:</p>
+                    <p className="text-[0.8125rem]">Profitability %:</p>
                   </div>
 
                   <div className="md:col-span-10 col-span-9">
@@ -2700,7 +2700,7 @@ const SalesReturnEdit = ({
                             max: 100,
                             type: 'number',
                             'aria-labelledby': 'input-slider',
-                            style: { fontSize: 13, fontWeight: 'bold' },
+                            style: { fontSize: '0.8125rem', fontWeight: 'bold' },
                           }}
                         />
                       )}

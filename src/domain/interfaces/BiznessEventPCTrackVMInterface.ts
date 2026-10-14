@@ -56,4 +56,6 @@ export interface ICreateBiznessEventPCTrackCommand {
   nextSequence: number;
   complete: boolean;
   locationId: number;
+  /** null/omit on Save; true on Deny */
+  denied?: boolean | null;
 }

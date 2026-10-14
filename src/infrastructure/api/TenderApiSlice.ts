@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
 
 // Import the JSON file directly
 import { toast } from 'react-toastify';
@@ -13,30 +13,66 @@ import {
 } from '../../domain/interfaces/ProcurementTenderInterface';
 import { IProcurementTenderDetail } from '../../domain/interfaces/ProcurementTenderDetailInterface';
 import { IProcurementTenderAdditionalCost } from '../../domain/interfaces/ProcurementTenderAdditionalCost';
-import { getToken } from '../Auth/JWTSecurity/jwtTokenManager';
 import {
   GetTenderCostingDto,
   TenderCostingCommandsVM,
   // TenderCostingWithPCTrackDto,
 } from '../../domain/interfaces/TenderCostingInterface';
-
-const API_BASE_URL = window.API_BASE_URL;
+import {
+  GetTenderExpenseForSalesPersonDto,
+  TenderExpenseForSalesPersonCommandsVM,
+} from '../../domain/interfaces/TenderExpenseForSalesPersonInterface';
+import { createAuthenticatedBaseQuery } from './shared/createAuthenticatedBaseQuery';
 
 const controllerName: string = `ProcurementTender`;
+
+export type TenderApprovalTopSheetDownload = {
+  blob: Blob;
+  fileName: string;
+};
+
+async function parseBlobErrorData(
+  data: unknown
+): Promise<{ title?: string; [key: string]: unknown }> {
+  if (data instanceof Blob) {
+    const text = await data.text();
+    try {
+      return JSON.parse(text);
+    } catch {
+      return { title: text || 'Download failed' };
+    }
+  }
+  if (typeof data === 'object' && data !== null) {
+    return data as { title?: string };
+  }
+  if (typeof data === 'string') {
+    try {
+      return JSON.parse(data);
+    } catch {
+      return { title: data };
+    }
+  }
+  return { title: 'Download failed' };
+}
+
+function fileNameFromContentDisposition(
+  header: string | null | undefined,
+  fallback: string
+): string {
+  if (!header) return fallback;
+  const utf8Match = /filename\*=UTF-8''([^;]+)/i.exec(header);
+  if (utf8Match?.[1]) return decodeURIComponent(utf8Match[1]);
+  const quoted = /filename="([^"]+)"/i.exec(header);
+  if (quoted?.[1]) return quoted[1];
+  const plain = /filename=([^;]+)/i.exec(header);
+  if (plain?.[1]) return plain[1].trim().replace(/^"|"$/g, '');
+  return fallback;
+}
 
 // Define a service using a base URL and expected endpoints
 export const TenderApiSlice = createApi({
   reducerPath: 'TenderApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: `${API_BASE_URL}/${controllerName}/`,
-    // token er kaaj shuru
-    prepareHeaders: async (headers) => {
-      const token = await getToken();
-      headers.set('Authorization', `Bearer ${token}`);
-      return headers;
-    },
-    // token er kaaj shesh
-  }),
+  baseQuery: createAuthenticatedBaseQuery(controllerName),
   tagTypes: [
     'tenderOptions',
     'procurementTender',
@@ -44,6 +80,7 @@ export const TenderApiSlice = createApi({
     'procurementTenderAdditionalCost',
     'tenderHistory',
     'tenderCostingInfo',
+    'tenderExpenseForSalesPerson',
   ],
   endpoints: (builder) => ({
     getAllTenderNo: builder.query<ITenderNoComboBox[], void>({
@@ -208,6 +245,78 @@ export const TenderApiSlice = createApi({
       ],
     }),
 
+    getTenderExpenseForSalesPerson: builder.query<
+      GetTenderExpenseForSalesPersonDto,
+      { procurementTenderId: number }
+    >({
+      query: ({ procurementTenderId }) =>
+        `getTenderExpenseForSalesPerson?procurementTenderId=${procurementTenderId}`,
+      providesTags: ['tenderExpenseForSalesPerson'],
+    }),
+
+    processTenderExpenseForSalesPerson: builder.mutation<
+      unknown,
+      TenderExpenseForSalesPersonCommandsVM
+    >({
+      query: (objToProcess: TenderExpenseForSalesPersonCommandsVM) => ({
+        url: 'ProcessTenderExpenseForSalesPerson',
+        method: 'POST',
+        body: objToProcess,
+      }),
+      invalidatesTags: ['tenderExpenseForSalesPerson'],
+    }),
+
+    /** Binary .xlsx download — errors arrive as ProblemDetails JSON (may be Blob). */
+    getTenderApprovalTopSheet: builder.query<
+      TenderApprovalTopSheetDownload,
+      { tenderNo: string }
+    >({
+      async queryFn({ tenderNo }, _api, _extraOptions, baseQuery) {
+        const result = await baseQuery({
+          url: `getTenderApprovalTopSheet?TenderNo=${encodeURIComponent(tenderNo)}`,
+          responseHandler: (response) => response.blob(),
+        });
+
+        if (result.error) {
+          const parsed = await parseBlobErrorData(result.error.data);
+          return {
+            error: {
+              status: 'CUSTOM_ERROR' as const,
+              error: String(parsed.title || 'Download failed'),
+              data: parsed,
+            },
+          };
+        }
+
+        const blob = result.data as Blob;
+        const response = (
+          result.meta as { response?: Response } | undefined
+        )?.response;
+        const contentType = response?.headers?.get('content-type') || '';
+
+        // Safety: some proxies return JSON with a non-error status
+        if (contentType.includes('application/json')) {
+          const parsed = await parseBlobErrorData(blob);
+          return {
+            error: {
+              status: 'CUSTOM_ERROR' as const,
+              error: String(parsed.title || 'Download failed'),
+              data: parsed,
+            },
+          };
+        }
+
+        const disposition = response?.headers?.get('content-disposition');
+        const safeNo = tenderNo.replace(/[^\w.-]+/g, '_');
+        const fileName = fileNameFromContentDisposition(
+          disposition,
+          `TenderApprovalTopSheet_${safeNo}.xlsx`
+        );
+
+        return { data: { blob, fileName } };
+      },
+    }),
+
     // updateChequeBookCreateChequeBookDetail: builder.mutation<
     //   unknown,
     //   IUpdateChequeBookCommandsVM
@@ -267,6 +376,10 @@ export const {
   useGetTenderCostingQuery,
   useLazyGetTenderCostingQuery,
   useProcessTenderCostingMutation,
+  useGetTenderExpenseForSalesPersonQuery,
+  useLazyGetTenderExpenseForSalesPersonQuery,
+  useProcessTenderExpenseForSalesPersonMutation,
+  useLazyGetTenderApprovalTopSheetQuery,
   // useGetChequeBookByBankLeafNoQuery,
   // useGetChequeBookDetailByChequeBookIdQuery,
   // useCreateChequeBookMutation,

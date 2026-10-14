@@ -332,7 +332,7 @@
 //     popper: { maxWidth: string; fontSize: string };
 //   }
 //   const autoCompResStyles: AutoCompResStyles = {
-//     popper: { maxWidth: 'fit-content', fontSize: '12px' },
+//     popper: { maxWidth: 'fit-content', fontSize: '0.75rem' },
 //   };
 
 //   const PopperMy = useCallback(
@@ -446,7 +446,7 @@
 //             type="text"
 //             sx={{ width: '100%' }}
 //             InputProps={{
-//               style: { fontSize: 13 },
+//               style: { fontSize: '0.8125rem' },
 //               disableUnderline: true,
 //               readOnly: true, //  read-only
 //             }}
@@ -467,7 +467,7 @@
 //             type="text"
 //             sx={{ width: '100%' }}
 //             InputProps={{
-//               style: { fontSize: 13 },
+//               style: { fontSize: '0.8125rem' },
 //               disableUnderline: true,
 //               readOnly: true, //  read-only
 //             }}
@@ -488,7 +488,7 @@
 //             type="text"
 //             sx={{ width: '100%' }}
 //             InputProps={{
-//               style: { fontSize: 13 },
+//               style: { fontSize: '0.8125rem' },
 //               disableUnderline: true,
 //               readOnly: true, //  read-only
 //             }}
@@ -514,7 +514,7 @@
 //             type="number"
 //             sx={{ width: '100%' }}
 //             InputProps={{
-//               style: { fontSize: 13 },
+//               style: { fontSize: '0.8125rem' },
 //               disableUnderline: true,
 //               readOnly: true, //  read-only
 //             }}
@@ -537,11 +537,11 @@
 //               <Box
 //                 sx={{
 //                   width: '100%',
-//                   minHeight: 32,
+//                   minHeight: '2rem',
 //                   display: 'flex',
 //                   alignItems: 'center',
 //                   px: 1,
-//                   fontSize: 13,
+//                   fontSize: '0.8125rem',
 //                 }}
 //               />
 //             );
@@ -554,12 +554,12 @@
 //             <Box
 //               sx={{
 //                 width: '100%',
-//                 minHeight: 32,
+//                 minHeight: '2rem',
 //                 display: 'flex',
 //                 alignItems: 'center',
 //                 justifyContent: 'space-between',
 //                 px: 1,
-//                 fontSize: 13,
+//                 fontSize: '0.8125rem',
 //               }}
 //             >
 //               <span>
@@ -594,7 +594,7 @@
 //               type="text"
 //               sx={{ width: '100%' }}
 //               InputProps={{
-//                 style: { fontSize: 13 },
+//                 style: { fontSize: '0.8125rem' },
 //                 disableUnderline: true,
 //                 readOnly: true, //  read-only
 //               }}
@@ -621,7 +621,7 @@
 //             type="text"
 //             sx={{ width: '100%' }}
 //             InputProps={{
-//               style: { fontSize: 13 },
+//               style: { fontSize: '0.8125rem' },
 //               disableUnderline: true,
 //               readOnly: true, //  read-only
 //             }}
@@ -645,7 +645,7 @@
 //             type="text"
 //             sx={{ width: '100%' }}
 //             InputProps={{
-//               style: { fontSize: 13 },
+//               style: { fontSize: '0.8125rem' },
 //               disableUnderline: true,
 //               readOnly: true, //  read-only
 //             }}
@@ -699,7 +699,7 @@
 //       },
 //       positionToolbarAlertBanner: 'none',
 //       onColumnVisibilityChange: setColumnVisibility,
-//       muiSkeletonProps: { animation: 'pulse', height: 30 },
+//       muiSkeletonProps: { animation: 'pulse', height: '1.875rem' },
 //       enableRowVirtualization: true,
 //       enableBottomToolbar: false,
 //       enableColumnResizing: true,
@@ -716,20 +716,20 @@
 //         sx: { borderRadius: '0', border: '1px dashed #e0e0e0' },
 //       },
 //       muiTableBodyCellProps: {
-//         sx: { fontSize: '13px', color: '#ea1143' },
+//         sx: { fontSize: '0.8125rem', color: '#ea1143' },
 //       },
 //       muiTableHeadCellProps: {
 //         sx: {
 //           borderRight: '1px solid #e0e0e0',
 //           borderTop: '1px solid #e0e0e0',
-//           fontSize: '13px',
+//           fontSize: '0.8125rem',
 //           whiteSpace: 'nowrap',
 //           backgroundColor: '#ECEFF9',
 //           color: '#1c1c1c',
 //           fontWeight: '800',
 //         },
 //       },
-//       muiTableContainerProps: { sx: { maxHeight: '400px' } },
+//       muiTableContainerProps: { sx: { maxHeight: '25rem' } },
 //       renderToolbarInternalActions: ({ table }) => (
 //         <>
 //           <MRT_ToggleGlobalFilterButton table={table} />
@@ -741,7 +741,7 @@
 //               type="button"
 //               data-mdb-ripple="true"
 //               data-mdb-ripple-color="light"
-//               className="inline-block px-[6px] py-1 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
+//               className="inline-block px-[0.375rem] py-1 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
 //               onClick={() =>
 //                 handleExportData(chequeDetailGrid, chequeDetailGridColumns)
 //               }

@@ -926,11 +926,11 @@ const CollectionImport = ({
                               sx={{ width: '100%', marginTop: 1 }}
                               InputProps={{
                                 ...params.InputProps,
-                                style: { fontSize: 13 },
+                                style: { fontSize: '0.8125rem' },
                               }}
                               InputLabelProps={{
                                 ...params.InputLabelProps,
-                                style: { fontSize: 14 },
+                                style: { fontSize: '0.875rem' },
                               }}
                               variant="standard"
                               size="small"
@@ -967,11 +967,11 @@ const CollectionImport = ({
                               sx={{ width: '100%', marginTop: 1 }}
                               InputProps={{
                                 ...params.InputProps,
-                                style: { fontSize: 13 },
+                                style: { fontSize: '0.8125rem' },
                               }}
                               InputLabelProps={{
                                 ...params.InputLabelProps,
-                                style: { fontSize: 14 },
+                                style: { fontSize: '0.875rem' },
                               }}
                               variant="standard"
                               size="small"
@@ -1022,11 +1022,11 @@ const CollectionImport = ({
                           helperText={error ? error.message : null}
                           InputLabelProps={{
                             ...params.InputLabelProps,
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                           }}
                           InputProps={{
                             ...params.InputProps,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           sx={{ width: '100%', marginTop: 1 }}
                           inputRef={ref}
@@ -1068,11 +1068,11 @@ const CollectionImport = ({
                           helperText={error ? error.message : null}
                           InputLabelProps={{
                             ...params.InputLabelProps,
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                           }}
                           InputProps={{
                             ...params.InputProps,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           sx={{ width: '100%', marginTop: 1 }}
                           inputRef={ref}
@@ -1130,11 +1130,11 @@ const CollectionImport = ({
                           helperText={error ? error.message : null}
                           InputLabelProps={{
                             ...params.InputLabelProps,
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                           }}
                           InputProps={{
                             ...params.InputProps,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           sx={{ width: '100%', marginTop: 1 }}
                           inputRef={ref}
@@ -1176,11 +1176,11 @@ const CollectionImport = ({
                           helperText={error ? error.message : null}
                           InputLabelProps={{
                             ...params.InputLabelProps,
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                           }}
                           InputProps={{
                             ...params.InputProps,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           sx={{ width: '100%', marginTop: 1 }}
                           inputRef={ref}

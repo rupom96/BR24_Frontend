@@ -57,7 +57,7 @@
 //   const commonInputProps = {
 //     disableUnderline: true,
 //     sx: {
-//       fontSize: 12,
+//       fontSize: '0.75rem',
 //       paddingY: 0,
 //       '.MuiInputBase-input': {
 //         padding: 0,
@@ -73,7 +73,7 @@
 //     <Box className="p-2 sm:p-4 bg-white border border-gray-300 shadow-sm max-w-full mx-auto">
 //       <div className="overflow-x-auto">
 //         {/* Top 3 blocks: BG / PG / SD */}
-//         <div className="min-w-[640px] md:min-w-0 grid grid-cols-1 md:grid-cols-3 gap-0 border border-gray-300 text-[11px] sm:text-xs">
+//         <div className="min-w-[40rem] md:min-w-0 grid grid-cols-1 md:grid-cols-3 gap-0 border border-gray-300 text-[0.6875rem] sm:text-xs">
 //           {/* ------------ BG ------------- */}
 //           <div className="border-b md:border-b-0 md:border-r border-gray-300">
 //             <div className="bg-[#f7c398] text-center font-bold py-1 border-b border-gray-300">
@@ -345,7 +345,7 @@
 // };
 
 // const baseCell =
-//   'border-t border-gray-300 px-2 py-1 flex items-center text-[11px] sm:text-xs min-h-[26px]';
+//   'border-t border-gray-300 px-2 py-1 flex items-center text-[0.6875rem] sm:text-xs min-h-[1.625rem]';
 
 // const Cell: React.FC<CellProps> = ({ label, children }) => (
 //   <>
@@ -362,7 +362,7 @@
 
 // const HeaderCell: React.FC<CellProps> = ({ children, className }) => (
 //   <div
-//     className={`border-b border-gray-300 px-2 py-1 text-[11px] sm:text-xs font-semibold ${
+//     className={`border-b border-gray-300 px-2 py-1 text-[0.6875rem] sm:text-xs font-semibold ${
 //       className || ''
 //     }`}
 //   >

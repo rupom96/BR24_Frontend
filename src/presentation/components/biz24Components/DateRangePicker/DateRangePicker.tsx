@@ -64,11 +64,11 @@ const DateRangePicker = ({
                 sx={{ width: '100%', marginTop: 1 }}
                 InputProps={{
                   ...params.InputProps,
-                  style: { fontSize: 13 },
+                  style: { fontSize: '0.8125rem' },
                 }}
                 InputLabelProps={{
                   ...params.InputLabelProps,
-                  style: { fontSize: 14 },
+                  style: { fontSize: '0.875rem' },
                 }}
                 onBlur={(e) => {
                   //   if (!e.target.value) setStartDate(defaultDate); // Reset on blur if empty
@@ -101,11 +101,11 @@ const DateRangePicker = ({
                 sx={{ width: '100%', marginTop: 1 }}
                 InputProps={{
                   ...params.InputProps,
-                  style: { fontSize: 13 },
+                  style: { fontSize: '0.8125rem' },
                 }}
                 InputLabelProps={{
                   ...params.InputLabelProps,
-                  style: { fontSize: 14 },
+                  style: { fontSize: '0.875rem' },
                 }}
                 onBlur={(e) => {
                   //   if (!e.target.value) setEndDate(defaultDate); // Reset on blur if empty

@@ -672,10 +672,10 @@ const LoginUsernameLayer = (props: Props) => {
                 <div className="mt-4">
                   {/* <TextField
                     // eslint-disable-next-line react/jsx-props-no-spreading
-                    sx={{ width: '100%', borderRadius: '50px' }}
-                    InputProps={{ style: { fontSize: 13 } }}
+                    sx={{ width: '100%', borderRadius: '3.125rem' }}
+                    InputProps={{ style: { fontSize: '0.8125rem' } }}
                     InputLabelProps={{
-                      style: { fontSize: 14 },
+                      style: { fontSize: '0.875rem' },
                       //   shrink: field.value,
                       // shrink: (field.value ? true : false)
                     }}
@@ -693,10 +693,10 @@ const LoginUsernameLayer = (props: Props) => {
                       <TextField
                         // eslint-disable-next-line react/jsx-props-no-spreading
                         {...field}
-                        sx={{ width: '100%', borderRadius: '50px' }}
-                        InputProps={{ style: { fontSize: 13 } }}
+                        sx={{ width: '100%', borderRadius: '3.125rem' }}
+                        InputProps={{ style: { fontSize: '0.8125rem' } }}
                         InputLabelProps={{
-                          style: { fontSize: 14 },
+                          style: { fontSize: '0.875rem' },
                           //   shrink: field.value,
                           // shrink: (field.value ? true : false)
                         }}

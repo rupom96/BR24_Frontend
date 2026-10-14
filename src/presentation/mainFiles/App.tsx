@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 // import Sample from '../pages/Sample/Sample';
 import './App.css';
 
@@ -13,8 +13,9 @@ import {
 } from '@mui/material';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect, useMemo } from 'react';
 import Sidebar from '../components/Sidebar';
+import { Br24PageLoader } from '../components/Br24Loader';
 import {
   useAppDispatch,
   useAppSelector,
@@ -30,6 +31,8 @@ import {
 import { falsifyActiveMenu } from '../../application/Redux/slices/ActiveMenuSlice';
 
 import ThemeSettings from '../components/ThemeSettings';
+import PageTransition from '../components/PageTransition';
+import { adjustHex, applyAccentCssVars, onAccentColor } from '../Utils/colorUtils';
 // import BiznessEventProcConfig from '../pages/BiznessEventProcConfig/BiznessEventProcConfig';
 import Navbar from '../components/Navbar';
 import EventsOfAChain from '../pages/EventsOfAChain/EventsOfAChain';
@@ -47,7 +50,7 @@ import SecretQuestion from '../pages/Login/SecretQuestion';
 import ResetPassword from '../pages/Login/ResetPassword';
 import ChequeBookRegistration from '../pages/ChequeBookRegistration/ChequeBookRegistration';
 import ProcurementTender from '../pages/TenderRequisition/ProcurementTender/ProcurementTender';
-import TenderRequisiton from '../pages/TenderRequisition/TenderRequisiton';
+import TenderRequisition from '../pages/TenderRequisition/TenderRequisition';
 // import TransactionLCVoucher from '../pages/TransactionLCVoucher/TransactionLCVoucher';
 // import TransactionLCVoucherPage from '../pages/TransactionalLCVoucherPage/TransactionalLCVoucherPage';
 import TransactionEventVoucher from '../pages/TransactionEventVoucher/TransactionEventVoucher';
@@ -76,6 +79,8 @@ import LPurchaseInEdit from '../pages/LPurchaseInEdit/LPurchaseInEdit';
 import PurchaseReturnEdit from '../pages/PurchaseReturnEdit/PurchaseReturnEdit';
 import SalesImport from '../pages/DataImportPages/SalesImport/SalesImport';
 import TenderCosting from '../pages/TenderCosting/TenderCosting';
+import TenderExpenseForSalesPerson from '../pages/TenderExpenseForSalesPerson/TenderExpenseForSalesPerson';
+import TenderApprovalTopSheetRpt from '../pages/TenderApprovalTopSheetRpt/TenderApprovalTopSheetRpt';
 import { CostingForm } from '../pages/TenderCosting/CostingFormTabular';
 import PaymentEditGh from '../pages/PaymentEditGh/PaymentEditGh';
 import CollectionEditGh from '../pages/CollectionEditGh/CollectionEditGh';
@@ -122,12 +127,59 @@ import ImportInEdit from '../pages/ImportInEdit/ImportInEdit';
 //   () => import('../pages/StructuredPageTSSample/StructuredPageTSSample')
 // );
 
+/** Public/auth routes where Theme Settings FAB must stay hidden. */
+const AUTH_PATHS = new Set([
+  '/loginUsername',
+  '/loginPassword',
+  '/loginPhoneLayer',
+  '/loginOtpLayer',
+  '/forgotPasswordCompanyLocationSelect',
+  '/secretQuestion',
+  '/resetPassword',
+]);
+
+function ThemeSettingsFab() {
+  const location = useLocation();
+  const dispatch = useAppDispatch();
+  const currentColor = useAppSelector((state) => state.currentColor.color);
+  const isAuthRoute = AUTH_PATHS.has(location.pathname);
+
+  useEffect(() => {
+    if (isAuthRoute) {
+      dispatch(falsifyThemeSettings());
+    }
+  }, [isAuthRoute, dispatch]);
+
+  if (isAuthRoute) return null;
+
+  return (
+    <div className="br24-theme-fab-wrap fixed bottom-3 right-3" style={{ zIndex: 1000 }}>
+      <span className="br24-theme-fab-orbit" aria-hidden />
+      <span className="br24-theme-fab-orbit br24-theme-fab-orbit--soft" aria-hidden />
+      <Tooltip title="Theme settings" placement="top-start" arrow>
+        <button
+          type="button"
+          aria-label="Open theme settings"
+          onClick={() => dispatch(truthifyThemeSettings())}
+          className="br24-theme-fab text-lg"
+          style={{
+            color: currentColor,
+          }}
+        >
+          <FiSettings className="br24-theme-fab-icon" />
+        </button>
+      </Tooltip>
+    </div>
+  );
+}
+
 const App = () => {
   const activeMenu = useAppSelector((state) => state.activeMenu.active);
+  const sidebarMode = useAppSelector((state) => state.activeMenu.mode);
   const showPanel = useAppSelector((state) => state.showPanel.bool);
   const showNavbar = useAppSelector((state) => state.showNavbar.bool);
   const currentMode = useAppSelector((state) => state.currentMode.mode);
-  const themeSettings = useAppSelector((state) => state.themeSettings.bool);
+  const currentColor = useAppSelector((state) => state.currentColor.color);
   const screenSize = useAppSelector((state) => state.screenSize.size);
   // const userInfo = {
   //   securityUserId: 1,
@@ -187,6 +239,96 @@ const App = () => {
 
   const dispatch = useAppDispatch();
 
+  useEffect(() => {
+    applyAccentCssVars(currentColor, currentMode === 'Dark');
+  }, [currentColor, currentMode]);
+
+  const muiTheme = useMemo(
+    () =>
+      createTheme({
+        // Compact density ≈ former Chrome 80% zoom (matches html { font-size: 80% })
+        spacing: 6.4,
+        typography: {
+          htmlFontSize: 12.8,
+          fontSize: 11.2,
+          fontFamily: '"Open Sans", sans-serif',
+        },
+        // MRT fullscreen uses theme.zIndex.modal. Shell chrome is higher
+        // (.navbar: 10000, mobile .sidebar: 1e7) — keep modal above both.
+        zIndex: {
+          modal: 10000050,
+        },
+        palette: {
+          mode: currentMode === 'Dark' ? 'dark' : 'light',
+          common: {
+            white: '#f8f9fb',
+            black: '#0f172a',
+          },
+          background: {
+            default: currentMode === 'Dark' ? '#0b1220' : '#f1f5f9',
+            paper: currentMode === 'Dark' ? '#1e293b' : '#f8f9fb',
+          },
+          text: {
+            primary: currentMode === 'Dark' ? '#e2e8f0' : '#0f172a',
+            secondary: currentMode === 'Dark' ? '#94a3b8' : '#64748b',
+          },
+          primary: {
+            main: currentColor,
+            dark: adjustHex(currentColor, -22),
+            light: adjustHex(currentColor, 40),
+            contrastText: onAccentColor(currentColor),
+          },
+        },
+        components: {
+          MuiButton: {
+            styleOverrides: {
+              containedPrimary: {
+                backgroundColor: currentColor,
+                color: onAccentColor(currentColor),
+                '&:hover': {
+                  backgroundColor: adjustHex(currentColor, -22),
+                  color: onAccentColor(adjustHex(currentColor, -22)),
+                },
+              },
+              outlinedPrimary: {
+                borderColor: currentColor,
+                color: currentColor,
+                '&:hover': {
+                  borderColor: adjustHex(currentColor, -22),
+                  backgroundColor: `${currentColor}14`,
+                },
+              },
+              textPrimary: {
+                color: currentColor,
+              },
+            },
+          },
+          MuiCheckbox: {
+            styleOverrides: {
+              colorPrimary: {
+                '&.Mui-checked': { color: currentColor },
+              },
+            },
+          },
+          MuiRadio: {
+            styleOverrides: {
+              colorPrimary: {
+                '&.Mui-checked': { color: currentColor },
+              },
+            },
+          },
+          MuiSwitch: {
+            styleOverrides: {
+              colorPrimary: {
+                '&.Mui-checked': { color: currentColor },
+              },
+            },
+          },
+        },
+      }),
+    [currentColor, currentMode]
+  );
+
   const hideAllOpened = () => {
     const initialState: IIsClicked = {
       chat: false,
@@ -208,73 +350,34 @@ const App = () => {
 
   return (
     <div className={currentMode === 'Dark' ? 'dark' : ''}>
-      <ThemeProvider
-        theme={createTheme({
-          palette: {
-            mode: currentMode === 'Dark' ? 'dark' : 'light',
-          },
-        })}
-      >
+      <ThemeProvider theme={muiTheme}>
         {/* SAChainMenuLoading */}
         {!SAChainMenuLoading || SAChainMenuGetError ? (
           <BrowserRouter>
             {/* --the most super background DIV on which everything is situated---STARTS- */}
             <div className="flex  relative dark:bg-main-dark-bg">
-              {/* --Settings Icon & button-- STARTS--- */}
-              <div
-                className="fixed right-4 bottom-4"
-                style={{ zIndex: '1000' }}
-              >
-                <Tooltip
-                  title="Settings"
-                  placement="top-start"
-                  style={{ zIndex: 9999 }}
-                  arrow
-                >
-                  <button
-                    type="button"
-                    aria-label="Settings"
-                    onClick={() => {
-                      // setThemeSettings(true)
-                      dispatch(truthifyThemeSettings());
-                    }}
-                    className="text-2xl p-3 hover:drop-shadow-2xl hover:scale-110 transform-all duration-300 hover:transform-all hover:bg-light-gray text-white"
-                    style={{ background: 'blue', borderRadius: '50%' }}
-                  >
-                    <FiSettings />
-                  </button>
-                </Tooltip>
-              </div>
-              {/* --Settings Icon & button--ENDS--- */}
+              <ThemeSettingsFab />
 
-              {/* --Sidebar depending on 'activeMenu' var--  */}
-              {activeMenu ? (
+              {/* --Sidebar: full | rail (icon + hover overlay) | hidden (slide off, stays mounted)--  */}
+              {showPanel ? (
                 <div
-                  className={`w-72 fixed sidebar drop-shadow-lg bg-white dark:bg-secondary-dark-bg transition-all duration-300 ${
-                    showPanel ? '' : 'hidden'
-                  }`}
+                  className={`br24-sidebar-panel sidebar fixed br24-sidebar--${sidebarMode}`}
                   id="sidebarDiv"
+                  aria-hidden={sidebarMode === 'hidden'}
                 >
                   <Sidebar />
                 </div>
-              ) : (
-                <div
-                  className={`transition-all duration-300 w-0 drop-shadow-2xl  bg-white dark:bg-secondary-dark-bg ${
-                    showPanel ? '' : 'hidden'
-                  }`}
-                >
-                  <Sidebar />
-                </div>
-              )}
-              {/* --Sidebar depending on 'activeMenu' var--ENDS----  */}
+              ) : null}
+              {/* --Sidebar ends--  */}
 
               {/* --All Routes declaration and main background starts--STARTS----  */}
               <div
-                className={`dark:bg-main-dark-bg bg-main-bg min-h-screen w-full
-                        ${activeMenu && showPanel ? 'md:ml-72' : 'flex-2'}`}
+                className={`br24-shell-main dark:bg-main-dark-bg bg-main-bg min-h-screen w-full br24-shell-main--${
+                  showPanel ? sidebarMode : 'hidden'
+                }`}
               >
                 <div
-                  className={`fixed md:static bg-main-bg dark:bg-main-dark-bg navbar w-full ${
+                  className={`sticky top-0 z-[10000] navbar w-full bg-transparent ${
                     showNavbar ? '' : 'hidden'
                   }`}
                 >
@@ -282,7 +385,7 @@ const App = () => {
                 </div>
 
                 <div>
-                  {themeSettings && <ThemeSettings />}
+                  <ThemeSettings />
                   {/* --declaring routes of components/pages--  */}
                   <div
                     onClick={() => hideAllOpened()}
@@ -290,7 +393,8 @@ const App = () => {
                     role="button"
                     tabIndex={0}
                   >
-                    <Suspense fallback={<h1>LOADING............HAHA</h1>}>
+                    <PageTransition>
+                    <Suspense fallback={<Br24PageLoader label="Loading page…" />}>
                       <Routes>
                         <Route
                           path="/"
@@ -648,175 +752,200 @@ const App = () => {
                           element={<PrivateRoute element={<ReactFlowExp2 />} />}
                         />
 
-                        {/* <Route
+                        <Route
                           path="tenderRequisition"
                           // element={<ChequeBookRegistration />}
                           element={
-                            <PrivateRoute element={<TenderRequisiton />} />
+                            <PrivateRoute element={<TenderRequisition />} />
+                          }
+                        />
+                        {/* <Route
+                          path="tenderRequisition"
+                          element={
+                            <TenderRequisition
+                              clickedCardInfo={{
+                                biznessEventName: 'ProcurementTender',
+                                extendedBiznessEventName: [
+                                  'ProcurementTenderDetail',
+                                  'ProcurementTenderAdditionalCost',
+                                ],
+                              }}
+                            />
                           }
                         /> */}
                         <Route
-                          path="tenderRequisition"
-                          // element={<ChequeBookRegistration />}
-                          element={<TenderRequisiton />}
-                        />
-                        <Route
                           path="salesOrderAdditionalCost"
                           // element={<ChequeBookRegistration />}
-                          element={<SalesOrderAdditionalCost />}
+                          element={<PrivateRoute element={<SalesOrderAdditionalCost />} />}
                         />
                         <Route
                           path="lPurchaseInAdditionalCost"
                           // element={<ChequeBookRegistration />}
-                          element={<LPurchaseInAdditionalCost />}
+                          element={<PrivateRoute element={<LPurchaseInAdditionalCost />} />}
                         />
                         <Route
                           path="sample"
                           // element={<ChequeBookRegistration />}
-                          element={<Sample />}
+                          element={<PrivateRoute element={<Sample />} />}
                         />
 
                         <Route
                           path="pointOfSales"
                           // element={<ChequeBookRegistration />}
-                          element={<PointOfSales />}
+                          element={<PrivateRoute element={<PointOfSales />} />}
                         />
 
                         <Route
                           path="tenderCosting"
                           // element={<ChequeBookRegistration />}
-                          element={<TenderCosting />}
+                          element={<PrivateRoute element={<TenderCosting />} />}
+                        />
+                        <Route
+                          path="tenderExpenseForSalesPerson"
+                          element={
+                            <PrivateRoute
+                              element={<TenderExpenseForSalesPerson />}
+                            />
+                          }
+                        />
+                        <Route
+                          path="tenderApprovalTopSheetRpt"
+                          element={
+                            <PrivateRoute
+                              element={<TenderApprovalTopSheetRpt />}
+                            />
+                          }
                         />
                         {/* //--------------------------------------------------------// */}
                         <Route
                           path="salesOrderEdit"
                           // element={<ChequeBookRegistration />}
-                          element={<SalesOrderEdit />}
+                          element={<PrivateRoute element={<SalesOrderEdit />} />}
                         />
                         <Route
                           path="lPurchaseInEdit"
                           // element={<ChequeBookRegistration />}
-                          element={<LPurchaseInEdit />}
+                          element={<PrivateRoute element={<LPurchaseInEdit />} />}
                         />
                         <Route
                           path="purchaseReturnEdit"
                           // element={<ChequeBookRegistration />}
-                          element={<PurchaseReturnEdit />}
+                          element={<PrivateRoute element={<PurchaseReturnEdit />} />}
                         />
 
                         <Route
                           path="paymentEdit"
                           // element={<ChequeBookRegistration />}
-                          element={<PaymentEdit />}
+                          element={<PrivateRoute element={<PaymentEdit />} />}
                         />
 
                         <Route
                           path="collectionEditGh"
                           // element={<ChequeBookRegistration />}
-                          element={<CollectionEditGh />}
+                          element={<PrivateRoute element={<CollectionEditGh />} />}
                         />
 
                         <Route
                           path="collectionEdit"
                           // element={<ChequeBookRegistration />}
-                          element={<CollectionEdit />}
+                          element={<PrivateRoute element={<CollectionEdit />} />}
                         />
 
                         {/* <Route
                           path="salesReturnEditGh"
                           // element={<ChequeBookRegistration />}
-                          element={<SalesReturnEdit />}
+                          element={<PrivateRoute element={<SalesReturnEdit />} />}
                         /> */}
                         <Route
                           path="salesReturnEdit"
                           // element={<ChequeBookRegistration />}
-                          element={<SalesReturnEdit />}
+                          element={<PrivateRoute element={<SalesReturnEdit />} />}
                         />
 
                         <Route
                           path="importInEdit"
                           // element={<ChequeBookRegistration />}
-                          element={<ImportInEdit />}
+                          element={<PrivateRoute element={<ImportInEdit />} />}
                         />
 
                         {/* //--------------------------------------------------------// */}
                         <Route
                           path="salesImport"
                           // element={<ChequeBookRegistration />}
-                          element={<SalesImport />}
+                          element={<PrivateRoute element={<SalesImport />} />}
                         />
                         <Route
                           path="collectionImport"
                           // element={<ChequeBookRegistration />}
-                          element={<CollectionImport />}
+                          element={<PrivateRoute element={<CollectionImport />} />}
                         />
                         <Route
                           path="purchaseImport"
-                          element={<PurchaseImport />}
+                          element={<PrivateRoute element={<PurchaseImport />} />}
                         />
                         <Route
                           path="purchaseReturnImport"
-                          element={<PurchaseReturnImport />}
+                          element={<PrivateRoute element={<PurchaseReturnImport />} />}
                         />
                         <Route
                           path="salesReturnImport"
                           // element={<ChequeBookRegistration />}
-                          element={<SalesReturnImport />}
+                          element={<PrivateRoute element={<SalesReturnImport />} />}
                         />
                         <Route
                           path="paymentImport"
                           // element={<ChequeBookRegistration />}
-                          element={<PaymentImport />}
+                          element={<PrivateRoute element={<PaymentImport />} />}
                         />
 
                         <Route
                           path="voucherImport"
                           // element={<ChequeBookRegistration />}
-                          element={<VoucherImport />}
+                          element={<PrivateRoute element={<VoucherImport />} />}
                         />
 
                         <Route
                           path="importLCImport"
                           // element={<ChequeBookRegistration />}
-                          element={<ImportLCImport />}
+                          element={<PrivateRoute element={<ImportLCImport />} />}
                         />
 
                         {/* <Route
                           path="salesOrderTracking"
                           // element={<ChequeBookRegistration />}
-                          element={<SalesOrderTracking />}
+                          element={<PrivateRoute element={<SalesOrderTracking />} />}
                         /> */}
 
                         {/* <Route
                           path="jvImport"
                           // element={<ChequeBookRegistration />}
-                          element={<JVImport />}
+                          element={<PrivateRoute element={<JVImport />} />}
                         />
                         <Route
                           path="purchaseImport"
-                          element={<PurchaseImport />}
+                          element={<PrivateRoute element={<PurchaseImport />} />}
                         />
                         <Route
                           path="purchaseReturnImport"
                           // element={<ChequeBookRegistration />}
-                          element={<PurchaseReturnImport />}
+                          element={<PrivateRoute element={<PurchaseReturnImport />} />}
                         />
                         <Route
                           path="salesReturnImport"
                           // element={<ChequeBookRegistration />}
-                          element={<SalesReturnImport />}
+                          element={<PrivateRoute element={<SalesReturnImport />} />}
                         /> */}
 
                         <Route
                           path="currentStockPreview"
                           // element={<ChequeBookRegistration />}
-                          element={<CurrentStockPreview />}
+                          element={<PrivateRoute element={<CurrentStockPreview />} />}
                         />
 
                         {/* <Route
                           path="salesOrderSummary"
                           // element={<ChequeBookRegistration />}
-                          element={<SalesOrderSummary />}
+                          element={<PrivateRoute element={<SalesOrderSummary />} />}
                         /> */}
 
                         {/* //--------------------------------------------------------// */}
@@ -1003,6 +1132,7 @@ const App = () => {
                         /> */}
                       </Routes>
                     </Suspense>
+                    </PageTransition>
                   </div>
                 </div>
               </div>
@@ -1011,7 +1141,7 @@ const App = () => {
             {/* --the most super background DIV on which everything is situated---ENDS- */}
           </BrowserRouter>
         ) : (
-          <div>LOADING...</div>
+          <Br24PageLoader label="Starting BR24…" minHeight="100vh" />
         )}
 
         <ToastContainer

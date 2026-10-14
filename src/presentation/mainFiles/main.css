@@ -70,6 +70,18 @@ button:focus-visible {
 
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap');
 
+/*
+ * Compact density: 80% of browser-default root (16px → 12.8px).
+ * Matches former Chrome 80% zoom look at 100% zoom.
+ * Tailwind rem spacing/fonts/widths (w-72, p-4, text-sm, …) all follow this.
+ * No transform: scale().
+ */
+html {
+  font-size: 80%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
   padding: 0;

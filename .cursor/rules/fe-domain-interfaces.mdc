@@ -1,0 +1,13 @@
+---
+description: BR24 FE — domain interface / DTO conventions
+globs: src/domain/interfaces/**
+alwaysApply: false
+---
+
+# Domain interface rules
+
+- FE `domain/` is **interfaces/DTOs only** — no use-case or repository layer here.
+- Prefer `I*` naming aligned with existing files in this folder.
+- Mirror backend field names when typing API payloads; do not invent property names.
+- If both `Interface` and other suffixes exist for the same concept, ask which to use for **new** types.
+- Keep types next to the feature that consumes them when practical; shared types stay under `domain/interfaces/`.

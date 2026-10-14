@@ -283,7 +283,7 @@ const AttachmentLoaderForReporting = (props: any) => {
   return (
     <div className="">
       {/* <h2> Responsive </h2> */}
-      <div className="relative -ml-[10px] -mb-[10px] z-[1] flex justify-start">
+      <div className="relative -ml-[0.625rem] -mb-[0.625rem] z-[1] flex justify-start">
         <input
           type="file"
           id="fileAttachInput"
@@ -297,14 +297,14 @@ const AttachmentLoaderForReporting = (props: any) => {
             {/* <label
               htmlFor="fileAttachInput"
               id="attachmentLabel"
-              className="inline-block px-[6px] py-1 bg-slate-500 text-white font-medium text-xs leading-tight rounded-full shadow-md cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
+              className="inline-block px-[0.375rem] py-1 bg-slate-500 text-white font-medium text-xs leading-tight rounded-full shadow-md cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
             >
               <i className="fas fa-plus" />
             </label> */}
             <label
               htmlFor="fileAttachInput"
               id="attachmentLabel"
-              className="inline-block px-[6px] py-1 bg-slate-500 text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out "
+              className="inline-block px-[0.375rem] py-1 bg-slate-500 text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out "
             >
               <i className="fas fa-plus" />{' '}
               <span className="hidden group-hover:inline transform-all duration-150 ease-in-out">
@@ -316,7 +316,7 @@ const AttachmentLoaderForReporting = (props: any) => {
           <label
             htmlFor="fileAttachInput"
             id="attachmentLabel"
-            className="inline-block px-[6px] py-1 bg-slate-500 text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out "
+            className="inline-block px-[0.375rem] py-1 bg-slate-500 text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out "
           >
             <i className="fas fa-plus" /> Attach Files
           </label>
@@ -354,12 +354,12 @@ const AttachmentLoaderForReporting = (props: any) => {
                   }
                 />
 
-                <div className="-mt-[3px] mr-[0px] -ml-[17px]">
+                <div className="-mt-[0.1875rem] mr-[0] -ml-[1.0625rem]">
                   <Tooltip title="Delete" arrow style={{ zIndex: 10000001 }}>
                     <i
                       role="button"
                       tabIndex={0}
-                      className="fas fa-times p-[2px] py-[0px] text-[12px] rounded-sm bg-opacity-50 bg-gray-100 text-rose-700 hover:bg-opacity-90 cursor-pointer hover:scale-110 hover:text-gray-100 hover:bg-rose-600 transform-all duration-150 ease-in-out"
+                      className="fas fa-times p-[0.125rem] py-[0] text-[0.75rem] rounded-sm bg-opacity-50 bg-gray-100 text-rose-700 hover:bg-opacity-90 cursor-pointer hover:scale-110 hover:text-gray-100 hover:bg-rose-600 transform-all duration-150 ease-in-out"
                       onClick={() => deleteFile(index)}
                     />
                   </Tooltip>
@@ -371,7 +371,7 @@ const AttachmentLoaderForReporting = (props: any) => {
                 arrow
                 style={{ zIndex: 10000001 }}
               >
-                <p className="px-[5px] truncate text-sm bg-zinc-300 cursor-help rounded-b-md text-center">
+                <p className="px-[0.3125rem] truncate text-sm bg-zinc-300 cursor-help rounded-b-md text-center">
                   {perAttachment.fileName}
                 </p>
               </Tooltip>
@@ -381,7 +381,7 @@ const AttachmentLoaderForReporting = (props: any) => {
       ) : (
         <Slider
           {...settings}
-          className=" py-[59px] border-1 rounded border-zinc-300 min-h-[25%]"
+          className=" py-[3.6875rem] border-1 rounded border-zinc-300 min-h-[25%]"
         />
       )}
 
@@ -408,12 +408,12 @@ const AttachmentLoaderForReporting = (props: any) => {
 
             <div className="flex">
               <img src={prevImg} className="w-auto max-h-[80vh]" alt="" />
-              <div className="-ml-[25px] mt-[5px]">
+              <div className="-ml-[1.5625rem] mt-[0.3125rem]">
                 <Tooltip title="Close" arrow style={{ zIndex: 10000001 }}>
                   <i
                     role="button"
                     tabIndex={0}
-                    className="fas fa-minus p-[2px] py-[0px] text-[16px] rounded-sm bg-opacity-70 bg-gray-100 text-blue-900  cursor-pointer hover:scale-110 hover:bg-opacity-90 hover:text-gray-100 hover:bg-blue-900 transform-all duration-150 ease-in-out"
+                    className="fas fa-minus p-[0.125rem] py-[0] text-[1rem] rounded-sm bg-opacity-70 bg-gray-100 text-blue-900  cursor-pointer hover:scale-110 hover:bg-opacity-90 hover:text-gray-100 hover:bg-blue-900 transform-all duration-150 ease-in-out"
                     onClick={handlePreviwModalClose}
                   />
                 </Tooltip>

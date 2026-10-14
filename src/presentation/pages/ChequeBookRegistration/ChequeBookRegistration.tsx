@@ -635,7 +635,7 @@ const ChequeBookRegistration = (props: any) => {
               sx={{ width: '100%' }}
               value={renderedCellValue || ''}
               InputProps={{
-                style: { fontSize: 13 },
+                style: { fontSize: '0.8125rem' },
                 disableUnderline: true,
                 readOnly: true,
               }}
@@ -683,7 +683,7 @@ const ChequeBookRegistration = (props: any) => {
               sx={{ width: '100%' }}
               value={cellValue || ''}
               InputProps={{
-                style: { fontSize: 13 },
+                style: { fontSize: '0.8125rem' },
                 disableUnderline: true,
                 readOnly: true,
               }}
@@ -741,7 +741,7 @@ const ChequeBookRegistration = (props: any) => {
         //               console.log('helllowww');
         //             }}
         //           >
-        //             <span className=" font-bold text-[13px] leading-none">
+        //             <span className=" font-bold text-[0.8125rem] leading-none">
         //               Approve
         //             </span>
         //           </button>
@@ -766,7 +766,7 @@ const ChequeBookRegistration = (props: any) => {
                         handleApproveNowBtn(row.original);
                       }}
                     >
-                      <span className=" font-semibold text-[13px] leading-none">
+                      <span className=" font-semibold text-[0.8125rem] leading-none">
                         Approve Now <i className="ml-1 fas fa-arrow-right" />
                       </span>
                     </button>
@@ -872,7 +872,7 @@ const ChequeBookRegistration = (props: any) => {
               sx={{ width: '100%' }}
               value={renderedCellValue || ''}
               InputProps={{
-                style: { fontSize: 13 },
+                style: { fontSize: '0.8125rem' },
                 disableUnderline: true,
                 readOnly: true,
               }}
@@ -910,7 +910,7 @@ const ChequeBookRegistration = (props: any) => {
               sx={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '10px',
+                gap: '0.625rem',
               }}
             >
               {renderedCellValue ? (
@@ -991,7 +991,7 @@ const ChequeBookRegistration = (props: any) => {
                         }
                       }}
                     >
-                      <span className=" font-bold text-[13px] leading-none">
+                      <span className=" font-bold text-[0.8125rem] leading-none">
                         Leaf+
                       </span>
                     </button>
@@ -1008,7 +1008,7 @@ const ChequeBookRegistration = (props: any) => {
                         setLeafModalOpen(true);
                       }}
                     >
-                      <span className=" font-bold text-[13px] leading-none">
+                      <span className=" font-bold text-[0.8125rem] leading-none">
                         <i className="far fa-eye fa-sm" /> Leaves
                       </span>
                     </button>
@@ -1041,7 +1041,7 @@ const ChequeBookRegistration = (props: any) => {
       onColumnVisibilityChange: setColumnVisibility,
       muiSkeletonProps: {
         animation: 'pulse',
-        height: 40,
+        height: '2.5rem',
       },
       enableBottomToolbar: false,
       enableColumnResizing: true,
@@ -1072,7 +1072,7 @@ const ChequeBookRegistration = (props: any) => {
       muiTableBodyCellProps: {
         sx: {
           borderRight: '1px solid #e0e0e0', // add a border between columns //eigulla shobi use kora jaay but comment out kora
-          fontSize: '13px',
+          fontSize: '0.8125rem',
         },
       },
       muiTableHeadCellProps: {
@@ -1081,12 +1081,12 @@ const ChequeBookRegistration = (props: any) => {
           // borderLeft: '1px solid #e0e0e0',
           borderTop: '1px solid #e0e0e0',
           // borderBottom: '1px solid #e0e0e0',
-          fontSize: '13px',
+          fontSize: '0.8125rem',
           whiteSpace: 'nowrap',
         },
       },
 
-      muiTableContainerProps: { sx: { maxHeight: '550px' } },
+      muiTableContainerProps: { sx: { maxHeight: '34.375rem' } },
       renderToolbarInternalActions: ({ table }) => (
         <>
           {/* built-in buttons (must pass in table prop for them to work!) */}
@@ -1096,7 +1096,7 @@ const ChequeBookRegistration = (props: any) => {
               type="button"
               data-mdb-ripple="true"
               data-mdb-ripple-color="light"
-              className="inline-block px-[6px] py-1 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-700 ease-in-out"
+              className="inline-block px-[0.375rem] py-1 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-700 ease-in-out"
               onClick={() => {
                 setCreateChequeBookModalOpen(true);
               }}
@@ -1112,7 +1112,7 @@ const ChequeBookRegistration = (props: any) => {
               type="button"
               data-mdb-ripple="true"
               data-mdb-ripple-color="light"
-              className="inline-block px-[6px] py-1 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
+              className="inline-block px-[0.375rem] py-1 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
               onClick={() => {
                 handleExportData(chequeBookGrid, chequeBookColumns);
               }}
@@ -1250,11 +1250,11 @@ const ChequeBookRegistration = (props: any) => {
                         // {...register('location')}
                         InputProps={{
                           ...params.InputProps,
-                          style: { fontSize: 13 },
+                          style: { fontSize: '0.8125rem' },
                         }}
                         InputLabelProps={{
                           ...params.InputLabelProps,
-                          style: { fontSize: 14 },
+                          style: { fontSize: '0.875rem' },
                         }}
                         label="Bank"
                         variant="outlined"
@@ -1287,11 +1287,11 @@ const ChequeBookRegistration = (props: any) => {
                         // {...register('location')}
                         InputProps={{
                           ...params.InputProps,
-                          style: { fontSize: 13 },
+                          style: { fontSize: '0.8125rem' },
                         }}
                         InputLabelProps={{
                           ...params.InputLabelProps,
-                          style: { fontSize: 14 },
+                          style: { fontSize: '0.875rem' },
                         }}
                         label="Cheque Leaf No. From."
                         variant="outlined"
@@ -1322,11 +1322,11 @@ const ChequeBookRegistration = (props: any) => {
                         // {...register('location')}
                         InputProps={{
                           ...params.InputProps,
-                          style: { fontSize: 13 },
+                          style: { fontSize: '0.8125rem' },
                         }}
                         InputLabelProps={{
                           ...params.InputLabelProps,
-                          style: { fontSize: 14 },
+                          style: { fontSize: '0.875rem' },
                         }}
                         label="Cheque Leaf No. To"
                         variant="outlined"
@@ -1530,7 +1530,7 @@ const ChequeBookRegistration = (props: any) => {
           // className="voucherGenModal"
         >
           <div className="flex justify-center bg-transparent ">
-            <div className="mt-[350px] bg-transparent">
+            <div className="mt-[21.875rem] bg-transparent">
               <PropagateLoader
                 color="#36d7b7"
                 loading

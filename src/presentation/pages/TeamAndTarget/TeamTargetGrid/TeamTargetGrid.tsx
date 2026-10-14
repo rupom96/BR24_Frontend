@@ -82,7 +82,7 @@ const autoCompResStyles: AutoCompResStyles = {
   popper: {
     maxWidth: 'fit-content',
     // minWidth: 'inherit',
-    fontSize: '12px',
+    fontSize: '0.75rem',
   },
 };
 // const userInfo = {
@@ -531,7 +531,7 @@ const TeamTargetGrid: React.FC<TeamTargetGridSelectorProps> = ({ teamId }) => {
                     // onBlur={() => { console.log(this) }}
                     InputProps={{
                       ...params.InputProps,
-                      style: { fontSize: 13 },
+                      style: { fontSize: '0.8125rem' },
                       disableUnderline: true,
                     }}
                     variant="standard"
@@ -562,7 +562,7 @@ const TeamTargetGrid: React.FC<TeamTargetGridSelectorProps> = ({ teamId }) => {
                     setCurrentEmployeeModalRow(tempRowEmployee);
                   }}
                 >
-                  <i className="fas text-[18px] fa-bolt" />
+                  <i className="fas text-[1.125rem] fa-bolt" />
                 </IconButton>
               </Tooltip>
             </div>
@@ -582,7 +582,7 @@ const TeamTargetGrid: React.FC<TeamTargetGridSelectorProps> = ({ teamId }) => {
               type="text"
               sx={{ width: '100%' }}
               InputProps={{
-                style: { fontSize: 13 },
+                style: { fontSize: '0.8125rem' },
                 disableUnderline: true,
                 readOnly: true,
               }}
@@ -613,7 +613,7 @@ const TeamTargetGrid: React.FC<TeamTargetGridSelectorProps> = ({ teamId }) => {
               type="text"
               sx={{ width: '100%' }}
               InputProps={{
-                style: { fontSize: 13 },
+                style: { fontSize: '0.8125rem' },
                 disableUnderline: true,
                 readOnly: true,
               }}
@@ -690,7 +690,7 @@ const TeamTargetGrid: React.FC<TeamTargetGridSelectorProps> = ({ teamId }) => {
                     // onBlur={() => { console.log(this) }}
                     InputProps={{
                       ...params.InputProps,
-                      style: { fontSize: 13 },
+                      style: { fontSize: '0.8125rem' },
                       disableUnderline: true,
                     }}
                     variant="standard"
@@ -723,7 +723,7 @@ const TeamTargetGrid: React.FC<TeamTargetGridSelectorProps> = ({ teamId }) => {
                     setCurrentProductGroupModalRow(tempRowProductGroup);
                   }}
                 >
-                  <i className="fas text-[18px] fa-bolt" />
+                  <i className="fas text-[1.125rem] fa-bolt" />
                 </IconButton>
               </Tooltip>
             </div>
@@ -741,7 +741,7 @@ const TeamTargetGrid: React.FC<TeamTargetGridSelectorProps> = ({ teamId }) => {
               type="number"
               sx={{ width: '100%' }}
               InputProps={{
-                style: { fontSize: 13 },
+                style: { fontSize: '0.8125rem' },
                 disableUnderline: true,
                 // readOnly: true,
               }}
@@ -785,7 +785,7 @@ const TeamTargetGrid: React.FC<TeamTargetGridSelectorProps> = ({ teamId }) => {
               type="text"
               sx={{ width: '100%' }}
               InputProps={{
-                style: { fontSize: 13 },
+                style: { fontSize: '0.8125rem' },
                 disableUnderline: true,
                 readOnly: true,
               }}
@@ -816,7 +816,7 @@ const TeamTargetGrid: React.FC<TeamTargetGridSelectorProps> = ({ teamId }) => {
               type="text"
               sx={{ width: '100%' }}
               InputProps={{
-                style: { fontSize: 13 },
+                style: { fontSize: '0.8125rem' },
                 disableUnderline: true,
                 readOnly: true,
               }}
@@ -847,7 +847,7 @@ const TeamTargetGrid: React.FC<TeamTargetGridSelectorProps> = ({ teamId }) => {
               type="text"
               sx={{ width: '100%' }}
               InputProps={{
-                style: { fontSize: 13 },
+                style: { fontSize: '0.8125rem' },
                 disableUnderline: true,
                 readOnly: true,
               }}
@@ -878,7 +878,7 @@ const TeamTargetGrid: React.FC<TeamTargetGridSelectorProps> = ({ teamId }) => {
               type="text"
               sx={{ width: '100%' }}
               InputProps={{
-                style: { fontSize: 13 },
+                style: { fontSize: '0.8125rem' },
                 disableUnderline: true,
                 readOnly: true,
               }}
@@ -1102,7 +1102,7 @@ const TeamTargetGrid: React.FC<TeamTargetGridSelectorProps> = ({ teamId }) => {
       onColumnVisibilityChange: setColumnVisibility,
       muiSkeletonProps: {
         animation: 'pulse',
-        height: 40,
+        height: '2.5rem',
       },
       enableBottomToolbar: false,
       enableColumnResizing: true,
@@ -1127,7 +1127,7 @@ const TeamTargetGrid: React.FC<TeamTargetGridSelectorProps> = ({ teamId }) => {
       muiTableBodyCellProps: {
         sx: {
           // borderRight: '1px solid #e0e0e0', // add a border between columns //eigulla shobi use kora jaay but comment out kora
-          fontSize: '13px',
+          fontSize: '0.8125rem',
           color: '#ea1143',
         },
       },
@@ -1137,7 +1137,7 @@ const TeamTargetGrid: React.FC<TeamTargetGridSelectorProps> = ({ teamId }) => {
           // borderLeft: '1px solid #e0e0e0',
           borderTop: '1px solid #e0e0e0',
           // borderBottom: '1px solid #e0e0e0',
-          fontSize: '13px',
+          fontSize: '0.8125rem',
           whiteSpace: 'nowrap',
           backgroundColor: '#ECEFF9',
           color: '#1c1c1c',
@@ -1145,7 +1145,7 @@ const TeamTargetGrid: React.FC<TeamTargetGridSelectorProps> = ({ teamId }) => {
         },
       },
 
-      muiTableContainerProps: { sx: { maxHeight: '500px' } },
+      muiTableContainerProps: { sx: { maxHeight: '31.25rem' } },
       renderToolbarInternalActions: ({ table }) => (
         <>
           {/* built-in buttons (must pass in table prop for them to work!) */}
@@ -1159,7 +1159,7 @@ const TeamTargetGrid: React.FC<TeamTargetGridSelectorProps> = ({ teamId }) => {
               type="button"
               data-mdb-ripple="true"
               data-mdb-ripple-color="light"
-              className="inline-block px-[6px] py-1 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
+              className="inline-block px-[0.375rem] py-1 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
               onClick={() => {
                 // const teamTargetGridStateWithoutEmpty =
                 //   teamTargetGridState.filter(
@@ -1187,7 +1187,7 @@ const TeamTargetGrid: React.FC<TeamTargetGridSelectorProps> = ({ teamId }) => {
 
       renderTopToolbarCustomActions: ({ table }) => (
         <div className=" w-[30%] mt-1 flex gap-3 justify-center items-center">
-          <span className=" mt-1 font-bold text-[13px] w-[20%]">
+          <span className=" mt-1 font-bold text-[0.8125rem] w-[20%]">
             {/* TITLE OF THE GRID */}
             Filter By:
           </span>
@@ -1213,11 +1213,11 @@ const TeamTargetGrid: React.FC<TeamTargetGridSelectorProps> = ({ teamId }) => {
                     sx={{ width: '100%', marginTop: 1 }}
                     InputProps={{
                       ...params.InputProps,
-                      style: { fontSize: 13 },
+                      style: { fontSize: '0.8125rem' },
                     }}
                     InputLabelProps={{
                       ...params.InputLabelProps,
-                      style: { fontSize: 14 },
+                      style: { fontSize: '0.875rem' },
                     }}
                     variant="standard"
                     size="small"
@@ -1246,11 +1246,11 @@ const TeamTargetGrid: React.FC<TeamTargetGridSelectorProps> = ({ teamId }) => {
                     sx={{ width: '100%', marginTop: 1 }}
                     InputProps={{
                       ...params.InputProps,
-                      style: { fontSize: 13 },
+                      style: { fontSize: '0.8125rem' },
                     }}
                     InputLabelProps={{
                       ...params.InputLabelProps,
-                      style: { fontSize: 14 },
+                      style: { fontSize: '0.875rem' },
                     }}
                     variant="standard"
                     size="small"

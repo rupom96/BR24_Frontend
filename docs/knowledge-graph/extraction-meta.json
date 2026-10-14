@@ -1,0 +1,10 @@
+{
+  "generatedAt": "2026-09-23T08:12:15.091Z",
+  "feRoot": "E:\\WORKING_FOLDER\\BR24\\Frontend\\BR24 Frontend",
+  "beRoot": "E:\\WORKING_FOLDER\\BR24\\Backend\\BR24_Backend",
+  "nodeCount": 1580,
+  "relationshipCount": 2507,
+  "endpointCount": 183,
+  "entityFileCount": 960,
+  "controllerCount": 50
+}

@@ -13,6 +13,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Autocomplete,
   Box,
+  createFilterOptions,
   IconButton,
   List,
   ListItem,
@@ -71,6 +72,8 @@ interface AdditionalProps {
 interface ProcurementTenderComponentProps extends AdditionalProps {
   formProps: IFormProps;
 }
+
+const tenderNoFilter = createFilterOptions<ITenderNoComboBox>();
 
 const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
   formProps,
@@ -400,12 +403,32 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
     selectedItem: ITenderNoComboBox | null,
     onChange: any
   ) => {
-    onChange(selectedItem);
-    setTenderInfo(selectedItem);
-    // procurementTenderState= procurementTenderState?
+    if (!selectedItem) {
+      onChange(null);
+      setTenderInfo(null);
+      (procurementTenderState ?? {}).procurementTenderId = 0;
+      (procurementTenderState ?? {}).tenderNo = '';
+      setProcurementTenderState({ ...procurementTenderState });
+      return;
+    }
+
+    let resolved: ITenderNoComboBox = selectedItem;
+    // Synthetic "Add \"X\"" option → new typed tenderNo (create path)
+    if (!selectedItem.procurementTenderId) {
+      const typed =
+        selectedItem.tenderNo.match(/Add\s+"([^"]+)"/)?.[1] ||
+        selectedItem.tenderNo;
+      resolved = {
+        procurementTenderId: 0,
+        tenderNo: typed.trim().slice(0, 50),
+      };
+    }
+
+    onChange(resolved);
+    setTenderInfo(resolved);
     (procurementTenderState ?? {}).procurementTenderId =
-      selectedItem?.procurementTenderId || 0;
-    (procurementTenderState ?? {}).tenderNo = selectedItem?.tenderNo || '';
+      resolved.procurementTenderId || 0;
+    (procurementTenderState ?? {}).tenderNo = resolved.tenderNo || '';
     setProcurementTenderState({ ...procurementTenderState });
   };
 
@@ -475,6 +498,24 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
     setProcurementTenderState({ ...procurementTenderState });
   };
 
+  const handleSchedulePurchaseExpiryDateChange = (
+    newValue: any,
+    onChange: any
+  ) => {
+    onChange(newValue);
+    if (!newValue) {
+      (procurementTenderState ?? {}).schedulePurchaseExpiryDate = null;
+      setProcurementTenderState({ ...procurementTenderState });
+      return;
+    }
+    const tempDate = dayjs(newValue).format('YYYY-MM-DD');
+    const tempTime = dayjs(newValue).format('HH:mm');
+    const schedulePurchaseExpiryDateTime = `${tempDate}T${tempTime}:00.000Z`;
+    (procurementTenderState ?? {}).schedulePurchaseExpiryDate =
+      schedulePurchaseExpiryDateTime;
+    setProcurementTenderState({ ...procurementTenderState });
+  };
+
   const assignDataInFieldsProcurementTender = (
     recievedData: IProcurementTender
   ) => {
@@ -492,7 +533,12 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
     setValue('tenderSubmissionDate', recievedData.tenderSubmissionDate);
     setValue('tenderEntryDate', recievedData.tenderEntryDate);
     setValue('bgExpiryDate', recievedData.bgExpiryDate);
+    setValue(
+      'schedulePurchaseExpiryDate',
+      recievedData.schedulePurchaseExpiryDate
+    );
     setValue('bgAmount', recievedData.bgAmount);
+    setValue('bgPayOrderExpense', recievedData.bgPayOrderExpense);
     setValue('schedulePrice', recievedData.schedulePrice);
     setValue('earnestMoney', { optionName: recievedData.earnestMoney });
     setValue('earnestMoneyAmount', recievedData.earnestMoneyAmount);
@@ -567,7 +613,7 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
     popper: {
       maxWidth: 'fit-content',
       // minWidth: 'inherit',
-      fontSize: '12px',
+      fontSize: '0.75rem',
     },
   };
   const PopperMy = useCallback(
@@ -599,8 +645,30 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
               // options={tenderComboOptions || []} // Make sure tenderComboOptions is defined
               options={tenderComboOptions || []} // Make sure tenderComboOptions is defined
               value={value || null}
+              selectOnFocus
+              clearOnBlur
+              handleHomeEndKeys
               onChange={(event, item) => handleTenderChange(item, onChange)} // React-hook-form manages the state
-              onBlur={onBlur} // Trigger validation on blur
+              onBlur={onBlur} // no select → previous value stays
+              filterOptions={(options, params) => {
+                const filtered = tenderNoFilter(options, params);
+                const input = params.inputValue.trim();
+                const exactMatch = options.some(
+                  (opt) => opt.tenderNo === input
+                );
+                // AutoTenderNo on → no custom typed tenderNo ("Add X" hidden)
+                const isAutoTenderNo =
+                  userInfo?.brFeatureList?.find(
+                    (f: any) => f.featureName === 'AutoTenderNo'
+                  )?.isAllowed ?? false;
+                if (input !== '' && !exactMatch && !isAutoTenderNo) {
+                  filtered.push({
+                    procurementTenderId: 0,
+                    tenderNo: `Add "${input}"`,
+                  });
+                }
+                return filtered;
+              }}
               getOptionLabel={(option) => (option ? option.tenderNo : '')}
               isOptionEqualToValue={(option, selectedValue) =>
                 option.tenderNo === selectedValue?.tenderNo &&
@@ -616,11 +684,15 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
                   helperText={error ? error.message : null}
                   InputLabelProps={{
                     ...params.InputLabelProps,
-                    style: { fontSize: 14 },
+                    style: { fontSize: '0.875rem' },
                   }}
                   InputProps={{
                     ...params.InputProps,
-                    style: { fontSize: 13 },
+                    style: { fontSize: '0.8125rem' },
+                  }}
+                  inputProps={{
+                    ...params.inputProps,
+                    maxLength: 50,
                   }}
                   sx={{ width: '100%', marginTop: 1 }}
                   inputRef={ref}
@@ -676,16 +748,58 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
                   helperText={error ? error.message : null}
                   InputLabelProps={{
                     ...params.InputLabelProps,
-                    style: { fontSize: 14 },
+                    style: { fontSize: '0.875rem' },
                   }}
                   InputProps={{
                     ...params.InputProps,
-                    style: { fontSize: 13 },
+                    style: { fontSize: '0.8125rem' },
                   }}
                   sx={{ width: '100%', marginTop: 1 }}
                   inputRef={ref}
                 />
               )}
+            />
+          )}
+        />
+
+        <Controller
+          name="buyerGroupName"
+          control={control}
+          // rules={{
+          //   required: '*Required',
+          // }}
+          render={({
+            field: { onChange, onBlur, value, ref },
+            fieldState: { error },
+          }) => (
+            <TextField
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              type="text"
+              value={value || ''}
+              sx={{ width: '100%' }}
+              InputProps={{ style: { fontSize: '0.8125rem' }, readOnly: true }}
+              InputLabelProps={{
+                style: { fontSize: '0.875rem' },
+                shrink: value,
+              }}
+              // onBlur={onBlur} // Trigger validation on blur
+              error={!!error}
+              helperText={error ? error.message : null}
+              // inputRef={ref}
+              id=""
+              label="Customer Group"
+              variant="standard"
+              size="small"
+              // onBlur={onBlur} // Trigger validation on blur
+              // onBlur={(event) => {
+              //   // Update the state with the current value
+              //   (procurementTenderState ?? {}).buyerGroupName =
+              //     event.target.value; // math.abs means value has to be non-negetaive
+              //   setProcurementTenderState(procurementTenderState);
+              //   // Call the original onBlur to trigger validation
+              //   onBlur();
+              // }}
+              // onChange={onChange}
             />
           )}
         />
@@ -738,11 +852,11 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
                   helperText={error ? error.message : null}
                   InputLabelProps={{
                     ...params.InputLabelProps,
-                    style: { fontSize: 14 },
+                    style: { fontSize: '0.875rem' },
                   }}
                   InputProps={{
                     ...params.InputProps,
-                    style: { fontSize: 13 },
+                    style: { fontSize: '0.8125rem' },
                   }}
                   sx={{ width: '100%', marginTop: 1 }}
                   inputRef={ref}
@@ -795,11 +909,11 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
                   helperText={error ? error.message : null}
                   InputLabelProps={{
                     ...params.InputLabelProps,
-                    style: { fontSize: 14 },
+                    style: { fontSize: '0.875rem' },
                   }}
                   InputProps={{
                     ...params.InputProps,
-                    style: { fontSize: 13 },
+                    style: { fontSize: '0.8125rem' },
                   }}
                   sx={{ width: '100%', marginTop: 1 }}
                   inputRef={ref}
@@ -823,9 +937,9 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
               type="text"
               value={value || ''}
               sx={{ width: '100%' }}
-              InputProps={{ style: { fontSize: 13 }, readOnly: true }}
+              InputProps={{ style: { fontSize: '0.8125rem' }, readOnly: true }}
               InputLabelProps={{
-                style: { fontSize: 14 },
+                style: { fontSize: '0.875rem' },
                 shrink: value,
               }}
               // onBlur={onBlur} // Trigger validation on blur
@@ -855,9 +969,9 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
               type="text"
               value={value || ''}
               sx={{ width: '100%' }}
-              InputProps={{ style: { fontSize: 13 }, readOnly: true }}
+              InputProps={{ style: { fontSize: '0.8125rem' }, readOnly: true }}
               InputLabelProps={{
-                style: { fontSize: 14 },
+                style: { fontSize: '0.875rem' },
                 shrink: value,
               }}
               // onBlur={onBlur} // Trigger validation on blur
@@ -893,11 +1007,11 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
                     sx={{ width: '100%', marginTop: 1 }}
                     InputProps={{
                       ...params.InputProps,
-                      style: { fontSize: 13 },
+                      style: { fontSize: '0.8125rem' },
                     }}
                     InputLabelProps={{
                       ...params.InputLabelProps,
-                      style: { fontSize: 14 },
+                      style: { fontSize: '0.875rem' },
                     }}
                     variant="standard"
                     size="small"
@@ -933,11 +1047,11 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
                     sx={{ width: '100%', marginTop: 1 }}
                     InputProps={{
                       ...params.InputProps,
-                      style: { fontSize: 13 },
+                      style: { fontSize: '0.8125rem' },
                     }}
                     InputLabelProps={{
                       ...params.InputLabelProps,
-                      style: { fontSize: 14 },
+                      style: { fontSize: '0.875rem' },
                     }}
                     variant="standard"
                     size="small"
@@ -947,107 +1061,6 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
                 )}
               />
             </LocalizationProvider>
-          )}
-        />
-        {/* <Controller
-          name="buyerGroup"
-          control={control}
-          // rules={{
-          //   required: '*Required',
-          // }}
-          render={({
-            field: { onChange, onBlur, value, ref },
-            fieldState: { error },
-          }) => (
-            <Autocomplete
-              id=""
-              size="small"
-              // loading={!buyerComboOptionsLoading && !buyerComboOptionIsFetching}
-              // options={buyerComboOptions || []} // Make sure customerComboOptions is defined
-              // options={
-              //   Array.from(
-              //     new Map(
-              //       buyerComboOptions?.map((buyer) => [buyer.buyerName, buyer])
-              //     ).values()
-              //   ) || []
-              // } // making sure that the array is unique by buyerName, else autocomplete search ultapalta behave kore
-              options={[]} // making sure that the array is unique by buyerName, else autocomplete search ultapalta behave kore
-              value={value || null}
-              // PopperComponent={PopperMy}
-              onChange={(event, selectedOption) =>
-                handleCustomerGroupChange(selectedOption, onChange)
-              } // React-hook-form manages the state
-              onBlur={onBlur} // Trigger validation on blur
-              // getOptionLabel={(option) =>
-              //   option ? `${option.buyerName}- id:${option.buyerId}` : ''
-              // } // main problem is here
-              getOptionLabel={(option) => (option ? option.buyerGroupName : '')} // main problem is here
-              // getOptionLabel={(option) => (option ? option.buyerName : '')} // main problem is here
-              isOptionEqualToValue={(option, selectedValue) =>
-                option.buyerGroupId === selectedValue?.buyerGroupId &&
-                option.buyerGroupName === selectedValue?.buyerGroupName
-              }
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Customer Group"
-                  variant="standard"
-                  error={!!error}
-                  helperText={error ? error.message : null}
-                  InputLabelProps={{
-                    ...params.InputLabelProps,
-                    style: { fontSize: 14 },
-                  }}
-                  InputProps={{
-                    ...params.InputProps,
-                    style: { fontSize: 13 },
-                  }}
-                  sx={{ width: '100%', marginTop: 1 }}
-                  inputRef={ref}
-                />
-              )}
-            />
-          )}
-        /> */}
-        <Controller
-          name="buyerGroupName"
-          control={control}
-          // rules={{
-          //   required: '*Required',
-          // }}
-          render={({
-            field: { onChange, onBlur, value, ref },
-            fieldState: { error },
-          }) => (
-            <TextField
-              // eslint-disable-next-line react/jsx-props-no-spreading
-              type="text"
-              value={value || ''}
-              sx={{ width: '100%' }}
-              InputProps={{ style: { fontSize: 13 }, readOnly: true }}
-              InputLabelProps={{
-                style: { fontSize: 14 },
-                shrink: value,
-              }}
-              // onBlur={onBlur} // Trigger validation on blur
-              error={!!error}
-              helperText={error ? error.message : null}
-              // inputRef={ref}
-              id=""
-              label="Customer Group"
-              variant="standard"
-              size="small"
-              // onBlur={onBlur} // Trigger validation on blur
-              // onBlur={(event) => {
-              //   // Update the state with the current value
-              //   (procurementTenderState ?? {}).buyerGroupName =
-              //     event.target.value; // math.abs means value has to be non-negetaive
-              //   setProcurementTenderState(procurementTenderState);
-              //   // Call the original onBlur to trigger validation
-              //   onBlur();
-              // }}
-              // onChange={onChange}
-            />
           )}
         />
         <Controller
@@ -1065,9 +1078,9 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
               type="number"
               value={value || ''}
               sx={{ width: '100%' }}
-              InputProps={{ style: { fontSize: 13 } }}
+              InputProps={{ style: { fontSize: '0.8125rem' } }}
               InputLabelProps={{
-                style: { fontSize: 14 },
+                style: { fontSize: '0.875rem' },
                 shrink: value,
               }}
               // onBlur={onBlur} // Trigger validation on blur
@@ -1114,9 +1127,9 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
               type="number"
               value={value || ''}
               sx={{ width: '100%' }}
-              InputProps={{ style: { fontSize: 13 } }}
+              InputProps={{ style: { fontSize: '0.8125rem' } }}
               InputLabelProps={{
-                style: { fontSize: 14 },
+                style: { fontSize: '0.875rem' },
                 shrink: value,
               }}
               // onBlur={onBlur} // Trigger validation on blur
@@ -1149,6 +1162,45 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
           )}
         />
         <Controller
+          name="bgPayOrderExpense"
+          control={control}
+          render={({
+            field: { onChange, onBlur, value, ref },
+            fieldState: { error },
+          }) => (
+            <TextField
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              type="number"
+              value={value || ''}
+              sx={{ width: '100%' }}
+              InputProps={{ style: { fontSize: '0.8125rem' } }}
+              InputLabelProps={{
+                style: { fontSize: '0.875rem' },
+                shrink: value,
+              }}
+              error={!!error}
+              helperText={error ? error.message : null}
+              id=""
+              label="BG/Pay Order Expense"
+              variant="standard"
+              size="small"
+              onBlur={(event) => {
+                (procurementTenderState ?? {}).bgPayOrderExpense = Math.abs(
+                  parseFloat(event.target.value) || 0
+                );
+                setProcurementTenderState(procurementTenderState);
+                onBlur();
+              }}
+              onChange={(event) => {
+                const positiveValue = Math.abs(
+                  parseFloat(event.target.value) || 0
+                );
+                onChange(positiveValue);
+              }}
+            />
+          )}
+        />
+        <Controller
           name="bgExpiryDate"
           control={control}
           render={({
@@ -1169,11 +1221,48 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
                     sx={{ width: '100%', marginTop: 1 }}
                     InputProps={{
                       ...params.InputProps,
-                      style: { fontSize: 13 },
+                      style: { fontSize: '0.8125rem' },
                     }}
                     InputLabelProps={{
                       ...params.InputLabelProps,
-                      style: { fontSize: 14 },
+                      style: { fontSize: '0.875rem' },
+                    }}
+                    variant="standard"
+                    size="small"
+                    error={!!error}
+                    helperText={error ? error.message : null}
+                  />
+                )}
+              />
+            </LocalizationProvider>
+          )}
+        />
+        <Controller
+          name="schedulePurchaseExpiryDate"
+          control={control}
+          render={({
+            field: { onChange, onBlur, value, ref },
+            fieldState: { error },
+          }) => (
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="Schedule Purchase Expiry Date"
+                inputFormat="DD/MM/YYYY"
+                value={value || null}
+                onChange={(newValue) => {
+                  handleSchedulePurchaseExpiryDateChange(newValue, onChange);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    sx={{ width: '100%', marginTop: 1 }}
+                    InputProps={{
+                      ...params.InputProps,
+                      style: { fontSize: '0.8125rem' },
+                    }}
+                    InputLabelProps={{
+                      ...params.InputLabelProps,
+                      style: { fontSize: '0.875rem' },
                     }}
                     variant="standard"
                     size="small"
@@ -1196,9 +1285,9 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
               // eslint-disable-next-line react/jsx-props-no-spreading
               value={value || ''}
               sx={{ width: '100%' }}
-              InputProps={{ style: { fontSize: 13 } }}
+              InputProps={{ style: { fontSize: '0.8125rem' } }}
               InputLabelProps={{
-                style: { fontSize: 14 },
+                style: { fontSize: '0.875rem' },
                 shrink: value,
               }}
               // onBlur={onBlur} // Trigger validation on blur
@@ -1236,9 +1325,9 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
               value={value || ''}
               type="number"
               sx={{ width: '100%' }}
-              InputProps={{ style: { fontSize: 13 } }}
+              InputProps={{ style: { fontSize: '0.8125rem' } }}
               InputLabelProps={{
-                style: { fontSize: 14 },
+                style: { fontSize: '0.875rem' },
                 shrink: value,
               }}
               // onBlur={onBlur} // Trigger validation on blur
@@ -1314,11 +1403,11 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
                       variant="standard"
                       InputLabelProps={{
                         ...params.InputLabelProps,
-                        style: { fontSize: 14 },
+                        style: { fontSize: '0.875rem' },
                       }}
                       InputProps={{
                         ...params.InputProps,
-                        style: { fontSize: 13 },
+                        style: { fontSize: '0.8125rem' },
                       }}
                       sx={{ width: '100%', marginTop: 1 }}
                       inputRef={ref}
@@ -1404,11 +1493,11 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
                       variant="standard"
                       InputLabelProps={{
                         ...params.InputLabelProps,
-                        style: { fontSize: 14 },
+                        style: { fontSize: '0.875rem' },
                       }}
                       InputProps={{
                         ...params.InputProps,
-                        style: { fontSize: 13 },
+                        style: { fontSize: '0.8125rem' },
                       }}
                       sx={{ width: '100%', marginTop: 1 }}
                       inputRef={ref}

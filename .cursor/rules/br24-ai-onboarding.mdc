@@ -1,0 +1,61 @@
+---
+description: BR24 AI onboarding — always read docs/Graphify before coding
+alwaysApply: true
+---
+
+# BR24 — read docs before coding
+
+This repo’s source of truth for AI agents is under `docs/` (+ root `AGENTS.md`), not this rule file.
+
+## Before any non-trivial code change
+
+1. **New session:** read `AGENTS.md` → `docs/ai-work/ACTIVE.md` + `SESSION_CHECKPOINT.md` (+ relevant `history/TASK-*.md`).
+2. Read `docs/ai-context/README.md` (reading order).
+3. Use **Graphify**: `docs/knowledge-graph/nodes.json` + `relationships.json` (+ `business-domain.md`).
+4. Follow `docs/ai-context/ai-development-guidelines.md` — **§1.1 Frontend-only** and **§13 continuity**.
+5. For area detail: `frontend.md` / `backend.md` / `database.md` / `api-catalog.md` as needed.
+
+## Continuity (hard rule)
+
+- Chat is **not** SoT. Persist significant work in `docs/ai-work/`.
+- Long chat / many files / context risk → update ACTIVE + SESSION_CHECKPOINT (+ history) before continuing.
+- Do not ask the user to re-explain prior AI work if the repo already has it.
+- Before changing existing features: distinguish EXISTING vs INTENTIONALLY CHANGED behavior (§13.4–§13.5).
+
+## Frontend-only (hard rule)
+
+- This workspace codes **Frontend** only by default.
+- Backend + Database docs are for **understanding**. Another teammate owns BE/DB implementation.
+- **Never** edit Backend (`BR24_Backend`) or Database (schema/SPs/entities) unless the user **explicitly re-validates** that work.
+- If a FE page needs new/changed API or DB: **ask the user first** (what BE/DB would need). Agree or take their alternate. Then build FE only against that contract.
+- After FE work: **ask** if they want copy-paste **prompts + requirements** for Backend and/or DB. If yes, provide exact prompts any AI/teammate can feed.
+
+## Plan vs direct
+
+- Single file, clear scope → direct execution.
+- Multi-file, new feature/page, API/contract, or multiple approaches → plan first.
+
+## Standing rule — inconsistencies
+
+If the same kind of thing exists in more than one way in the codebase, **do not assume** which is standard. List the variants (with paths), ask the human which to follow for **new** code, then proceed. Do not mass-refactor legacy files unless asked. Never copy known typos/bugs as conventions.
+
+## Hard rules
+
+- Use **exact** names from the codebase (controllers, features, entities, pages, slices). Do not invent.
+- If unclear, mark **unknown** — do not guess schema, routes, or SP names.
+- Never copy secrets from `appsettings.json` into docs or commits.
+- After structural changes, update affected docs and re-run `node docs/scripts/extract-knowledge.mjs` when Graphify needs refresh (see `docs/ai-context/knowledge-maintenance.md`).
+
+## Repos
+
+- Frontend: this workspace (`react-vite-ts`) — **edit here**
+- Backend: `E:\WORKING_FOLDER\BR24\Backend\BR24_Backend` (`BR24.sln`) — context / prompts only unless re-validated
+
+## Cursor fn- commands (Frontend shortcuts)
+
+| Trigger | Purpose |
+|---------|---------|
+| `fn-newpage {FeatureName}` | Scaffold page + `App.tsx` route (default PrivateRoute) |
+| `fn-review` or `fn-review {FeatureName}` | Run Frontend change checklist |
+
+Defined in `.cursor/commands/fn-newpage.md` and `.cursor/commands/fn-review.md` (also listed under Cursor `/` commands).

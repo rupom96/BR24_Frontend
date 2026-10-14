@@ -754,7 +754,7 @@ const CommissionManagement = ({
     popper: {
       maxWidth: 'fit-content',
       // minWidth: 'inherit',
-      fontSize: '12px',
+      fontSize: '0.75rem',
     },
   };
 
@@ -909,7 +909,7 @@ const CommissionManagement = ({
                 type="text"
                 sx={{ width: '100%' }}
                 InputProps={{
-                  style: { fontSize: 13 },
+                  style: { fontSize: '0.8125rem' },
                   disableUnderline: true,
                   readOnly: true,
                 }}
@@ -940,7 +940,7 @@ const CommissionManagement = ({
                 type="text"
                 sx={{ width: '100%' }}
                 InputProps={{
-                  style: { fontSize: 13 },
+                  style: { fontSize: '0.8125rem' },
                   disableUnderline: true,
                   readOnly: true,
                 }}
@@ -971,7 +971,7 @@ const CommissionManagement = ({
                 type="text"
                 sx={{ width: '100%' }}
                 InputProps={{
-                  style: { fontSize: 13 },
+                  style: { fontSize: '0.8125rem' },
                   disableUnderline: true,
                   readOnly: true,
                 }}
@@ -1001,7 +1001,7 @@ const CommissionManagement = ({
                 type="text"
                 sx={{ width: '100%' }}
                 InputProps={{
-                  style: { fontSize: 13 },
+                  style: { fontSize: '0.8125rem' },
                   disableUnderline: true,
                   readOnly: true,
                 }}
@@ -1031,7 +1031,7 @@ const CommissionManagement = ({
                 type="text"
                 sx={{ width: '100%' }}
                 InputProps={{
-                  style: { fontSize: 13 },
+                  style: { fontSize: '0.8125rem' },
                   disableUnderline: true,
                   readOnly: true,
                 }}
@@ -1061,7 +1061,7 @@ const CommissionManagement = ({
                 type="text"
                 sx={{ width: '100%' }}
                 InputProps={{
-                  style: { fontSize: 13 },
+                  style: { fontSize: '0.8125rem' },
                   disableUnderline: true,
                   readOnly: true,
                 }}
@@ -1091,7 +1091,7 @@ const CommissionManagement = ({
                 type="text"
                 sx={{ width: '100%' }}
                 InputProps={{
-                  style: { fontSize: 13 },
+                  style: { fontSize: '0.8125rem' },
                   disableUnderline: true,
                   readOnly: true,
                 }}
@@ -1121,7 +1121,7 @@ const CommissionManagement = ({
                 type="text"
                 sx={{ width: '100%' }}
                 InputProps={{
-                  style: { fontSize: 13 },
+                  style: { fontSize: '0.8125rem' },
                   disableUnderline: true,
                   readOnly: true,
                 }}
@@ -1151,7 +1151,7 @@ const CommissionManagement = ({
                 type="text"
                 sx={{ width: '100%' }}
                 InputProps={{
-                  style: { fontSize: 13 },
+                  style: { fontSize: '0.8125rem' },
                   disableUnderline: true,
                   readOnly: true,
                 }}
@@ -1181,7 +1181,7 @@ const CommissionManagement = ({
                 type="text"
                 sx={{ width: '100%' }}
                 InputProps={{
-                  style: { fontSize: 13 },
+                  style: { fontSize: '0.8125rem' },
                   disableUnderline: true,
                   readOnly: true,
                 }}
@@ -1211,7 +1211,7 @@ const CommissionManagement = ({
                 type="text"
                 sx={{ width: '100%' }}
                 InputProps={{
-                  style: { fontSize: 13 },
+                  style: { fontSize: '0.8125rem' },
                   disableUnderline: true,
                   readOnly: true,
                 }}
@@ -1242,7 +1242,7 @@ const CommissionManagement = ({
                 type="text"
                 sx={{ width: '100%' }}
                 InputProps={{
-                  style: { fontSize: 13 },
+                  style: { fontSize: '0.8125rem' },
                   disableUnderline: true,
                   readOnly: true,
                 }}
@@ -1272,7 +1272,7 @@ const CommissionManagement = ({
                 type="text"
                 sx={{ width: '100%' }}
                 InputProps={{
-                  style: { fontSize: 13 },
+                  style: { fontSize: '0.8125rem' },
                   disableUnderline: true,
                   readOnly: true,
                 }}
@@ -1302,7 +1302,7 @@ const CommissionManagement = ({
                 type="text"
                 sx={{ width: '100%' }}
                 InputProps={{
-                  style: { fontSize: 13 },
+                  style: { fontSize: '0.8125rem' },
                   disableUnderline: true,
                   readOnly: true,
                   endAdornment: (
@@ -1335,7 +1335,7 @@ const CommissionManagement = ({
                 type="text"
                 sx={{ width: '100%' }}
                 InputProps={{
-                  style: { fontSize: 13 },
+                  style: { fontSize: '0.8125rem' },
                   disableUnderline: true,
                   readOnly: true,
                 }}
@@ -1365,7 +1365,7 @@ const CommissionManagement = ({
                 type="text"
                 sx={{ width: '100%' }}
                 InputProps={{
-                  style: { fontSize: 13 },
+                  style: { fontSize: '0.8125rem' },
                   disableUnderline: true,
                   readOnly: true,
                 }}
@@ -1395,7 +1395,7 @@ const CommissionManagement = ({
                 type="text"
                 sx={{ width: '100%' }}
                 InputProps={{
-                  style: { fontSize: 13 },
+                  style: { fontSize: '0.8125rem' },
                   disableUnderline: true,
                   readOnly: true,
                 }}
@@ -1425,7 +1425,7 @@ const CommissionManagement = ({
                 type="text"
                 sx={{ width: '100%' }}
                 InputProps={{
-                  style: { fontSize: 13 },
+                  style: { fontSize: '0.8125rem' },
                   disableUnderline: true,
                   readOnly: true,
                 }}
@@ -1455,7 +1455,7 @@ const CommissionManagement = ({
                 type="text"
                 sx={{ width: '100%' }}
                 InputProps={{
-                  style: { fontSize: 13 },
+                  style: { fontSize: '0.8125rem' },
                   disableUnderline: true,
                   readOnly: true,
                 }}
@@ -1520,7 +1520,7 @@ const CommissionManagement = ({
       onColumnVisibilityChange: setColumnVisibility,
       muiSkeletonProps: {
         animation: 'pulse',
-        height: 30,
+        height: '1.875rem',
       },
       enableRowSelection: (row) => {
         // if (row.original.lastProcessedDate) {
@@ -1627,7 +1627,7 @@ const CommissionManagement = ({
       muiTableBodyCellProps: {
         sx: {
           // borderRight: '1px solid #e0e0e0', // add a border between columns //eigulla shobi use kora jaay but comment out kora
-          fontSize: '13px',
+          fontSize: '0.8125rem',
           color: '#ea1143',
         },
       },
@@ -1637,7 +1637,7 @@ const CommissionManagement = ({
           // borderLeft: '1px solid #e0e0e0',
           borderTop: '1px solid #e0e0e0',
           // borderBottom: '1px solid #e0e0e0',
-          fontSize: '13px',
+          fontSize: '0.8125rem',
           whiteSpace: 'nowrap',
           backgroundColor: '#ECEFF9',
           color: '#1c1c1c',
@@ -1645,7 +1645,7 @@ const CommissionManagement = ({
         },
       },
 
-      muiTableContainerProps: { sx: { maxHeight: '400px' } },
+      muiTableContainerProps: { sx: { maxHeight: '25rem' } },
       renderToolbarInternalActions: ({ table }) => (
         <>
           {/* built-in buttons (must pass in table prop for them to work!) */}
@@ -1659,7 +1659,7 @@ const CommissionManagement = ({
               type="button"
               data-mdb-ripple="true"
               data-mdb-ripple-color="light"
-              className="inline-block px-[6px] py-1 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
+              className="inline-block px-[0.375rem] py-1 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
               onClick={() => {
                 //   handleExportData(
                 //     buyerSalesRptGridState,
@@ -1983,11 +1983,11 @@ const CommissionManagement = ({
                               sx={{ width: '100%', marginTop: 1 }}
                               InputProps={{
                                 ...params.InputProps,
-                                style: { fontSize: 13 },
+                                style: { fontSize: '0.8125rem' },
                               }}
                               InputLabelProps={{
                                 ...params.InputLabelProps,
-                                style: { fontSize: 14 },
+                                style: { fontSize: '0.875rem' },
                               }}
                               variant="standard"
                               size="small"
@@ -2024,11 +2024,11 @@ const CommissionManagement = ({
                               sx={{ width: '100%', marginTop: 1 }}
                               InputProps={{
                                 ...params.InputProps,
-                                style: { fontSize: 13 },
+                                style: { fontSize: '0.8125rem' },
                               }}
                               InputLabelProps={{
                                 ...params.InputLabelProps,
-                                style: { fontSize: 14 },
+                                style: { fontSize: '0.875rem' },
                               }}
                               variant="standard"
                               size="small"
@@ -2082,11 +2082,11 @@ const CommissionManagement = ({
                             helperText={error ? error.message : null}
                             InputLabelProps={{
                               ...params.InputLabelProps,
-                              style: { fontSize: 14 },
+                              style: { fontSize: '0.875rem' },
                             }}
                             InputProps={{
                               ...params.InputProps,
-                              style: { fontSize: 13 },
+                              style: { fontSize: '0.8125rem' },
                               // endAdornment: (
                               //   <>
                               //     {buyerOptionsAutoCompLoading ? (
@@ -2130,11 +2130,11 @@ const CommissionManagement = ({
                               sx={{ width: '100%', marginTop: 1 }}
                               InputProps={{
                                 ...params.InputProps,
-                                style: { fontSize: 13 },
+                                style: { fontSize: '0.8125rem' },
                               }}
                               InputLabelProps={{
                                 ...params.InputLabelProps,
-                                style: { fontSize: 14 },
+                                style: { fontSize: '0.875rem' },
                               }}
                               variant="standard"
                               size="small"
@@ -2161,7 +2161,7 @@ const CommissionManagement = ({
                           value={value || ''}
                           sx={{ width: '100%' }}
                           InputProps={{
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                             endAdornment: (
                               <div className="flex justify-center items-center">
                                 <span className="ml-1 mr-5">%</span>
@@ -2169,7 +2169,7 @@ const CommissionManagement = ({
                                   type="button"
                                   data-mdb-ripple="true"
                                   data-mdb-ripple-color="light"
-                                  className={`mx-2 my-1 px-1 py-[2px] bg-transparent border-1 border-blue-800 text-blue-800 font-medium text-xs leading-tight rounded shadow-md hover:scale-110 hover:bg-blue-700 hover:shadow-lg hover:text-white focus:bg-blue-700 focus:text-white focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900 active:text-white  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out `}
+                                  className={`mx-2 my-1 px-1 py-[0.125rem] bg-transparent border-1 border-blue-800 text-blue-800 font-medium text-xs leading-tight rounded shadow-md hover:scale-110 hover:bg-blue-700 hover:shadow-lg hover:text-white focus:bg-blue-700 focus:text-white focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900 active:text-white  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out `}
                                   onClick={(e) => {
                                     assignCalculatedCommissionOnEachRow(
                                       'Percentage'
@@ -2185,7 +2185,7 @@ const CommissionManagement = ({
                             ),
                           }}
                           InputLabelProps={{
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                             shrink: !!value,
                           }}
                           // onBlur={onBlur} // Trigger validation on blur
@@ -2224,7 +2224,7 @@ const CommissionManagement = ({
                           value={value || ''}
                           sx={{ width: '100%' }}
                           InputProps={{
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                             endAdornment: (
                               <div className="flex justify-center items-center">
                                 <span className="ml-1 mr-5">%</span>
@@ -2232,7 +2232,7 @@ const CommissionManagement = ({
                                   type="button"
                                   data-mdb-ripple="true"
                                   data-mdb-ripple-color="light"
-                                  className={`mx-2 my-1 px-1 py-[2px] bg-transparent border-1 border-blue-800 text-blue-800 font-medium text-xs leading-tight rounded shadow-md hover:scale-110 hover:bg-blue-700 hover:shadow-lg hover:text-white focus:bg-blue-700 focus:text-white focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900 active:text-white  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out `}
+                                  className={`mx-2 my-1 px-1 py-[0.125rem] bg-transparent border-1 border-blue-800 text-blue-800 font-medium text-xs leading-tight rounded shadow-md hover:scale-110 hover:bg-blue-700 hover:shadow-lg hover:text-white focus:bg-blue-700 focus:text-white focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900 active:text-white  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out `}
                                   onClick={(e) => {
                                     assignCalculatedCommissionOnEachRow(
                                       'Amount'
@@ -2248,7 +2248,7 @@ const CommissionManagement = ({
                             ),
                           }}
                           InputLabelProps={{
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                             shrink: !!value,
                           }}
                           // onBlur={onBlur} // Trigger validation on blur
@@ -2282,9 +2282,9 @@ const CommissionManagement = ({
                       <FormLabel
                         id="radio-group-label"
                         sx={{
-                          fontSize: '13px',
+                          fontSize: '0.8125rem',
                           fontWeight: 'bold',
-                          marginRight: '8px',
+                          marginRight: '0.5rem',
                         }} // Label styling
                       >
                         Preview:
@@ -2303,7 +2303,7 @@ const CommissionManagement = ({
                               control={<Radio />}
                               label="All"
                               sx={{
-                                '.MuiTypography-root': { fontSize: '13px' },
+                                '.MuiTypography-root': { fontSize: '0.8125rem' },
                               }} // Text font size
                             />
                             <FormControlLabel
@@ -2311,7 +2311,7 @@ const CommissionManagement = ({
                               control={<Radio />}
                               label="Performing Customers"
                               sx={{
-                                '.MuiTypography-root': { fontSize: '13px' },
+                                '.MuiTypography-root': { fontSize: '0.8125rem' },
                               }} // Text font size
                             />
                             <FormControlLabel
@@ -2319,7 +2319,7 @@ const CommissionManagement = ({
                               control={<Radio />}
                               label="Non-Performing Customers"
                               sx={{
-                                '.MuiTypography-root': { fontSize: '13px' },
+                                '.MuiTypography-root': { fontSize: '0.8125rem' },
                               }} // Text font size
                             />
                             <FormControlLabel
@@ -2327,7 +2327,7 @@ const CommissionManagement = ({
                               control={<Radio />}
                               label="No Target"
                               sx={{
-                                '.MuiTypography-root': { fontSize: '13px' },
+                                '.MuiTypography-root': { fontSize: '0.8125rem' },
                               }} // Text font size
                             />
                             <FormControlLabel
@@ -2335,7 +2335,7 @@ const CommissionManagement = ({
                               control={<Radio />}
                               label="100% Achievement Customers"
                               sx={{
-                                '.MuiTypography-root': { fontSize: '13px' },
+                                '.MuiTypography-root': { fontSize: '0.8125rem' },
                               }} // Text font size
                             />
                             <div className="flex items-center w-[25%]">
@@ -2344,10 +2344,10 @@ const CommissionManagement = ({
                                 control={<Radio />}
                                 label="Buyer with Numbers of Sales Representative: "
                                 sx={{
-                                  '.MuiTypography-root': { fontSize: '13px' },
+                                  '.MuiTypography-root': { fontSize: '0.8125rem' },
                                 }} // Text font size
                               />
-                              <div className="w-[10%] mt-[10px]">
+                              <div className="w-[10%] mt-[0.625rem]">
                                 <Controller
                                   name="srValue"
                                   control={control}
@@ -2359,7 +2359,7 @@ const CommissionManagement = ({
                                       type="number"
                                       sx={{ width: '100%' }}
                                       InputProps={{
-                                        style: { fontSize: 13 },
+                                        style: { fontSize: '0.8125rem' },
                                       }}
                                       // disabled={
                                       //   getValues('previewOption') !== 'buyerWithSR'
@@ -2406,7 +2406,7 @@ const CommissionManagement = ({
                                 control={<Radio />}
                                 label="Buyer with Grade:"
                                 sx={{
-                                  '.MuiTypography-root': { fontSize: '13px' },
+                                  '.MuiTypography-root': { fontSize: '0.8125rem' },
                                   '& .MuiRadio-root': {
                                     // make sure radio is tight
                                     paddingRight: 2,
@@ -2484,10 +2484,10 @@ const CommissionManagement = ({
                                         }
                                         InputProps={{
                                           ...params.InputProps,
-                                          style: { fontSize: 13 },
+                                          style: { fontSize: '0.8125rem' },
                                         }}
                                         sx={{
-                                          minWidth: 160, //  make it wider
+                                          minWidth: '10rem', //  make it wider
                                           marginTop: 0, //  align with radio baseline
                                         }}
                                         inputRef={ref}
@@ -2503,7 +2503,7 @@ const CommissionManagement = ({
                               control={<Radio />}
                               label="No Representative"
                               sx={{
-                                '.MuiTypography-root': { fontSize: '13px' },
+                                '.MuiTypography-root': { fontSize: '0.8125rem' },
                               }} // Text font size
                             /> */}
                           </RadioGroup>

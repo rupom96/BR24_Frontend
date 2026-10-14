@@ -1,0 +1,16 @@
+---
+description: BR24 FE — page and routing conventions
+globs: src/presentation/pages/**
+alwaysApply: false
+---
+
+# Page rules
+
+- New pages live under `src/presentation/pages/{FeatureName}/` (PascalCase folder).
+- Wire a route in `src/presentation/mainFiles/App.tsx`.
+- Default: wrap with `PrivateRoute` unless the human explicitly wants a public route.
+- Match nearby UI stack: MUI + Tailwind + existing layout (Sidebar shell).
+- Do not delete `* copy*` / `*Backup*` / `*Golden*` siblings unless asked.
+- If some similar pages use PrivateRoute and some do not, **ask** before choosing for a new route.
+- Empty/scaffold pages: no fake ApiSlice unless requested.
+- After adding a page/route, note update for `docs/ai-context/frontend.md` / Graphify when structural.

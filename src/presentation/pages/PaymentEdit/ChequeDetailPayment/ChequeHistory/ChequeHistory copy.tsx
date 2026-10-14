@@ -179,7 +179,7 @@
 //       sx: {
 //         borderRight: '1px solid #e0e0e0',
 //         borderTop: '1px solid #e0e0e0',
-//         fontSize: '13px',
+//         fontSize: '0.8125rem',
 //         whiteSpace: 'nowrap',
 //         backgroundColor: '#ECEFF9',
 //         color: '#1c1c1c',
@@ -189,7 +189,7 @@
 
 //     muiTableBodyCellProps: {
 //       sx: {
-//         fontSize: '13px',
+//         fontSize: '0.8125rem',
 //       },
 //     },
 
@@ -264,7 +264,7 @@
 //           left: '50%',
 //           transform: 'translate(-50%, -50%)',
 //           width: '80vw',
-//           maxWidth: 1100,
+//           maxWidth: '68.75rem',
 //           bgcolor: 'background.paper',
 //           boxShadow: 24,
 //           p: 2,

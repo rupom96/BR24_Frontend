@@ -15,11 +15,13 @@ export interface IProcurementTender {
   tenderNo?: string | null;
   tenderEntryDate?: string | null;
   bgExpiryDate?: string | null;
+  schedulePurchaseExpiryDate?: string | null;
   buyerId?: number | null;
   buyerName?: string | null;
   buyerGroupId?: number | null;
   buyerGroupName?: string | null;
   bgAmount?: number | null;
+  bgPayOrderExpense?: number | null;
   salesPersonId?: number | null;
   salesPersonName?: string | null;
   teamId?: number | null;
@@ -60,8 +62,10 @@ export interface ICreateProcurementTenderCommand {
   tenderNo: string | null;
   tenderEntryDate: string | null;
   bgExpiryDate: string | null;
+  schedulePurchaseExpiryDate?: string | null;
   buyerId: number | null;
   bgAmount: number | null;
+  bgPayOrderExpense?: number | null;
   salesPersonId: number | null;
   remarks: string | null;
   tenderSubmissionDate: string | null;
@@ -76,8 +80,10 @@ export interface IUpdateProcurementTenderCommand {
   tenderNo: string;
   tenderEntryDate: string | null;
   bgExpiryDate: string | null;
+  schedulePurchaseExpiryDate?: string | null;
   buyerId: number | null;
   bgAmount: number | null;
+  bgPayOrderExpense?: number | null;
   salesPersonId: number | null;
   remarks: string | null;
   tenderSubmissionDate: string | null;

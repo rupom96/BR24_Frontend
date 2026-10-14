@@ -31,6 +31,8 @@ import { ISANextEvent } from '../../../domain/interfaces/SANextEventInterface';
 import AttachmentLoader from '../../components/AttachmentLoader';
 import { useGetFirstPageOfChainByFixedTaskTemplateIdQuery } from '../../../infrastructure/api/BiznessEventProcessConigurationApiSlice';
 import { checkArrayContents } from '../../Utils/Util';
+import { Br24EventCardsSkeleton } from '../../components/Br24Loader';
+import ElementPermissionPopover from './ElementPermissionPopover';
 
 const jsondummy = [
   {
@@ -245,6 +247,10 @@ const EventsOfAChain = ({
   // }, []);
 
   const handleClickCard = (item: ISANextEvent) => {
+    if (item.denied) {
+      toast.error('A step of this card has been denied.');
+      return;
+    }
     setClickedCardInfo(item);
     setModalOpen(true);
   };
@@ -436,23 +442,30 @@ const EventsOfAChain = ({
                                 dueIconColorClass = 'text-green-500';
                               }
 
+                              const isDenied = Boolean(item.denied);
+
                               return (
                                 <div
                                   onKeyDown={() => handleClickCard(item)}
                                   key={uuid()}
                                   role="button"
                                   tabIndex={0}
+                                  aria-disabled={isDenied}
                                   onClick={() => {
                                     handleClickCard(item);
                                   }}
-                                  className="w-full p-[15px] mb-[20px] bg-gray-100 border border-zinc-200 rounded-xl transform-all duration-700 hover:scale-105 dark:bg-gray-900 dark:border-zinc-900 dark:hover:text-black  hover:ring-1 hover:ring-slate-300 "
+                                  className={
+                                    isDenied
+                                      ? 'w-full p-[0.9375rem] mb-[1.25rem] bg-gray-100 border border-zinc-200 rounded-xl opacity-50 cursor-not-allowed grayscale dark:bg-gray-900 dark:border-zinc-900'
+                                      : 'w-full p-[0.9375rem] mb-[1.25rem] bg-gray-100 border border-zinc-200 rounded-xl transform-all duration-700 hover:scale-105 dark:bg-gray-900 dark:border-zinc-900 dark:hover:text-black  hover:ring-1 hover:ring-slate-300 '
+                                  }
                                 >
                                   <div className="h-[50%]">
                                     <div className="flex justify-between items-center text-xs text-stone-400 mb-3">
                                       <p>
                                         <i
                                           style={{
-                                            paddingRight: '5px',
+                                            paddingRight: '0.3125rem',
                                           }}
                                           className="fas fa-check-circle text-green-700"
                                         />{' '}
@@ -466,7 +479,7 @@ const EventsOfAChain = ({
                                                 ? 'Report'
                                                 : ''}
                                       </p>
-                                      <p className=" text-[12px] text-gray-600">
+                                      <p className=" text-[0.75rem] text-gray-600">
                                         Ref No.:{' '}
                                         <span className=" text-gray-700 font-bold">
                                           {`${item.firstEventNo}`}
@@ -484,14 +497,14 @@ const EventsOfAChain = ({
                                         <i
                                           className={`fas fa-circle ${dueIconColorClass}`}
                                           style={{
-                                            paddingRight: '5px',
+                                            paddingRight: '0.3125rem',
                                           }}
                                         />{' '}
                                         {dueMessage}
                                       </p>
                                     </div>
                                     <div className="mb-4">
-                                      <p className=" dark:text-white text-[18px]">
+                                      <p className=" dark:text-white text-[1.125rem]">
                                         Complete the{' '}
                                         {checkArrayContents(
                                           item.extendedBiznessEventName,
@@ -504,37 +517,57 @@ const EventsOfAChain = ({
                                         : ''} */}
                                         !
                                       </p>
-                                      <p className=" text-[12px] text-gray-600">
+                                      <p className=" text-[0.75rem] text-gray-600">
                                         Event No.:{' '}
                                         <span className=" text-blue-700 font-bold">
                                           {`${item.eventNo}(${item.eventLocationName})`}
                                         </span>
                                       </p>
-                                      {/* <p className=" text-[12px] text-gray-600">
+                                      {/* <p className=" text-[0.75rem] text-gray-600">
                                       Ref No.:{' '}
                                       <span className=" text-gray-700 font-bold">
                                         {`${item.firstEventNo}`}
                                       </span>
                                     </p> */}
                                     </div>
-                                    <div className="">
-                                      <span className="bg-slate-500 border border-slate-700 mr-2 text-white text-xs px-1 rounded-[5px] w-fit">
+                                    <div className="flex items-center flex-wrap gap-y-1">
+                                      <span className="bg-slate-500 border border-slate-700 mr-2 text-white text-xs px-1 rounded-[0.3125rem] w-fit">
                                         {item.fixedTaskTemplateName}
                                       </span>
-                                      <span className="bg-slate-500 border border-slate-700 text-white text-xs px-1 rounded-[5px] w-fit">
+                                      <span className="bg-slate-500 border border-slate-700 text-white text-xs px-1 rounded-[0.3125rem] w-fit">
                                         Sequence: {item.sequence}
                                       </span>
+                                      {item.eventNo &&
+                                      item.controllerPathType === 'component' &&
+                                      item.controllerPath ===
+                                        'TenderRequisition' ? (
+                                        <span
+                                          onClick={(e) => e.stopPropagation()}
+                                          onKeyDown={(e) => e.stopPropagation()}
+                                          role="presentation"
+                                        >
+                                          <ElementPermissionPopover
+                                            eventNo={item.eventNo}
+                                            firstEventNo={item.firstEventNo}
+                                            sequence={item.sequence}
+                                            biznessEventProcessConfigurationId={
+                                              item.biznessEventProcessConfigurationId
+                                            }
+                                            companyId={userInfo.companyId}
+                                          />
+                                        </span>
+                                      ) : null}
                                     </div>
                                     <div className="md:flex block items-center justify-between text-xs text-gray-500 mt-4">
                                       <p className="">
-                                        <span className="w-[5px]">
+                                        <span className="w-[0.3125rem]">
                                           Assigned:
                                         </span>{' '}
                                         <i className="fas fa-calendar-alt" />{' '}
                                         {item.assignedDate}
                                       </p>
                                       <div className="">
-                                        <div className="w-[20px] inline">
+                                        <div className="w-[1.25rem] inline">
                                           Due:
                                         </div>{' '}
                                         <i className="fas fa-calendar-alt" />{' '}
@@ -576,7 +609,7 @@ const EventsOfAChain = ({
                         {/* <MaterialReactTable table={tableInitializer} /> */}
                       </div>
                     ) : (
-                      <div>LOADING........</div>
+                      <Br24EventCardsSkeleton label="Loading events…" />
                     )}
                   </div>
                 </form>

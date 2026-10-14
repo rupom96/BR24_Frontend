@@ -13,6 +13,21 @@
     }
 }
 
+/*
+ * material-react-table fullscreen paper uses position:fixed + 100dvh and
+ * theme.zIndex.modal. Hard-guarantee it sits above shell chrome even if a
+ * page overrides paper style (navbar 10000 / mobile sidebar 1e7).
+ */
+.MuiPaper-root[style*="100dvh"] {
+    z-index: 10000050 !important;
+}
+
+/* Fullscreen MRT: kill page scrollbars (extra X scroll from 100dvw). */
+html:has(.MuiPaper-root[style*="100dvh"]),
+body:has(.MuiPaper-root[style*="100dvh"]) {
+    overflow: hidden !important;
+}
+
 .e-dlg-center-center,
 .e-quick-popup-wrapper.e-device {
     z-index: 1000000 !important;
@@ -21,6 +36,7 @@
 /* Scrollbar custom css for chrome/edge */
 ::-webkit-scrollbar {
     width: 6px;
+    height: 6px; /* horizontal (MRT etc.) — without this, X-bars stay ~15px thick */
 }
 
 ::-webkit-scrollbar-thumb {
@@ -36,6 +52,106 @@
 .scroller {
     scrollbar-color: rgb(216, 216, 216) rgba(255, 255, 255, 0);
     scrollbar-width: thin;
+}
+
+/* Sidebar menu — smooth scroll + ultra-slim accent scrollbar */
+.br24-shell-sidebar.scroller {
+    scroll-behavior: smooth;
+    overscroll-behavior: contain;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--br24-accent, #94a3b8) 18%, #d6dbe3)
+        transparent;
+}
+
+.br24-shell-sidebar.scroller::-webkit-scrollbar {
+    width: 3px;
+}
+
+.br24-shell-sidebar.scroller::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 0.65rem 0;
+}
+
+.br24-shell-sidebar.scroller::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--br24-accent, #cbd5e1) 12%, rgba(148, 163, 184, 0.28));
+    border-radius: 999px;
+}
+
+.br24-shell-sidebar.scroller:hover::-webkit-scrollbar-thumb,
+.br24-shell-sidebar.scroller:focus-within::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--br24-accent, #94a3b8) 28%, #e2e8f0),
+        color-mix(in srgb, var(--br24-accent, #94a3b8) 16%, #f1f5f9)
+    );
+}
+
+.br24-shell-sidebar.scroller::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--br24-accent, #94a3b8) 35%, #cbd5e1);
+}
+
+.br24-shell-sidebar.scroller::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+.dark .br24-shell-sidebar.scroller {
+    scrollbar-color: color-mix(in srgb, var(--br24-accent, #64748b) 22%, #64748b)
+        transparent;
+}
+
+.dark .br24-shell-sidebar.scroller::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--br24-accent, #94a3b8) 14%, rgba(148, 163, 184, 0.22));
+}
+
+.dark .br24-shell-sidebar.scroller:hover::-webkit-scrollbar-thumb,
+.dark .br24-shell-sidebar.scroller:focus-within::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--br24-accent, #94a3b8) 30%, #64748b),
+        color-mix(in srgb, var(--br24-accent, #94a3b8) 18%, #475569)
+    );
+}
+
+/* material-react-table — slim sleek scrollbars */
+.MuiTableContainer-root {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--br24-accent, #64748b) 35%, #cbd5e1)
+        transparent;
+}
+
+.MuiTableContainer-root::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+.MuiTableContainer-root::-webkit-scrollbar-thumb {
+    background-color: color-mix(
+        in srgb,
+        var(--br24-accent, #94a3b8) 28%,
+        #c4c9d1
+    );
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    background-clip: padding-box;
+}
+
+.MuiTableContainer-root::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(
+        in srgb,
+        var(--br24-accent, #64748b) 45%,
+        #94a3b8
+    );
+}
+
+.MuiTableContainer-root::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.MuiTableContainer-root::-webkit-scrollbar-corner {
+    background: transparent;
 }
 
 
@@ -400,7 +516,7 @@ select:focus {
 }
 
 .MuiTableCell-body>.MuiFormControl-root>.MuiInputBase-formControl {
-    font-size: 13px;
+    font-size: 0.8125rem; /* was 13px → ×0.8 via rem at 16px base */
 }
 
 .MuiPickersPopper-root {

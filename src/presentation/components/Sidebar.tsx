@@ -18,6 +18,11 @@ import {
   falsifyActiveMenu,
 } from '../../application/Redux/slices/ActiveMenuSlice.js';
 import { useGetSAChainMenuByCompanyLocationUserIdQuery } from '../../infrastructure/api/SAChainMenuApiSlice.js';
+import { Br24MenuSkeleton } from './Br24Loader';
+import SidebarBrandParticles from './SidebarBrandParticles';
+import ActiveMenuShine from './ActiveMenuShine';
+import { getMenuIcon } from '../Utils/menuIcons';
+import { onAccentColor } from '../Utils/colorUtils';
 
 const Sidebar = () => {
   // const { activeMenu, setActiveMenu, screenSize, currentColor } =
@@ -312,21 +317,7 @@ const Sidebar = () => {
         {
           title: 'Bizness Roots',
           links: [
-            // {
-            //   name: 'BizEvent Process Config',
-            //   path: 'bizEventProcConfig',
-            //   icon: <FiShoppingBag />,
-            // },
-            // {
-            //   name: 'FreshenedUp Page',
-            //   path: 'structuredPage',
-            //   icon: <FiShoppingBag />,
-            // },
-            // {
-            //   name: 'Laboratory',
-            //   path: 'laboratory',
-            //   icon: <FiShoppingBag />,
-            // },
+            
             {
               name: 'Cost Sheet Detail',
               path: 'costSheetDetail',
@@ -352,6 +343,11 @@ const Sidebar = () => {
               path: 'tenderWonStatic',
               icon: <FiShoppingBag />,
             },
+            {
+              name: 'Tender Requisition',
+              path: 'tenderRequisition',
+              icon: <FiShoppingBag />,
+            },
 
             {
               name: 'Purchase Comparative',
@@ -363,11 +359,7 @@ const Sidebar = () => {
               path: 'chainConfiguration',
               icon: <FiShoppingBag />,
             },
-            // {
-            //   name: 'Chain Configuration Test',
-            //   path: 'chainConfigurationTest',
-            //   icon: <FiShoppingBag />,
-            // },
+           
             {
               name: 'Team and Target',
               path: 'teamAndTarget',
@@ -404,13 +396,8 @@ const Sidebar = () => {
               icon: <FiShoppingBag />,
             },
 
-            // {
-            //   name: 'React Flow Exp',
-            //   path: 'reactFlowExp',
-            //   icon: <FiShoppingBag />,
-            // },
             {
-              name: 'Availiable Chain Status',
+              name: 'Available Chain Status',
               path: 'reactFlowExp2',
               icon: <FiShoppingBag />,
             },
@@ -422,26 +409,21 @@ const Sidebar = () => {
             },
 
             {
+              name: 'Tender Expense For SP',
+              path: 'tenderExpenseForSalesPerson',
+              icon: <FiShoppingBag />,
+            },
+            {
+              name: 'Tender Approval TopSheet Rpt',
+              path: 'tenderApprovalTopSheetRpt',
+              icon: <FiShoppingBag />,
+            },
+            {
               name: 'Current Stock View',
               path: 'currentStockPreview',
               icon: <FiShoppingBag />,
             },
-
-            // {
-            //   name: 'Dynamic Report',
-            //   path: 'DynamicReport',
-            //   icon: <FiShoppingBag />,
-            // },
-            // {
-            //   name: 'Tender Requisition',
-            //   path: 'tenderRequisition',
-            //   icon: <FiShoppingBag />,
-            // },
-            // {
-            //   name: 'Transaction Event Voucher',
-            //   path: 'transactionalEventVoucher',
-            //   icon: <FiShoppingBag />,
-            // },
+           
           ],
         },
 
@@ -554,75 +536,93 @@ const Sidebar = () => {
   ]);
 
   const activeMenu = useAppSelector((state) => state.activeMenu.active);
+  const sidebarMode = useAppSelector((state) => state.activeMenu.mode);
   const screenSize = useAppSelector((state) => state.screenSize.size);
   const currentColor = useAppSelector((state) => state.currentColor.color);
+  const currentMode = useAppSelector((state) => state.currentMode.mode);
   const dispatch = useAppDispatch();
 
   const handleCloseSidebar = () => {
     if (activeMenu && screenSize && screenSize <= 900) {
       dispatch(falsifyActiveMenu());
     }
+    // Rail expand was hover-only; blur so click-focus can't pin it open
+    if (sidebarMode === 'rail') {
+      const el = document.activeElement;
+      if (el instanceof HTMLElement) el.blur();
+    }
   };
 
   const activeLink =
-    'flex items-center gap-5 pl-4 pt-3 pb-2.5 rounded-lg text-white text-md m-2';
+    'br24-nav-link br24-nav-link--active flex items-center gap-3 pl-3 pr-3 pt-2 pb-2 rounded-xl text-sm m-1.5 shadow-md';
 
   const normalLink =
-    'flex items-center gap-5 pl-4 pt-3 pb-2.5 rounded-lg text-md text-gray-700 transform-all duration-300 dark:text-gray-200 dark:hover:text-black  dark:hover:transform-all duration-300 hover:transform-all duration-300  hover:scale-105 hover:bg-light-gray m-2';
+    'br24-nav-link flex items-center gap-3 pl-3 pr-3 pt-2 pb-2 rounded-xl text-sm text-slate-700 dark:text-slate-200 m-1.5';
 
   const subactiveLink =
-    'flex items-center gap-5 pl-9 pt-2 pb-2.5 rounded-lg text-white text-md m-2';
+    'br24-nav-link br24-nav-link--active flex items-center gap-3 pl-8 pr-3 pt-2 pb-2 rounded-xl text-sm m-1.5 shadow-md';
 
   const subnormalLink =
-    'flex items-center gap-5 pl-9 pt-3 pb-2.5 rounded-lg text-md text-gray-700 transform-all duration-300 dark:text-gray-200 dark:hover:text-black dark:hover:transform-all duration-300 hover:transform-all duration-300  hover:scale-105 hover:bg-light-gray m-2';
+    'br24-nav-link flex items-center gap-3 pl-8 pr-3 pt-2 pb-2 rounded-xl text-sm text-slate-700 dark:text-slate-200 m-1.5';
 
   return (
-    <div className="ml-3 scroller h-screen md:overflow-hidden overflow-auto md:hover:overflow-auto pb-10">
-      {activeMenu && (
-        <>
-          <div className="flex justify-between items-center">
-            {/* Company name & logo */}
-            <Link
-              to="/"
-              className="items-center gap-3 ml-3 mt-4 flex text-xl font-extrabold tracking-tight dark:text-white text-slate-900"
-              onClick={handleCloseSidebar}
+    <>
+      <div className="br24-sidebar-brand br24-anim-fade-up flex items-center justify-between overflow-hidden px-1">
+        <SidebarBrandParticles
+          accent={currentColor}
+          isDark={currentMode === 'Dark'}
+        />
+        <Link
+          to="/"
+          className="br24-sidebar-brand-link relative z-[1] ml-1.5 mt-3 flex items-center gap-2.5 text-xl font-extrabold tracking-tight text-slate-900 dark:text-white"
+          onClick={handleCloseSidebar}
+        >
+          <div className="flex items-center gap-2.5 transition-transform duration-300 hover:scale-[1.02]">
+            <span
+              className="br24-sidebar-brand-mark flex h-8 w-8 shrink-0 items-center justify-center rounded-lg shadow-lg"
+              style={{
+                backgroundColor: currentColor,
+                color: onAccentColor(currentColor),
+              }}
             >
-              <div className=" hover:animate-pulse flex items-center gap-5">
-                <BiAnalyse /> <span>Bizness Roots 24</span>
-              </div>
-            </Link>
-
-            {/* Close button Dashboard */}
-            <Tooltip title="Menu" placement="top-start" arrow>
-              <button
-                type="button"
-                aria-label="Menu"
-                onClick={() =>
-                  // setActiveMenu((prevActiveMenu) => !prevActiveMenu)
-                  dispatch(toggleActiveMenu())
-                }
-                className="text-xl rounded-full p-3 hover:bg-light-gray mt-4 block md:hidden"
-              >
-                <MdOutlineCancel />
-              </button>
-            </Tooltip>
+              <BiAnalyse className="text-sm" />
+            </span>
+            <span className="br24-sidebar-brand-text text-sm tracking-tight">
+              Bizness Roots 24
+            </span>
           </div>
+        </Link>
 
-          {/* menus of Dashboard */}
-          {SAChainMenuData && !SAChainMenuIsFetching && !SAChainMenuLoading ? (
-            <div className="mt-10">
-              {allLinks.map((item) => (
+        <Tooltip title="Menu" placement="top-start" arrow>
+          <button
+            type="button"
+            aria-label="Menu"
+            onClick={() => dispatch(toggleActiveMenu())}
+            className="relative z-[1] mt-3 block rounded-lg p-2 text-lg transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-800 md:hidden"
+          >
+            <MdOutlineCancel />
+          </button>
+        </Tooltip>
+      </div>
+
+      <div className="br24-shell-sidebar scroller overflow-y-auto overflow-x-hidden pb-10">
+        {SAChainMenuData && !SAChainMenuIsFetching && !SAChainMenuLoading ? (
+          <div className="br24-anim-fade-up-delay mt-4">
+            {allLinks.map((item) => {
+              if (!item?.title || !item?.links?.length) return null;
+              return (
                 <div key={item.title}>
-                  <p className="text-gray-400 dark:text-gray-400 m-3 mt-4 uppercase">
+                  <p className="br24-sidebar-section-title m-2 mt-3 text-[0.625rem] font-semibold uppercase tracking-[0.18em] text-slate-400">
                     {item.title}
                   </p>
 
-                  {item?.links?.map((link) => (
+                  {item.links.map((link) => (
                     <div key={link.name}>
                       {!link.sublinks && (
                         <NavLink
                           to={`/${link.path}`}
                           onClick={handleCloseSidebar}
+                          title={link.name}
                           style={({ isActive }) => ({
                             backgroundColor: isActive ? currentColor : '',
                           })}
@@ -630,8 +630,17 @@ const Sidebar = () => {
                             isActive ? activeLink : normalLink
                           }
                         >
-                          {link.icon}
-                          <span className="capitalize">{link.name}</span>
+                          {({ isActive }) => (
+                            <>
+                              {isActive ? <ActiveMenuShine /> : null}
+                              <span className="br24-menu-icon" aria-hidden>
+                                {getMenuIcon(link.name, link.path)}
+                              </span>
+                              <span className="br24-menu-label capitalize">
+                                {link.name}
+                              </span>
+                            </>
+                          )}
                         </NavLink>
                       )}
 
@@ -640,15 +649,20 @@ const Sidebar = () => {
                           <div className="accordion" id="menuAccordion">
                             <div className="accordion-item">
                               <button
-                                className="accordion-button menu-accordion-button collapsed relative flex items-center w-[94%] gap-5 px-4 pt-3 pb-2.5 rounded-lg  text-md  transform-all duration-300 hover:scale-105 dark:text-gray-200 dark:hover:text-black   hover:bg-light-gray m-2 text-base text-gray-700 text-left"
+                                className="menu-accordion-button accordion-button collapsed relative m-2 flex w-[94%] items-center gap-3 rounded-xl px-3 pb-2 pt-2 text-left text-sm text-slate-700 transition-all duration-300 dark:text-gray-200"
                                 type="button"
                                 data-bs-toggle="collapse"
                                 data-bs-target={`#${link.name}`}
                                 aria-expanded="false"
                                 aria-controls={link.name}
+                                title={link.name}
                               >
-                                {link.icon}
-                                <span className="capitalize">{link.name}</span>
+                                <span className="br24-menu-icon" aria-hidden>
+                                  {getMenuIcon(link.name, link.path)}
+                                </span>
+                                <span className="br24-menu-label capitalize">
+                                  {link.name}
+                                </span>
                               </button>
 
                               <div
@@ -658,82 +672,59 @@ const Sidebar = () => {
                                 data-bs-parent="#menuAccordion"
                               >
                                 <div className="accordion-body ">
-                                  {link.sublinks &&
-                                    link.sublinks.map((sublink) => (
-                                      <NavLink
-                                        to={`/${sublink.path}`}
-                                        key={sublink.name}
-                                        onClick={handleCloseSidebar}
-                                        style={({ isActive }) => ({
-                                          backgroundColor: isActive
-                                            ? currentColor
-                                            : '',
-                                        })}
-                                        className={({ isActive }) =>
-                                          isActive
-                                            ? subactiveLink
-                                            : subnormalLink
-                                        }
-                                      >
-                                        {sublink.icon}
-                                        <span className="capitalize">
-                                          {sublink.name}
-                                        </span>
-                                      </NavLink>
-                                    ))}
+                                  {link.sublinks.map((sublink) => (
+                                    <NavLink
+                                      to={`/${sublink.path}`}
+                                      key={sublink.name}
+                                      onClick={handleCloseSidebar}
+                                      title={sublink.name}
+                                      style={({ isActive }) => ({
+                                        backgroundColor: isActive
+                                          ? currentColor
+                                          : '',
+                                      })}
+                                      className={({ isActive }) =>
+                                        isActive
+                                          ? subactiveLink
+                                          : subnormalLink
+                                      }
+                                    >
+                                      {({ isActive }) => (
+                                        <>
+                                          {isActive ? <ActiveMenuShine /> : null}
+                                          <span
+                                            className="br24-menu-icon"
+                                            aria-hidden
+                                          >
+                                            {getMenuIcon(
+                                              sublink.name,
+                                              sublink.path
+                                            )}
+                                          </span>
+                                          <span className="br24-menu-label capitalize">
+                                            {sublink.name}
+                                          </span>
+                                        </>
+                                      )}
+                                    </NavLink>
+                                  ))}
                                 </div>
                               </div>
                             </div>
                           </div>
-
-                          {/* <NavLink
-                                              to={`/${link.name}`}
-                                              key={link.name}
-                                              onClick={handleCloseSidebar}
-                                              style={({ isActive }) => ({
-                                                  backgroundColor: isActive ? currentColor : ''
-                                              })}
-                                              className={({ isActive }) => isActive ? activeLink : normalLink}
-                                          >
-                                              {link.icon}
-                                              <span className='capitalize'>
-                                                  {link.name}
-                                              </span>
-                                          </NavLink>
-
-                                          {link.sublinks && link.sublinks.map((sublink) => (
-                                              <NavLink
-                                                  to={`/${sublink.name}`}
-                                                  key={sublink.name}
-                                                  onClick={handleCloseSidebar}
-                                                  style={({ isActive }) => ({
-                                                      backgroundColor: isActive ? currentColor : ''
-                                                  })}
-                                                  className={({ isActive }) => isActive ? subactiveLink : subnormalLink}
-                                              >
-                                                  {sublink.icon}
-                                                  <span className='capitalize'>
-                                                      {sublink.name}
-                                                  </span>
-                                              </NavLink>
-                                          ))} */}
                         </>
                       )}
                     </div>
                   ))}
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div>
-              <p className="text-gray-400 dark:text-gray-400 m-3 mt-4 uppercase">
-                LOADING...
-              </p>
-            </div>
-          )}
-        </>
-      )}
-    </div>
+              );
+            })}
+          </div>
+        ) : (
+          <Br24MenuSkeleton />
+        )}
+      </div>
+    </>
   );
 };
 

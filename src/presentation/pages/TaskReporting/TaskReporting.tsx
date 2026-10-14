@@ -181,6 +181,8 @@ const TaskReporting = ({
   const [progressSliderVal, setProgressSliderVal] = useState<string | number>(
     0
   );
+  /** Progress from history at page load — Deny always sends this, not the live slider */
+  const initialProgressRef = useRef(0);
   const [loaderSpinner, setLoaderSpinner] = useState(true);
   const {
     data: jsonForTaskReporting, // jsondummy
@@ -371,7 +373,11 @@ const TaskReporting = ({
       // loader bondho kor
       setLoaderSpinner(false);
 
-      if (emailInfoState?.progressPReported === 100) {
+      // Deny never emails next-event users (even if onload progress was 100)
+      if (
+        !emailInfoState?.denied &&
+        emailInfoState?.progressPReported === 100
+      ) {
         triggerSendEmailToNextEventUser({
           companyId: emailInfoState?.companyId || 0,
           fixedTaskTemplateId: emailInfoState?.fixedTaskTemplateId || 0,
@@ -497,6 +503,7 @@ const TaskReporting = ({
     const lastReportsProgress = jsonForTaskReporting?.length
       ? jsonForTaskReporting[jsonForTaskReporting.length - 1].progressPReported
       : 0;
+    initialProgressRef.current = lastReportsProgress;
     setProgressSliderVal(lastReportsProgress); // prothomei slider er default value set kore nilam
     if (jsonForTaskReporting?.length) {
       for (let i = 0; i < jsonForTaskReporting.length; i++) {
@@ -652,7 +659,10 @@ const TaskReporting = ({
     }
   };
 
-  const processDataToSave = (taskEndTimePassed: dayjs.Dayjs) => {
+  const processDataToSave = (
+    taskEndTimePassed: dayjs.Dayjs,
+    options?: { denied?: boolean; progressPReported?: number }
+  ) => {
     const tempTaskDate = dayjs(taskDate).format('YYYY-MM-DD');
     const tempTaskStartTime = dayjs(taskStartTime).format('HH:mm');
     const tempTaskEndTime = dayjs(taskEndTimePassed).format('HH:mm');
@@ -703,13 +713,25 @@ const TaskReporting = ({
       }
     }
 
+    const formNote = getValues().note ? getValues().note : '';
+    // Deny: append " - DENIED" if note exists, else just "DENIED"
+    const noteForSave =
+      options?.denied === true
+        ? formNote
+          ? `${formNote} - DENIED`
+          : 'DENIED'
+        : formNote;
+
     const objToSave: ICreateBiznessEventPCTrackCommand = {
       eventNo: clickedCardInfo.eventNo,
       performedBy: userInfo.securityUserId,
       startDate: taskStartDate,
       endDate: taskEndDate,
-      note: getValues().note ? getValues().note : '',
-      progressPReported: progressSliderVal as number,
+      note: noteForSave,
+      progressPReported:
+        options?.progressPReported !== undefined
+          ? options.progressPReported
+          : (progressSliderVal as number),
       originalSequence: clickedCardInfo.sequence,
       nextSequence: clickedCardInfo.sequence + 1,
       complete: false, // equals to 100 hole true else false
@@ -717,6 +739,8 @@ const TaskReporting = ({
         clickedCardInfo.biznessEventProcessConfigurationId,
       firstEventNo: clickedCardInfo.firstEventNo,
       locationId: clickedCardInfo.eventLocationId,
+      // Save: omit / leave null; Deny: true
+      denied: options?.denied === true ? true : null,
     };
 
     // const processedData: IBiznessEventPCTrackCommandsVM = {
@@ -764,6 +788,7 @@ const TaskReporting = ({
             companyId: userInfo?.companyId,
             progressPReported:
               objForSending.createPCTrackCommand.progressPReported,
+            denied: false,
           };
 
           setEmailInfoState(emailInfo);
@@ -790,6 +815,7 @@ const TaskReporting = ({
         firstEventNo: objForSending.createPCTrackCommand.firstEventNo,
         companyId: userInfo?.companyId,
         progressPReported: objForSending.createPCTrackCommand.progressPReported,
+        denied: false,
       };
 
       setEmailInfoState(emailInfo);
@@ -799,6 +825,61 @@ const TaskReporting = ({
       console.log(emailInfoState);
       // ekhane ajax call fobe for sending....
     }
+  };
+
+  const submitDenyWithEndTime = (endTimeForSave: dayjs.Dayjs) => {
+    const objForSending = processDataToSave(endTimeForSave, {
+      denied: true,
+      progressPReported: initialProgressRef.current,
+    });
+
+    const emailInfo = {
+      fixedTaskTemplateId: clickedCardInfo?.fixedTaskTemplateId,
+      firstEventNo: objForSending.createPCTrackCommand.firstEventNo,
+      companyId: userInfo?.companyId,
+      progressPReported: objForSending.createPCTrackCommand.progressPReported,
+      denied: true,
+    };
+
+    setEmailInfoState(emailInfo);
+    processBiznessEventPCTrackForTRSave(objForSending);
+  };
+
+  const denyTaskProgress = () => {
+    Swal.fire({
+      title: 'Deny this task report?',
+      text: 'This will save a denied entry. Progress will stay at the value from when you opened this page.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Deny',
+      cancelButtonText: 'Cancel',
+      allowOutsideClick: true,
+    }).then((confirmResult) => {
+      if (!confirmResult.isConfirmed) {
+        return;
+      }
+
+      if (!taskEndTime) {
+        Swal.fire({
+          title: `End Time field is empty!`,
+          text: 'Do you want to set "End Time" automatically with the latest time?',
+          showDenyButton: true,
+          allowOutsideClick: true,
+          icon: 'question',
+          showCancelButton: false,
+          confirmButtonText: 'Yes!',
+          denyButtonText: `No, I will set it manually!`,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            const timeNow = dayjs();
+            setTaskEndTime(timeNow);
+            submitDenyWithEndTime(timeNow);
+          }
+        });
+      } else {
+        submitDenyWithEndTime(taskEndTime);
+      }
+    });
   };
 
   // -----------[MRT Table]--------------
@@ -854,8 +935,8 @@ const TaskReporting = ({
           };
           return (
             <div className="w-full">
-              <div className="flex justify-center -mb-[21px]">
-                <span className="text-sm text-[13px] text-white dark:text-white">
+              <div className="flex justify-center -mb-[1.3125rem]">
+                <span className="text-sm text-[0.8125rem] text-white dark:text-white">
                   {renderedCellValue} %
                 </span>
               </div>
@@ -976,7 +1057,7 @@ const TaskReporting = ({
               type="button"
               data-mdb-ripple="true"
               data-mdb-ripple-color="light"
-              className="inline-block px-[6px] py-1 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
+              className="inline-block px-[0.375rem] py-1 bg-[#757575] text-white font-medium text-xs leading-tight rounded-full cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:scale-110 focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-900  active:-translate-y-1 active:shadow-lg transform-all duration-150 ease-in-out"
               onClick={handleExportData}
             >
               <i className="fas fa-file-excel" />
@@ -1012,7 +1093,7 @@ const TaskReporting = ({
           // borderLeft: '1px solid #e0e0e0',
           // borderTop: '1px solid #e0e0e0',
           // borderBottom: '1px solid #e0e0e0',
-          fontSize: '13px',
+          fontSize: '0.8125rem',
         },
       },
       muiTableHeadCellProps: {
@@ -1021,12 +1102,12 @@ const TaskReporting = ({
           // borderLeft: '1px solid #e0e0e0',
           borderTop: '1px solid #e0e0e0',
           // borderBottom: '1px solid #e0e0e0',
-          fontSize: '13px',
+          fontSize: '0.8125rem',
           whiteSpace: 'nowrap',
         },
       },
 
-      muiTableContainerProps: { sx: { maxHeight: '380px' } },
+      muiTableContainerProps: { sx: { maxHeight: '23.75rem' } },
       // onSortingChange: setSorting,
       // state: { isLoading, sorting },
       // rowVirtualizerInstanceRef, // optional
@@ -1040,7 +1121,7 @@ const TaskReporting = ({
         <div className="m-0 p-0 flex justify-center">
           <div className="block m-0 p-0 w-screen ">
             {/* Main Card */}
-            <div className="block m-0 p-0 rounded-lg shadow-lg pb-5 min-h-[1000px] bg-gray-100 dark:bg-secondary-dark-bg text-center">
+            <div className="block m-0 p-0 rounded-lg shadow-lg pb-5 min-h-[62.5rem] bg-gray-100 dark:bg-secondary-dark-bg text-center">
               {/* Main Card header */}
               <div className="py-2 bg-gray-100 dark:bg-secondary-dark-bg px-6  flex justify-between">
                 <p className="mt-2 text-2xl font-extrabold dark:text-gray-200 text-start">
@@ -1056,7 +1137,7 @@ const TaskReporting = ({
                   <p className="mt-2 ml-4 text-start font-bold">
                     Progress Entry
                   </p>
-                  <div className="ml-4 bg-blue-300 h-[5px] w-10 " />
+                  <div className="ml-4 bg-blue-300 h-[0.3125rem] w-10 " />
                   <div className="mt-6 grid md:grid-cols-3 grid-cols-12 gap-3 m-3">
                     <div className="md:col-span-3 col-span-12">
                       <Controller
@@ -1066,10 +1147,10 @@ const TaskReporting = ({
                           <TextField
                             // eslint-disable-next-line react/jsx-props-no-spreading
                             {...field}
-                            sx={{ width: '100%', borderRadius: '50px' }}
-                            InputProps={{ style: { fontSize: 13 } }}
+                            sx={{ width: '100%', borderRadius: '3.125rem' }}
+                            InputProps={{ style: { fontSize: '0.8125rem' } }}
                             InputLabelProps={{
-                              style: { fontSize: 14 },
+                              style: { fontSize: '0.875rem' },
                               shrink: field.value,
                               // shrink: (field.value ? true : false)
                             }}
@@ -1096,11 +1177,11 @@ const TaskReporting = ({
                               // defaultValue={voucherDateState}
                               InputProps={{
                                 ...params.InputProps,
-                                style: { fontSize: 13 },
+                                style: { fontSize: '0.8125rem' },
                               }}
                               InputLabelProps={{
                                 ...params.InputLabelProps,
-                                style: { fontSize: 14 },
+                                style: { fontSize: '0.875rem' },
                               }}
                               variant="outlined"
                               size="small"
@@ -1131,11 +1212,11 @@ const TaskReporting = ({
                               // defaultValue={voucherDateState}
                               InputProps={{
                                 ...params.InputProps,
-                                style: { fontSize: 13 },
+                                style: { fontSize: '0.8125rem' },
                               }}
                               InputLabelProps={{
                                 ...params.InputLabelProps,
-                                style: { fontSize: 14 },
+                                style: { fontSize: '0.875rem' },
                               }}
                               variant="outlined"
                               size="small"
@@ -1186,11 +1267,11 @@ const TaskReporting = ({
                               // defaultValue={voucherDateState}
                               InputProps={{
                                 ...params.InputProps,
-                                style: { fontSize: 13 },
+                                style: { fontSize: '0.8125rem' },
                               }}
                               InputLabelProps={{
                                 ...params.InputLabelProps,
-                                style: { fontSize: 14 },
+                                style: { fontSize: '0.875rem' },
                               }}
                               variant="outlined"
                               size="small"
@@ -1217,9 +1298,9 @@ const TaskReporting = ({
                             multiline
                             rows={4} // Adjust the number of minRows as needed
                             sx={{ width: '100%' }}
-                            InputProps={{ style: { fontSize: 13 } }}
+                            InputProps={{ style: { fontSize: '0.8125rem' } }}
                             InputLabelProps={{
-                              style: { fontSize: 14 },
+                              style: { fontSize: '0.875rem' },
                               shrink: field.value,
                             }}
                             id=""
@@ -1243,7 +1324,7 @@ const TaskReporting = ({
                     <div className="md:col-span-3 col-span-12">
                       <div className="w-full mt-1 grid grid-cols-12 gap-x-3 gap-y-0 ">
                         <div className="col-span-12 text-start">
-                          <p className=" text-[13px]">Progress % :</p>
+                          <p className=" text-[0.8125rem]">Progress % :</p>
                         </div>
 
                         <div className="md:col-span-10 col-span-9">
@@ -1272,7 +1353,7 @@ const TaskReporting = ({
                               max: 100,
                               type: 'number',
                               'aria-labelledby': 'input-slider',
-                              style: { fontSize: 13, fontWeight: 'bold' },
+                              style: { fontSize: '0.8125rem', fontWeight: 'bold' },
                             }}
                           />
                         </div>
@@ -1285,13 +1366,13 @@ const TaskReporting = ({
                             <Checkbox
                               color="success"
                               onChange={handleCheckboxChange}
-                              sx={{ '& .MuiSvgIcon-root': { fontSize: 18 } }}
+                              sx={{ '& .MuiSvgIcon-root': { fontSize: '1.125rem' } }}
                             />
                           }
                           label="Task Completed"
                           sx={{
                             '& .MuiTypography-root': {
-                              fontSize: '13px', // Font size for the label
+                              fontSize: '0.8125rem', // Font size for the label
                               fontWeight: 'bold',
                             },
                           }}
@@ -1322,6 +1403,24 @@ const TaskReporting = ({
                       >
                         Save Task Progress
                       </button>
+                      <button
+                        type="button"
+                        data-mdb-ripple="true"
+                        data-mdb-ripple-color="light"
+                        className="inline-block px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight rounded hover:bg-red-700 hover:shadow-lg hover:scale-[1.02] focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 w-full active:-translate-y-1 active:shadow-lg transform-all duration-700 ease-in-out"
+                        onClick={() => {
+                          if (
+                            operationMode === 'preview' ||
+                            operationMode === 'edit'
+                          ) {
+                            // do nothing
+                          } else {
+                            denyTaskProgress();
+                          }
+                        }}
+                      >
+                        Deny
+                      </button>
                     </div>
                   </div>
                   {/*  Card footer--/-- */}
@@ -1331,7 +1430,7 @@ const TaskReporting = ({
                   <p className="mt-2 ml-4 text-start font-bold">
                     Individual Report Progress %
                   </p>
-                  <div className="ml-4 bg-blue-300 h-[5px] w-10 " />
+                  <div className="ml-4 bg-blue-300 h-[0.3125rem] w-10 " />
                   {/* <div className="flex p-0 m-0 justify-center"> */}
                   {/* <div className="w-[90%] p-0 m-0 flex justify-center "> */}
                   <div className="mt-2 flex justify-center">
@@ -1370,7 +1469,7 @@ const TaskReporting = ({
                   <p className="mt-2 ml-4 text-start font-bold">
                     Progress Report Log
                   </p>
-                  <div className="ml-4 bg-blue-300 h-[5px] w-10 " />
+                  <div className="ml-4 bg-blue-300 h-[0.3125rem] w-10 " />
 
                   <div className=" m-4">
                     <MaterialReactTable table={tableInitializer} />
@@ -1400,7 +1499,7 @@ const TaskReporting = ({
         </div>
       ) : (
         <div className=" z-[1000000000001] h-[100vh] w-full bg-gray-800 flex justify-center align-middle">
-          <div className=" mt-[350px]">
+          <div className=" mt-[21.875rem]">
             <PropagateLoader
               color="#36d7b7"
               loading={loaderSpinner}

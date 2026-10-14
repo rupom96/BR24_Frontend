@@ -56,7 +56,7 @@
 //               }
 //             }}
 //             InputProps={{
-//               style: { fontSize: 13, paddingTop: '5px', paddingBottom: '5px' },
+//               style: { fontSize: '0.8125rem', paddingTop: '0.3125rem', paddingBottom: '0.3125rem' },
 //               disableUnderline: true,
 //             }}
 //           />
@@ -80,7 +80,7 @@
 //             tableAttrChange(cell.row.index, e.target.value, 'controllerPath');
 //           }}
 //           InputProps={{
-//             style: { fontSize: 13, paddingTop: '5px', paddingBottom: '5px' },
+//             style: { fontSize: '0.8125rem', paddingTop: '0.3125rem', paddingBottom: '0.3125rem' },
 //             disableUnderline: true,
 //           }}
 //         />
@@ -107,7 +107,7 @@
 //             );
 //           }}
 //           InputProps={{
-//             style: { fontSize: 13, paddingTop: '5px', paddingBottom: '5px' },
+//             style: { fontSize: '0.8125rem', paddingTop: '0.3125rem', paddingBottom: '0.3125rem' },
 //             disableUnderline: true,
 //           }}
 //         />
@@ -130,7 +130,7 @@
 //             tableAttrChange(cell.row.index, e.target.value, 'mailTemplate');
 //           }}
 //           InputProps={{
-//             style: { fontSize: 13, paddingTop: '5px', paddingBottom: '5px' },
+//             style: { fontSize: '0.8125rem', paddingTop: '0.3125rem', paddingBottom: '0.3125rem' },
 //             disableUnderline: true,
 //           }}
 //         />
@@ -153,7 +153,7 @@
 //             tableAttrChange(cell.row.index, e.target.value, 'smsTemplate');
 //           }}
 //           InputProps={{
-//             style: { fontSize: 13, paddingTop: '5px', paddingBottom: '5px' },
+//             style: { fontSize: '0.8125rem', paddingTop: '0.3125rem', paddingBottom: '0.3125rem' },
 //             disableUnderline: true,
 //           }}
 //         />
@@ -181,7 +181,7 @@
 //             tableAttrChange(cell.row.index, bool_value, 'isAction');
 //           }}
 //           InputProps={{
-//             style: { fontSize: 13, paddingTop: '5px', paddingBottom: '5px' },
+//             style: { fontSize: '0.8125rem', paddingTop: '0.3125rem', paddingBottom: '0.3125rem' },
 //             disableUnderline: true,
 //           }}
 //         />
@@ -497,11 +497,11 @@
 //                           {...params}
 //                           InputProps={{
 //                             ...params.InputProps,
-//                             style: { fontSize: 13 },
+//                             style: { fontSize: '0.8125rem' },
 //                           }}
 //                           InputLabelProps={{
 //                             ...params.InputLabelProps,
-//                             style: { fontSize: 14 },
+//                             style: { fontSize: '0.875rem' },
 //                           }}
 //                           label="Template"
 //                           variant="outlined"
@@ -525,12 +525,12 @@
 //                         enableStickyFooter
 //                         enableTopToolbar={false}
 //                         enableColumnResizing
-//                         muiTableContainerProps={{ sx: { maxHeight: '380px' } }} // ekhane table er data height
+//                         muiTableContainerProps={{ sx: { maxHeight: '23.75rem' } }} // ekhane table er data height
 //                         muiTableHeadCellProps={{
 //                           // simple styling with the `sx` prop, works just like a style prop in this example
 //                           sx: {
 //                             fontWeight: 'Bold',
-//                             fontSize: '13px',
+//                             fontSize: '0.8125rem',
 //                           },
 //                           // align: 'left',
 //                         }}

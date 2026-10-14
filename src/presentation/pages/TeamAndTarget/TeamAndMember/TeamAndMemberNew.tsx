@@ -627,11 +627,11 @@ const TeamAndMemberNew: React.FC<TeamAndMemberSelectorProps> = React.memo(
                                   helperText={error ? error.message : null}
                                   InputLabelProps={{
                                     ...params.InputLabelProps,
-                                    style: { fontSize: 14 },
+                                    style: { fontSize: '0.875rem' },
                                   }}
                                   InputProps={{
                                     ...params.InputProps,
-                                    style: { fontSize: 13 },
+                                    style: { fontSize: '0.8125rem' },
                                   }}
                                   sx={{ width: '100%', marginTop: 1 }}
                                   inputRef={ref}
@@ -662,12 +662,12 @@ const TeamAndMemberNew: React.FC<TeamAndMemberSelectorProps> = React.memo(
                           >
                             <Edit
                               sx={{
-                                fontSize: '20px',
-                                padding: '0px',
-                                margin: '0px',
+                                fontSize: '1.25rem',
+                                padding: '0',
+                                margin: '0',
                               }}
                             />{' '}
-                            {/* <i className="fas fa-edit text-[10px]" /> */}
+                            {/* <i className="fas fa-edit text-[0.625rem]" /> */}
                           </button>
                         </Tooltip>
                       ) : (
@@ -710,11 +710,11 @@ const TeamAndMemberNew: React.FC<TeamAndMemberSelectorProps> = React.memo(
                               helperText={error ? error.message : null}
                               InputLabelProps={{
                                 ...params.InputLabelProps,
-                                style: { fontSize: 14 },
+                                style: { fontSize: '0.875rem' },
                               }}
                               InputProps={{
                                 ...params.InputProps,
-                                style: { fontSize: 13 },
+                                style: { fontSize: '0.8125rem' },
                               }}
                               sx={{ width: '100%', marginTop: 1 }}
                               inputRef={ref}
@@ -758,11 +758,11 @@ const TeamAndMemberNew: React.FC<TeamAndMemberSelectorProps> = React.memo(
                               helperText={error ? error.message : null}
                               InputLabelProps={{
                                 ...params.InputLabelProps,
-                                style: { fontSize: 14 },
+                                style: { fontSize: '0.875rem' },
                               }}
                               InputProps={{
                                 ...params.InputProps,
-                                style: { fontSize: 13 },
+                                style: { fontSize: '0.8125rem' },
                               }}
                               sx={{ width: '100%', marginTop: 1 }}
                               inputRef={ref}
@@ -783,9 +783,9 @@ const TeamAndMemberNew: React.FC<TeamAndMemberSelectorProps> = React.memo(
                           type="number"
                           value={value || ''}
                           sx={{ width: '100%' }}
-                          InputProps={{ style: { fontSize: 13 } }}
+                          InputProps={{ style: { fontSize: '0.8125rem' } }}
                           InputLabelProps={{
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                             shrink: value,
                           }}
                           // onBlur={onBlur} // Trigger validation on blur
@@ -912,9 +912,9 @@ const TeamAndMemberNew: React.FC<TeamAndMemberSelectorProps> = React.memo(
                         {...field}
                         type="text"
                         sx={{ width: '100%' }}
-                        InputProps={{ style: { fontSize: 13 } }}
+                        InputProps={{ style: { fontSize: '0.8125rem' } }}
                         InputLabelProps={{
-                          style: { fontSize: 14 },
+                          style: { fontSize: '0.875rem' },
                           shrink: field.value,
                         }}
                         id=""
@@ -932,9 +932,9 @@ const TeamAndMemberNew: React.FC<TeamAndMemberSelectorProps> = React.memo(
                         {...field}
                         type="text"
                         sx={{ width: '100%' }}
-                        InputProps={{ style: { fontSize: 13 } }}
+                        InputProps={{ style: { fontSize: '0.8125rem' } }}
                         InputLabelProps={{
-                          style: { fontSize: 14 },
+                          style: { fontSize: '0.875rem' },
                           shrink: field.value,
                         }}
                         id=""

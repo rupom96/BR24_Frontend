@@ -135,7 +135,7 @@ const DualListSelectorTM: React.FC<DualListSelectorTMProps> = ({
           <Grid item xs={6}>
             <p
               className=" font-bold"
-              style={{ fontSize: '13px', marginLeft: 4 }}
+              style={{ fontSize: '0.8125rem', marginLeft: 4 }}
             >
               Select {caption}:
             </p>
@@ -148,8 +148,8 @@ const DualListSelectorTM: React.FC<DualListSelectorTMProps> = ({
             fullWidth
             onChange={(e) => setSearchTerm(e.target.value)}
             sx={{
-              '& .MuiInputBase-root': { fontSize: '13px' },
-              '& .MuiInputLabel-root': { fontSize: '13px' }, // Set label font size
+              '& .MuiInputBase-root': { fontSize: '0.8125rem' },
+              '& .MuiInputLabel-root': { fontSize: '0.8125rem' }, // Set label font size
             }}
             InputProps={{
               startAdornment: (
@@ -163,14 +163,14 @@ const DualListSelectorTM: React.FC<DualListSelectorTMProps> = ({
             <FormControl
               sx={{
                 width: '100%',
-                '& .MuiInputBase-input': { fontSize: '13px' },
+                '& .MuiInputBase-input': { fontSize: '0.8125rem' },
               }}
               size="small"
               variant="outlined"
             >
               <InputLabel
                 htmlFor="outlined-adornment-username"
-                sx={{ fontSize: '13px' }} // Set font size for the label
+                sx={{ fontSize: '0.8125rem' }} // Set font size for the label
               >
                 {`Search ${caption}`}
               </InputLabel>
@@ -185,8 +185,8 @@ const DualListSelectorTM: React.FC<DualListSelectorTMProps> = ({
                 onChange={(e) => setSearchTerm(e.target.value)}
                 label={`Search ${caption}`}
                 sx={{
-                  fontSize: '13px', // Set font size for the input
-                  '& .MuiOutlinedInput-notchedOutline': { fontSize: '13px' }, // Ensure font size consistency
+                  fontSize: '0.8125rem', // Set font size for the input
+                  '& .MuiOutlinedInput-notchedOutline': { fontSize: '0.8125rem' }, // Ensure font size consistency
                 }}
               />
             </FormControl>
@@ -211,11 +211,11 @@ const DualListSelectorTM: React.FC<DualListSelectorTMProps> = ({
                 sx={{
                   borderBottom: 1,
                   borderColor: 'grey.300',
-                  paddingLeft: '8px',
+                  paddingLeft: '0.5rem',
                   zIndex: 'auto',
                 }}
               >
-                <p className=" font-bold" style={{ fontSize: '13px' }}>
+                <p className=" font-bold" style={{ fontSize: '0.8125rem' }}>
                   Selected Items:
                 </p>
                 <FormControlLabel
@@ -224,15 +224,15 @@ const DualListSelectorTM: React.FC<DualListSelectorTMProps> = ({
                       checked={false}
                       onChange={handleUnselectAll}
                       sx={{
-                        '& .MuiSvgIcon-root': { fontSize: 18 },
+                        '& .MuiSvgIcon-root': { fontSize: '1.125rem' },
                       }}
                     />
                   }
                   label="Deselect All"
-                  sx={{ '& .MuiFormControlLabel-label': { fontSize: '13px' } }}
+                  sx={{ '& .MuiFormControlLabel-label': { fontSize: '0.8125rem' } }}
                 />
               </Box>
-              <List style={{ overflowY: 'auto', maxHeight: '247px' }}>
+              <List style={{ overflowY: 'auto', maxHeight: '15.4375rem' }}>
                 {filteredSelected.map((item) => (
                   <ListItem
                     key={item[idKey]}
@@ -241,12 +241,12 @@ const DualListSelectorTM: React.FC<DualListSelectorTMProps> = ({
                     sx={{ paddingY: 0, zIndex: 'auto' }}
                   >
                     <Checkbox
-                      sx={{ '& .MuiSvgIcon-root': { fontSize: 18 } }}
+                      sx={{ '& .MuiSvgIcon-root': { fontSize: '1.125rem' } }}
                       checked
                     />
                     <ListItemText
                       primary={item[optionName]}
-                      sx={{ '& .MuiTypography-root': { fontSize: '13px' } }}
+                      sx={{ '& .MuiTypography-root': { fontSize: '0.8125rem' } }}
                     />
                   </ListItem>
                 ))}
@@ -272,11 +272,11 @@ const DualListSelectorTM: React.FC<DualListSelectorTMProps> = ({
                 sx={{
                   borderBottom: 1,
                   borderColor: 'grey.300',
-                  paddingLeft: '8px',
+                  paddingLeft: '0.5rem',
                   zIndex: 'auto',
                 }}
               >
-                <p className=" font-bold" style={{ fontSize: '13px' }}>
+                <p className=" font-bold" style={{ fontSize: '0.8125rem' }}>
                   Unselected Items:
                 </p>
                 <FormControlLabel
@@ -284,14 +284,14 @@ const DualListSelectorTM: React.FC<DualListSelectorTMProps> = ({
                     <Checkbox
                       checked={false}
                       onChange={handleSelectAll}
-                      sx={{ '& .MuiSvgIcon-root': { fontSize: 18 } }}
+                      sx={{ '& .MuiSvgIcon-root': { fontSize: '1.125rem' } }}
                     />
                   }
                   label="Select All"
-                  sx={{ '& .MuiFormControlLabel-label': { fontSize: '13px' } }}
+                  sx={{ '& .MuiFormControlLabel-label': { fontSize: '0.8125rem' } }}
                 />
               </Box>
-              <List style={{ overflowY: 'auto', maxHeight: '247px' }}>
+              <List style={{ overflowY: 'auto', maxHeight: '15.4375rem' }}>
                 {filteredUnselected.map((item) => (
                   <ListItem
                     key={item[idKey]}
@@ -299,11 +299,11 @@ const DualListSelectorTM: React.FC<DualListSelectorTMProps> = ({
                     onClick={() => handleSelect(item)}
                     sx={{ paddingY: 0, zIndex: 'auto' }}
                   >
-                    <Checkbox sx={{ '& .MuiSvgIcon-root': { fontSize: 18 } }} />
+                    <Checkbox sx={{ '& .MuiSvgIcon-root': { fontSize: '1.125rem' } }} />
                     <ListItemText
                       primary={item[optionName]}
                       sx={{
-                        '& .MuiTypography-root': { fontSize: '13px' },
+                        '& .MuiTypography-root': { fontSize: '0.8125rem' },
                         zIndex: '0',
                       }}
                     />

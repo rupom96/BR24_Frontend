@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BR24 Graphify — 3D</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0b0d10;
+        --panel: #14181f;
+        --border: #2a3140;
+        --text: #e8edf5;
+        --muted: #9aa6b8;
+        --accent: #5b9fd4;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: var(--bg);
+        color: var(--text);
+        font: 14px/1.45 system-ui, Segoe UI, sans-serif;
+      }
+      #graph {
+        position: absolute;
+        inset: 0;
+      }
+      #panel {
+        position: absolute;
+        z-index: 10;
+        top: 12px;
+        left: 12px;
+        width: min(360px, calc(100vw - 24px));
+        max-height: calc(100vh - 24px);
+        overflow: auto;
+        background: color-mix(in srgb, var(--panel) 92%, transparent);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 14px 14px 12px;
+        backdrop-filter: blur(8px);
+      }
+      h1 {
+        margin: 0 0 4px;
+        font-size: 16px;
+        font-weight: 650;
+      }
+      .sub {
+        color: var(--muted);
+        font-size: 12px;
+        margin-bottom: 12px;
+      }
+      label {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        margin: 10px 0 4px;
+      }
+      select,
+      input[type='search'],
+      button {
+        width: 100%;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: #0f1319;
+        color: var(--text);
+        padding: 8px 10px;
+        font: inherit;
+      }
+      button {
+        cursor: pointer;
+        margin-top: 8px;
+        background: #1a2330;
+      }
+      button.primary {
+        background: var(--accent);
+        color: #061018;
+        border-color: transparent;
+        font-weight: 600;
+      }
+      button:hover {
+        filter: brightness(1.08);
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .stat {
+        background: #0f1319;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 8px;
+      }
+      .stat b {
+        display: block;
+        font-size: 18px;
+      }
+      .stat span {
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 10px;
+      }
+      .chip {
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        color: var(--muted);
+      }
+      .chip i {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 5px;
+      }
+      #status {
+        margin-top: 10px;
+        font-size: 12px;
+        color: var(--muted);
+        white-space: pre-wrap;
+      }
+      #status.error {
+        color: #f0a0a0;
+      }
+      a {
+        color: var(--accent);
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/3d-force-graph@1.73.3/dist/3d-force-graph.min.js"></script>
+  </head>
+  <body>
+    <div id="graph"></div>
+    <aside id="panel">
+      <h1>Graphify 3D</h1>
+      <div class="sub">
+        BR24 knowledge graph · drag to orbit · scroll to zoom · click a node to
+        focus neighbors
+      </div>
+
+      <label for="preset">View preset</label>
+      <select id="preset">
+        <option value="architecture">Architecture (apps + projects)</option>
+        <option value="modules" selected>
+          Modules (pages, controllers, services, features, FE APIs)
+        </option>
+        <option value="no-entities">All except Domain entities</option>
+        <option value="tender">Neighborhood: Tender / Procurement</option>
+        <option value="sales">Neighborhood: SalesOrder</option>
+        <option value="all">Everything (slow / dense)</option>
+      </select>
+
+      <label for="search">Focus node (id or name contains)</label>
+      <input
+        id="search"
+        type="search"
+        placeholder="e.g. SalesOrderController"
+        autocomplete="off"
+      />
+
+      <button class="primary" id="apply" type="button">Apply view</button>
+      <button id="resetCam" type="button">Reset camera</button>
+
+      <div class="stats">
+        <div class="stat">
+          <b id="nCount">—</b><span>Nodes shown</span>
+        </div>
+        <div class="stat">
+          <b id="lCount">—</b><span>Links shown</span>
+        </div>
+      </div>
+
+      <div class="legend" id="legend"></div>
+      <div id="status">Loading nodes.json + relationships.json…</div>
+      <div class="sub" style="margin-top: 10px">
+        Must be served over HTTP (not file://).<br />
+        From repo root:
+        <code style="color: var(--text)"
+          >npx --yes serve "docs/knowledge-graph" -p 5500</code
+        >
+        then open
+        <a href="http://localhost:5500/graphify-3d.html" target="_blank"
+          >http://localhost:5500/graphify-3d.html</a
+        >
+      </div>
+    </aside>
+
+    <script>
+      const TYPE_COLOR = {
+        Application: '#5b9fd4',
+        Project: '#7aa2f7',
+        Module: '#9ece6a',
+        Controller: '#e0af68',
+        Service: '#bb9af7',
+        Repository: '#f7768e',
+        API: '#2ac3de',
+        Page: '#73daca',
+        DTO: '#c0caf5',
+        Entity: '#565f89',
+        DatabaseObject: '#ff9e64',
+        Folder: '#a9b1d6',
+        File: '#a9b1d6',
+        Component: '#73daca',
+        Hook: '#73daca',
+        Model: '#c0caf5',
+      };
+
+      const MODULE_TYPES = new Set([
+        'Application',
+        'Project',
+        'Module',
+        'Controller',
+        'Service',
+        'Page',
+        'API',
+        'DatabaseObject',
+      ]);
+
+      const ARCH_TYPES = new Set([
+        'Application',
+        'Project',
+        'DatabaseObject',
+      ]);
+
+      let allNodes = [];
+      let allLinks = [];
+      let Graph = null;
+
+      const statusEl = document.getElementById('status');
+      const legendEl = document.getElementById('legend');
+
+      function setStatus(msg, isError) {
+        statusEl.textContent = msg;
+        statusEl.className = isError ? 'error' : '';
+      }
+
+      function buildLegend(types) {
+        legendEl.innerHTML = '';
+        [...types].sort().forEach((t) => {
+          const span = document.createElement('span');
+          span.className = 'chip';
+          span.innerHTML = `<i style="background:${TYPE_COLOR[t] || '#888'}"></i>${t}`;
+          legendEl.appendChild(span);
+        });
+      }
+
+      function neighborhood(seedTest, hops = 1) {
+        const seeds = allNodes.filter(seedTest).map((n) => n.id);
+        const keep = new Set(seeds);
+        for (let h = 0; h < hops; h++) {
+          for (const l of allLinks) {
+            if (keep.has(l.source) || keep.has(l.target)) {
+              keep.add(typeof l.source === 'object' ? l.source.id : l.source);
+              keep.add(typeof l.target === 'object' ? l.target.id : l.target);
+            }
+          }
+        }
+        // fix: links may already be objects after graph mutates — use string ids from original
+        return keep;
+      }
+
+      function neighborhoodFromRaw(predicate, hops = 2) {
+        const seedIds = allNodes.filter(predicate).map((n) => n.id);
+        const keep = new Set(seedIds);
+        for (let h = 0; h < hops; h++) {
+          for (const l of allLinks) {
+            const s = l.source;
+            const t = l.target;
+            if (keep.has(s) || keep.has(t)) {
+              keep.add(s);
+              keep.add(t);
+            }
+          }
+        }
+        return keep;
+      }
+
+      function filterGraph() {
+        const preset = document.getElementById('preset').value;
+        const q = document.getElementById('search').value.trim().toLowerCase();
+
+        let keepIds = null;
+
+        if (preset === 'architecture') {
+          keepIds = new Set(
+            allNodes.filter((n) => ARCH_TYPES.has(n.type)).map((n) => n.id)
+          );
+        } else if (preset === 'modules') {
+          keepIds = new Set(
+            allNodes
+              .filter((n) => {
+                if (!MODULE_TYPES.has(n.type)) return false;
+                // drop be:api: endpoint flood; keep fe:api slices + controllers etc.
+                if (n.type === 'API' && n.id.startsWith('be:api:')) return false;
+                if (n.type === 'Repository') return false;
+                return true;
+              })
+              .map((n) => n.id)
+          );
+        } else if (preset === 'no-entities') {
+          keepIds = new Set(
+            allNodes
+              .filter((n) => n.type !== 'Entity')
+              .filter((n) => !(n.type === 'API' && n.id.startsWith('be:api:')))
+              .map((n) => n.id)
+          );
+        } else if (preset === 'tender') {
+          keepIds = neighborhoodFromRaw(
+            (n) =>
+              /tender|procurement/i.test(n.id) ||
+              /tender|procurement/i.test(n.name),
+            2
+          );
+        } else if (preset === 'sales') {
+          keepIds = neighborhoodFromRaw(
+            (n) => /salesorder/i.test(n.id) || /salesorder/i.test(n.name),
+            2
+          );
+        } else {
+          keepIds = new Set(allNodes.map((n) => n.id));
+        }
+
+        if (q) {
+          const matches = allNodes.filter(
+            (n) =>
+              n.id.toLowerCase().includes(q) ||
+              n.name.toLowerCase().includes(q)
+          );
+          if (matches.length) {
+            const focus = neighborhoodFromRaw(
+              (n) =>
+                n.id.toLowerCase().includes(q) ||
+                n.name.toLowerCase().includes(q),
+              1
+            );
+            // intersect with preset if not "all"
+            if (preset !== 'all') {
+              keepIds = new Set([...focus].filter((id) => keepIds.has(id)));
+              if (keepIds.size === 0) keepIds = focus;
+            } else {
+              keepIds = focus;
+            }
+          }
+        }
+
+        const nodes = allNodes.filter((n) => keepIds.has(n.id));
+        const links = allLinks.filter(
+          (l) => keepIds.has(l.source) && keepIds.has(l.target)
+        );
+
+        const types = new Set(nodes.map((n) => n.type));
+        buildLegend(types);
+        document.getElementById('nCount').textContent = String(nodes.length);
+        document.getElementById('lCount').textContent = String(links.length);
+
+        if (nodes.length > 800) {
+          setStatus(
+            `Showing ${nodes.length} nodes — may be slow. Prefer Modules or a neighborhood preset.`
+          );
+        } else {
+          setStatus(
+            `Showing ${nodes.length} nodes / ${links.length} links · preset=${preset}`
+          );
+        }
+
+        return {
+          nodes: nodes.map((n) => ({
+            id: n.id,
+            name: n.name,
+            type: n.type,
+            description: n.description || '',
+            location: n.location || '',
+          })),
+          links: links.map((l) => ({
+            source: l.source,
+            target: l.target,
+            relationship: l.relationship,
+            evidence: l.evidence || '',
+          })),
+        };
+      }
+
+      function render() {
+        const data = filterGraph();
+        if (!Graph) {
+          Graph = ForceGraph3D()(document.getElementById('graph'))
+            .backgroundColor('#0b0d10')
+            .nodeId('id')
+            .nodeLabel((n) =>
+              [
+                n.name,
+                `type: ${n.type}`,
+                n.id,
+                n.description ? n.description.slice(0, 120) : '',
+              ]
+                .filter(Boolean)
+                .join('\n')
+            )
+            .nodeColor((n) => TYPE_COLOR[n.type] || '#8899aa')
+            .nodeRelSize(5)
+            .linkColor(() => 'rgba(120,140,170,0.35)')
+            .linkWidth(0.6)
+            .linkDirectionalParticles(0)
+            .onNodeClick((node) => {
+              const dist = 120;
+              const distRatio = 1 + dist / Math.hypot(node.x, node.y, node.z);
+              Graph.cameraPosition(
+                {
+                  x: node.x * distRatio,
+                  y: node.y * distRatio,
+                  z: node.z * distRatio,
+                },
+                node,
+                800
+              );
+              document.getElementById('search').value = node.name;
+              setStatus(`Focused: ${node.id}`);
+            });
+        }
+        Graph.graphData(data);
+      }
+
+      async function boot() {
+        try {
+          const [nodesRes, relsRes] = await Promise.all([
+            fetch('./nodes.json'),
+            fetch('./relationships.json'),
+          ]);
+          if (!nodesRes.ok || !relsRes.ok) {
+            throw new Error(
+              `HTTP ${nodesRes.status}/${relsRes.status}. Serve this folder over HTTP (see panel).`
+            );
+          }
+          allNodes = await nodesRes.json();
+          const rels = await relsRes.json();
+          allLinks = rels.map((r) => ({
+            source: r.source,
+            target: r.target,
+            relationship: r.relationship,
+            evidence: r.evidence,
+          }));
+          setStatus(`Loaded ${allNodes.length} nodes / ${allLinks.length} edges.`);
+          render();
+        } catch (err) {
+          setStatus(
+            `Failed to load graph data.\n${err.message}\n\nIf you opened this as a file:// page, run:\nnpx --yes serve "docs/knowledge-graph" -p 5500`,
+            true
+          );
+        }
+      }
+
+      document.getElementById('apply').addEventListener('click', render);
+      document.getElementById('preset').addEventListener('change', render);
+      document.getElementById('search').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') render();
+      });
+      document.getElementById('resetCam').addEventListener('click', () => {
+        if (Graph) Graph.zoomToFit(600, 40);
+      });
+
+      boot();
+    </script>
+  </body>
+</html>

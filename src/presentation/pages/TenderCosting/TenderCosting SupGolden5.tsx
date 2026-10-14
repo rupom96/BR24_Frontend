@@ -911,7 +911,7 @@
 //           variant="standard"
 //           size="small"
 //           sx={{ width: '100%' }}
-//           InputProps={{ style: { fontSize: 13 }, disableUnderline: true }}
+//           InputProps={{ style: { fontSize: '0.8125rem' }, disableUnderline: true }}
 //           defaultValue={renderedCellValue ?? ''}
 //           onBlur={(e) => {
 //             const value = e.target.value || null;
@@ -935,7 +935,7 @@
 //           variant="standard"
 //           size="small"
 //           sx={{ width: '100%' }}
-//           InputProps={{ style: { fontSize: 13 }, disableUnderline: true }}
+//           InputProps={{ style: { fontSize: '0.8125rem' }, disableUnderline: true }}
 //           defaultValue={renderedCellValue ?? ''}
 //           onBlur={(e) => {
 //             const v = e.target.value;
@@ -958,7 +958,7 @@
 //       const val = rows[row.index][key];
 //       return (
 //         <div className="w-full py-1 flex justify-between items-center">
-//           <span style={{ fontSize: 13 }}>
+//           <span style={{ fontSize: '0.8125rem' }}>
 //             {val == null ? '' : Number(val).toFixed(2)}
 //           </span>
 //         </div>
@@ -1029,7 +1029,7 @@
 //                   InputProps={{
 //                     disableUnderline: true,
 //                     endAdornment: <span style={{ marginLeft: 4 }}>%</span>,
-//                     style: { fontSize: 13 },
+//                     style: { fontSize: '0.8125rem' },
 //                   }}
 //                   sx={{ width: '100%' }}
 //                   onBlur={(e) => handleDistMarginPercentBlur(e.target.value)}
@@ -1092,7 +1092,7 @@
 //                   InputProps={{
 //                     disableUnderline: true,
 //                     endAdornment: <span style={{ marginLeft: 4 }}>%</span>,
-//                     style: { fontSize: 13 },
+//                     style: { fontSize: '0.8125rem' },
 //                   }}
 //                   sx={{ width: '100%' }}
 //                   onBlur={(e) => handleProfitPercentBlur(e.target.value)}
@@ -1220,7 +1220,7 @@
 //                   InputProps={{
 //                     disableUnderline: true,
 //                     endAdornment: <span style={{ marginLeft: 4 }}>%</span>,
-//                     style: { fontSize: 13 },
+//                     style: { fontSize: '0.8125rem' },
 //                   }}
 //                   sx={{ width: '100%' }}
 //                   onBlur={(e) => handleTaxAndVATOnePercentBlur(e.target.value)}
@@ -1268,7 +1268,7 @@
 //                   InputProps={{
 //                     disableUnderline: true,
 //                     endAdornment: <span style={{ marginLeft: 4 }}>%</span>,
-//                     style: { fontSize: 13 },
+//                     style: { fontSize: '0.8125rem' },
 //                   }}
 //                   sx={{ width: '100%' }}
 //                   onBlur={(e) => handleSalesExpensePercentBlur(e.target.value)}
@@ -1316,7 +1316,7 @@
 //                   InputProps={{
 //                     disableUnderline: true,
 //                     endAdornment: <span style={{ marginLeft: 4 }}>%</span>,
-//                     style: { fontSize: 13 },
+//                     style: { fontSize: '0.8125rem' },
 //                   }}
 //                   sx={{ width: '100%' }}
 //                   onBlur={(e) => handleAgExpensePercentBlur(e.target.value)}
@@ -1364,7 +1364,7 @@
 //                   InputProps={{
 //                     disableUnderline: true,
 //                     endAdornment: <span style={{ marginLeft: 4 }}>%</span>,
-//                     style: { fontSize: 13 },
+//                     style: { fontSize: '0.8125rem' },
 //                   }}
 //                   sx={{ width: '100%' }}
 //                   onBlur={(e) => handleTaxAndVATTwoPercentBlur(e.target.value)}
@@ -1426,12 +1426,12 @@
 //       enablePagination: false,
 //       enableColumnResizing: true,
 //       muiTableContainerProps: {
-//         sx: { maxHeight: 400, overflow: 'auto', position: 'relative' },
+//         sx: { maxHeight: '25rem', overflow: 'auto', position: 'relative' },
 //       },
 //       muiTableFooterProps: {
 //         sx: {
 //           position: 'sticky',
-//           bottom: 0,
+//           bottom: '0',
 //           zIndex: 2,
 //           backgroundColor: '#F6F7FF',
 //         },
@@ -1440,21 +1440,21 @@
 //         sx: {
 //           backgroundColor: '#F6F7FF',
 //           fontWeight: 800,
-//           fontSize: '13px',
+//           fontSize: '0.8125rem',
 //           borderTop: '1px solid #e0e0e0',
 //           borderRight: '1px solid #e0e0e0',
 //         },
 //       },
 //       muiTablePaperProps: {
 //         elevation: 0,
-//         sx: { borderRadius: 0, border: '1px dashed #e0e0e0' },
+//         sx: { borderRadius: '0', border: '1px dashed #e0e0e0' },
 //       },
-//       muiTableBodyCellProps: { sx: { fontSize: 13, color: '#1c1c1c' } },
+//       muiTableBodyCellProps: { sx: { fontSize: '0.8125rem', color: '#1c1c1c' } },
 //       muiTableHeadCellProps: {
 //         sx: {
 //           borderRight: '1px solid #e0e0e0',
 //           borderTop: '1px solid #e0e0e0',
-//           fontSize: 13,
+//           fontSize: '0.8125rem',
 //           whiteSpace: 'nowrap',
 //           backgroundColor: '#ECEFF9',
 //           color: '#1c1c1c',
@@ -1557,11 +1557,11 @@
 //                                 helperText={error ? error.message : null}
 //                                 InputLabelProps={{
 //                                   ...params.InputLabelProps,
-//                                   style: { fontSize: 14 },
+//                                   style: { fontSize: '0.875rem' },
 //                                 }}
 //                                 InputProps={{
 //                                   ...params.InputProps,
-//                                   style: { fontSize: 13 },
+//                                   style: { fontSize: '0.8125rem' },
 //                                 }}
 //                                 sx={{ width: '100%', marginTop: 1 }}
 //                                 inputRef={ref}

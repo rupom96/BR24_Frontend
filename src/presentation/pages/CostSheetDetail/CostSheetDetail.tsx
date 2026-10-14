@@ -245,7 +245,7 @@ const CostSheetDetail = (props: any) => {
   const autoCompResStyles: AutoCompResStyles = {
     popper: {
       maxWidth: 'fit-content',
-      fontSize: '12px',
+      fontSize: '0.75rem',
     },
   };
 
@@ -522,7 +522,7 @@ const CostSheetDetail = (props: any) => {
           return (
             <TextField
               sx={{ width: '100%' }}
-              InputProps={{ style: { fontSize: 13 }, disableUnderline: true }}
+              InputProps={{ style: { fontSize: '0.8125rem' }, disableUnderline: true }}
               variant="standard"
               size="small"
               inputRef={(node) => {
@@ -590,7 +590,7 @@ const CostSheetDetail = (props: any) => {
                   // onBlur={() => { console.log(this) }}
                   InputProps={{
                     ...params.InputProps,
-                    style: { fontSize: 13 },
+                    style: { fontSize: '0.8125rem' },
                     disableUnderline: true,
                   }}
                   variant="standard"
@@ -612,7 +612,7 @@ const CostSheetDetail = (props: any) => {
           return (
             <TextField
               sx={{ width: '100%' }}
-              InputProps={{ style: { fontSize: 13 }, disableUnderline: true }}
+              InputProps={{ style: { fontSize: '0.8125rem' }, disableUnderline: true }}
               variant="standard"
               size="small"
               inputRef={(node) => {
@@ -647,7 +647,7 @@ const CostSheetDetail = (props: any) => {
           return (
             <TextField
               sx={{ width: '100%' }}
-              InputProps={{ style: { fontSize: 13 }, disableUnderline: true }}
+              InputProps={{ style: { fontSize: '0.8125rem' }, disableUnderline: true }}
               variant="standard"
               size="small"
               inputRef={(node) => {
@@ -710,7 +710,7 @@ const CostSheetDetail = (props: any) => {
           // borderLeft: '1px solid #e0e0e0',
           // borderTop: '1px solid #e0e0e0',
           // borderBottom: '1px solid #e0e0e0',
-          fontSize: '13px',
+          fontSize: '0.8125rem',
         },
       },
       muiTableHeadCellProps: {
@@ -719,12 +719,12 @@ const CostSheetDetail = (props: any) => {
           // borderLeft: '1px solid #e0e0e0',
           borderTop: '1px solid #e0e0e0',
           // borderBottom: '1px solid #e0e0e0',
-          fontSize: '13px',
+          fontSize: '0.8125rem',
           whiteSpace: 'nowrap',
         },
       },
 
-      muiTableContainerProps: { sx: { maxHeight: '520px' } },
+      muiTableContainerProps: { sx: { maxHeight: '32.5rem' } },
       // onSortingChange: setSorting,
       // state: { isLoading, sorting },
       // rowVirtualizerInstanceRef, // optional
@@ -789,11 +789,11 @@ const CostSheetDetail = (props: any) => {
                         // {...register('location')}
                         InputProps={{
                           ...params.InputProps,
-                          style: { fontSize: 13 },
+                          style: { fontSize: '0.8125rem' },
                         }}
                         InputLabelProps={{
                           ...params.InputLabelProps,
-                          style: { fontSize: 14 },
+                          style: { fontSize: '0.875rem' },
                         }}
                         label="L/C No."
                         variant="outlined"
@@ -855,7 +855,7 @@ const CostSheetDetail = (props: any) => {
           // className="voucherGenModal"
         >
           <div className="flex justify-center bg-transparent ">
-            <div className="mt-[350px] bg-transparent">
+            <div className="mt-[21.875rem] bg-transparent">
               <PropagateLoader
                 color="#36d7b7"
                 loading

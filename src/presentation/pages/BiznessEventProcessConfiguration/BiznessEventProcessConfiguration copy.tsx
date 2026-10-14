@@ -80,11 +80,11 @@ const BiznessEventProcessConfiguration = ({
                             {...params}
                             InputProps={{
                               ...params.InputProps,
-                              style: { fontSize: 13 },
+                              style: { fontSize: '0.8125rem' },
                             }}
                             InputLabelProps={{
                               ...params.InputLabelProps,
-                              style: { fontSize: 14 },
+                              style: { fontSize: '0.875rem' },
                             }}
                             label="Template"
                             variant="outlined"

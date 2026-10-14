@@ -87,6 +87,24 @@ const EXCEL_BLUE_600 = 'FF2563EB';
 // NEW: grey for "(10)" in Excel (close to Tailwind gray-500)
 const EXCEL_GREY_500 = 'FF6B7280';
 
+// columns to grand-total (grid footer + Excel last row)
+const TOTAL_COLUMN_IDS = ['quantity', 'cost'];
+
+//  sums a numeric column over leaf rows, treating null/NaN as 0
+const sumNullSafe = (columnId: string, leafRows: any[]) =>
+  leafRows.reduce((acc: number, r: any) => {
+    const v = r?.original?.[columnId];
+    const n = Number(v ?? 0);
+    return acc + (Number.isFinite(n) ? n : 0);
+  }, 0);
+
+//  2 decimals + thousand separators; also kills float noise from summing costs
+const fmt2 = (n: number) =>
+  Number(n ?? 0).toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
 /** -------------- COMPONENT -------------- */
 const CurrentStockPreview = () => {
   const navigate = useNavigate();
@@ -174,7 +192,7 @@ const CurrentStockPreview = () => {
     popper: { maxWidth: string; fontSize: string };
   }
   const autoCompResStyles: AutoCompResStyles = {
-    popper: { maxWidth: 'fit-content', fontSize: '12px' },
+    popper: { maxWidth: 'fit-content', fontSize: '0.75rem' },
   };
 
   const PopperMy = useCallback(
@@ -422,13 +440,6 @@ const CurrentStockPreview = () => {
 
   /** --------------------- GRID COLUMNS --------------------- */
   const columns = useMemo<MRT_ColumnDef<ICurrentStockPreviewRow>[]>(() => {
-    const sumNullSafe = (columnId: string, leafRows: any[]) =>
-      leafRows.reduce((acc: number, r: any) => {
-        const v = r?.original?.[columnId];
-        const n = Number(v ?? 0);
-        return acc + (Number.isFinite(n) ? n : 0);
-      }, 0);
-
     const getFirstOriginal = (row: any): ICurrentStockPreviewRow | undefined =>
       (row?.subRows?.[0] as any)?.original;
 
@@ -553,11 +564,20 @@ const CurrentStockPreview = () => {
           const value = cell.getValue<number>() ?? 0;
           return (
             <span style={{ fontWeight: 600 }}>
-              {label}: <span className="text-blue-600">{value}</span>
+              {label}: <span className="text-blue-600">{fmt2(value)}</span>
             </span>
           );
         },
         Cell: ({ row }) => <span>{row.original.quantity ?? ''}</span>,
+        //  grand total of every filtered leaf row (grouping-safe)
+        Footer: ({ table: t }) => (
+          <span style={{ fontWeight: 800 }}>
+            Total:{' '}
+            <span className="text-blue-600">
+              {fmt2(sumNullSafe('quantity', t.getFilteredRowModel().rows))}
+            </span>
+          </span>
+        ),
       },
       {
         accessorKey: 'measuringUnitName',
@@ -583,11 +603,20 @@ const CurrentStockPreview = () => {
           const value = cell.getValue<number>() ?? 0;
           return (
             <span style={{ fontWeight: 600 }}>
-              {label}: <span className="text-blue-600">{value}</span>
+              {label}: <span className="text-blue-600">{fmt2(value)}</span>
             </span>
           );
         },
         Cell: ({ row }) => <span>{row.original.cost ?? ''}</span>,
+        //  grand total of every filtered leaf row (grouping-safe)
+        Footer: ({ table: t }) => (
+          <span style={{ fontWeight: 800 }}>
+            Total:{' '}
+            <span className="text-blue-600">
+              {fmt2(sumNullSafe('cost', t.getFilteredRowModel().rows))}
+            </span>
+          </span>
+        ),
       },
       {
         accessorKey: 'serialAvailable',
@@ -645,7 +674,7 @@ const CurrentStockPreview = () => {
         grouping: [],
       },
 
-      muiSkeletonProps: { animation: 'pulse', height: 30 },
+      muiSkeletonProps: { animation: 'pulse', height: '1.875rem' },
       muiTablePaperProps: {
         elevation: 0,
         sx: { borderRadius: '0', border: '1px dashed #e0e0e0' },
@@ -655,7 +684,7 @@ const CurrentStockPreview = () => {
         sx: {
           borderRight: '1px solid #e0e0e0',
           borderTop: '1px solid #e0e0e0',
-          fontSize: '13px',
+          fontSize: '0.8125rem',
           whiteSpace: 'nowrap',
           backgroundColor: '#ECEFF9',
           color: '#1c1c1c',
@@ -666,12 +695,27 @@ const CurrentStockPreview = () => {
       },
       muiTableBodyCellProps: {
         sx: {
-          fontSize: '13px',
+          fontSize: '0.8125rem',
           textAlign: 'center',
           '& *': { textAlign: 'center' },
         },
       },
       muiTableContainerProps: { sx: { maxHeight: '60vh' } },
+
+      //  grand total row (MRT sets position/bottom/zIndex itself when sticky)
+      enableStickyFooter: true,
+      muiTableFooterProps: {
+        sx: { backgroundColor: '#F6F7FF', opacity: 1 },
+      },
+      muiTableFooterCellProps: {
+        align: 'center',
+        sx: {
+          backgroundColor: '#F6F7FF',
+          fontSize: '0.8125rem',
+          borderTop: '1px solid #e0e0e0',
+          borderRight: '1px solid #e0e0e0',
+        },
+      },
 
       renderToolbarInternalActions: ({ table: t }) => (
         <>
@@ -680,7 +724,7 @@ const CurrentStockPreview = () => {
           <MRT_ToggleFullScreenButton table={t} />
 
           {/*  Excel Export button beside Full Screen */}
-          {/* <Tooltip title="Export Excel (matches current grid view)">
+          <Tooltip title="Export Excel (matches current grid view)">
             <span>
               <IconButton
                 size="small"
@@ -690,7 +734,7 @@ const CurrentStockPreview = () => {
                 <FileDownloadOutlinedIcon fontSize="small" />
               </IconButton>
             </span>
-          </Tooltip> */}
+          </Tooltip>
 
           <MRT_ToggleFiltersButton table={t} />
         </>
@@ -818,7 +862,10 @@ const CurrentStockPreview = () => {
       const makeRichTotal = (label: string, num: number | string) => ({
         richText: [
           { text: `${label} Total: `, font: { italic: true } },
-          { text: String(num ?? 0), font: { color: { argb: EXCEL_BLUE_600 } } },
+          {
+            text: fmt2(Number(num ?? 0)),
+            font: { color: { argb: EXCEL_BLUE_600 } },
+          },
         ],
       });
 
@@ -933,6 +980,44 @@ const CurrentStockPreview = () => {
       setExportProgress({ done: rows.length, total: rows.length });
       await yieldToUI();
 
+      //  grand total row — same row model as the grid footer, so they agree
+      if (
+        visibleCols.some((c) => TOTAL_COLUMN_IDS.includes(String(c.id))) &&
+        !exportAbortRef.current.aborted
+      ) {
+        const filteredRows = table.getFilteredRowModel().rows;
+
+        const grandValues = visibleCols.map((col) => {
+          const colId = String(col.id);
+          if (!TOTAL_COLUMN_IDS.includes(colId)) return null;
+          return {
+            richText: [
+              { text: 'Grand Total: ', font: { bold: true } },
+              {
+                text: fmt2(sumNullSafe(colId, filteredRows)),
+                font: { bold: true, color: { argb: EXCEL_BLUE_600 } },
+              },
+            ],
+          };
+        });
+
+        const grandRow = ws.addRow(grandValues);
+        grandRow.alignment = {
+          horizontal: 'center',
+          vertical: 'middle',
+          wrapText: true,
+        };
+        // border only: richText runs carry their own bold/colour fonts
+        grandRow.border = { top: { style: 'thin' } };
+
+        for (let c = 0; c < grandValues.length; c++) {
+          const v = grandValues[c];
+          if (v) {
+            bumpColWidth(c + 1, v.richText.map((x) => x.text).join(''));
+          }
+        }
+      }
+
       if (exportAbortRef.current.aborted) {
         toast.info('Excel download canceled.');
         return;
@@ -993,7 +1078,7 @@ const CurrentStockPreview = () => {
         <Box sx={{ width: '100%' }}>
           <LinearProgress variant="determinate" value={value} />
         </Box>
-        <Box sx={{ minWidth: 42 }}>
+        <Box sx={{ minWidth: '2.625rem' }}>
           <Typography
             variant="body2"
             sx={{ color: 'rgba(255,255,255,0.9)', fontWeight: 800 }}
@@ -1036,11 +1121,11 @@ const CurrentStockPreview = () => {
                           sx={{ width: '100%', marginTop: 1 }}
                           InputLabelProps={{
                             ...params.InputLabelProps,
-                            style: { fontSize: 14 },
+                            style: { fontSize: '0.875rem' },
                           }}
                           InputProps={{
                             ...params.InputProps,
-                            style: { fontSize: 13 },
+                            style: { fontSize: '0.8125rem' },
                           }}
                           size="small"
                         />
@@ -1075,11 +1160,11 @@ const CurrentStockPreview = () => {
                         variant="standard"
                         InputLabelProps={{
                           ...params.InputLabelProps,
-                          style: { fontSize: 14 },
+                          style: { fontSize: '0.875rem' },
                         }}
                         InputProps={{
                           ...params.InputProps,
-                          style: { fontSize: 13 },
+                          style: { fontSize: '0.8125rem' },
                         }}
                         sx={{ width: '100%', marginTop: 1 }}
                       />
@@ -1129,11 +1214,11 @@ const CurrentStockPreview = () => {
                         variant="standard"
                         InputLabelProps={{
                           ...params.InputLabelProps,
-                          style: { fontSize: 14 },
+                          style: { fontSize: '0.875rem' },
                         }}
                         InputProps={{
                           ...params.InputProps,
-                          style: { fontSize: 13 },
+                          style: { fontSize: '0.8125rem' },
                         }}
                         sx={{ width: '100%', marginTop: 1 }}
                       />
@@ -1181,11 +1266,11 @@ const CurrentStockPreview = () => {
                         variant="standard"
                         InputLabelProps={{
                           ...params.InputLabelProps,
-                          style: { fontSize: 14 },
+                          style: { fontSize: '0.875rem' },
                         }}
                         InputProps={{
                           ...params.InputProps,
-                          style: { fontSize: 13 },
+                          style: { fontSize: '0.8125rem' },
                         }}
                         sx={{ width: '100%', marginTop: 1 }}
                       />
@@ -1230,11 +1315,11 @@ const CurrentStockPreview = () => {
                         variant="standard"
                         InputLabelProps={{
                           ...params.InputLabelProps,
-                          style: { fontSize: 14 },
+                          style: { fontSize: '0.875rem' },
                         }}
                         InputProps={{
                           ...params.InputProps,
-                          style: { fontSize: 13 },
+                          style: { fontSize: '0.8125rem' },
                         }}
                         sx={{ width: '100%', marginTop: 1 }}
                       />
@@ -1279,11 +1364,11 @@ const CurrentStockPreview = () => {
                         variant="standard"
                         InputLabelProps={{
                           ...params.InputLabelProps,
-                          style: { fontSize: 14 },
+                          style: { fontSize: '0.875rem' },
                         }}
                         InputProps={{
                           ...params.InputProps,
-                          style: { fontSize: 13 },
+                          style: { fontSize: '0.8125rem' },
                         }}
                         sx={{ width: '100%', marginTop: 1 }}
                       />
@@ -1303,7 +1388,7 @@ const CurrentStockPreview = () => {
         </div>
       </div>
 
-      <Box sx={{ height: 10 }} />
+      <Box sx={{ height: '0.625rem' }} />
 
       {/*  Export loader overlay */}
       <Backdrop
@@ -1324,11 +1409,11 @@ const CurrentStockPreview = () => {
             border: '1px solid rgba(255,255,255,0.12)',
           }}
         >
-          <Typography sx={{ fontWeight: 900, fontSize: 14 }}>
+          <Typography sx={{ fontWeight: 900, fontSize: '0.875rem' }}>
             Downloading Current Stock in excel format, Please wait...
           </Typography>
 
-          <Typography sx={{ fontSize: 12, opacity: 0.85, mt: 0.8 }}>
+          <Typography sx={{ fontSize: '0.75rem', opacity: 0.85, mt: 0.8 }}>
             {exportProgress.total > 0
               ? `Processed ${exportProgress.done} / ${exportProgress.total} rows`
               : 'Preparing export...'}

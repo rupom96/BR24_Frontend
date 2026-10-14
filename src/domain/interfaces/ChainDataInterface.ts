@@ -20,6 +20,7 @@ export interface IEventTask {
   extendedBiznessEventName: string[]; // Adjust type if needed
   notes: string;
   fixedTaskTemplateId?: null | number;
+  denied?: boolean | null;
 }
 
 export interface IChain {
@@ -31,6 +32,18 @@ export interface IChain {
   tasks: IEventTask[];
 }
 
+export interface IPaginatedChainFlowChart {
+  succeeded: boolean;
+  data: IChain[];
+  currentPage: number;
+  totalPages: number;
+  totalCount: number;
+  pageSize: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  messages?: string[];
+}
+
 export interface IFirstEventNo {
   biznessEvent_PCTrackId: number;
   firstEventNo: string;
@@ -38,4 +51,9 @@ export interface IFirstEventNo {
 export interface IEventNo {
   biznessEvent_PCTrackId: number;
   eventNo: string;
+}
+
+export interface IChainSequenceOption {
+  sequence: number;
+  eventName: string;
 }
