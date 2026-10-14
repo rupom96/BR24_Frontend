@@ -17,6 +17,9 @@ export interface ISANextEvent {
   eventLocationName: string;
   eventLocationId: number;
   extendedBiznessEventName: string[];
+  /** Sister of API eventStatus; truthy = card disabled on EventsOfAChain */
+  denied?: boolean | null;
+  eventStatus?: boolean | null;
 }
 
 export interface IEventStatusInfoForNextEvent {

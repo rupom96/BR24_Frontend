@@ -141,11 +141,11 @@ const PurchaseComparativeSheet = ({
 
   // const [selectedSupplier, setSelectedSupplier] = useState<ISupplier>();
   const [supplierNameOptions, setSupplierNameOptions] = useState<ISupplier[]>();
-  const [selectedRequisiton, setSelectedRequisiton] =
+  const [selectedRequisition, setSelectedRequisition] =
     useState<IProcurementRequisition>();
   const [
-    selectedRequisitonComparativeInfo,
-    setSelectedRequisitonComparativeInfo,
+    selectedRequisitionComparativeInfo,
+    setSelectedRequisitionComparativeInfo,
   ] = useState<IPurchaseComparativeSheetGrid[]>();
 
   const [purchasePriceEditModal, setPurchasePriceEditModal] =
@@ -283,9 +283,9 @@ const PurchaseComparativeSheet = ({
     refetch: requisitionComparativeInfoRefetch,
   } = useGetProcurementRequisitionComparativeInfoByRequisitionNoQuery(
     {
-      requisitionNo: selectedRequisiton?.requisitionNo || '',
+      requisitionNo: selectedRequisition?.requisitionNo || '',
     },
-    { skip: !selectedRequisiton?.procurementRequisitionId }
+    { skip: !selectedRequisition?.procurementRequisitionId }
   );
 
   useEffect(() => {
@@ -297,12 +297,12 @@ const PurchaseComparativeSheet = ({
         'Something wrong from backend while fetching requisitionComparativeInfoOptions, see console--->:'
       );
       console.log(requisitionComparativeInfoIsError);
-      setSelectedRequisitonComparativeInfo([]);
+      setSelectedRequisitionComparativeInfo([]);
     }
     if (requisitionComparativeInfoIsSuccess) {
       console.log('requisitionComparativeInfo');
       console.log(requisitionComparativeInfo);
-      setSelectedRequisitonComparativeInfo(requisitionComparativeInfo);
+      setSelectedRequisitionComparativeInfo(requisitionComparativeInfo);
     }
   }, [
     requisitionComparativeInfoLoading,
@@ -311,7 +311,7 @@ const PurchaseComparativeSheet = ({
     requisitionComparativeInfo,
     requisitionComparativeInfoIsSuccess,
     requisitionComparativeInfoIsError,
-    selectedRequisiton,
+    selectedRequisition,
   ]);
 
   // requisitionNo options
@@ -337,7 +337,7 @@ const PurchaseComparativeSheet = ({
         'Something wrong from backend while fetching requisitionNoOptions for autocomplete, see console--->:'
       );
       console.log(requisitionNoOptionsError);
-      setSelectedRequisitonComparativeInfo([]);
+      setSelectedRequisitionComparativeInfo([]);
     }
     if (requisitionNoOptionsIsSuccess) {
       console.log('requisitionNoOptionsIsSuccess');
@@ -351,7 +351,7 @@ const PurchaseComparativeSheet = ({
         );
         console.log('selectedOption--------->');
         console.log(selectedOption);
-        setSelectedRequisiton(selectedOption);
+        setSelectedRequisition(selectedOption);
         setValue('requisitionNo', selectedOption);
         // requisitionComparativeInfoRefetch();
       }
@@ -1729,11 +1729,11 @@ const PurchaseComparativeSheet = ({
 
     let copyComparativeInfo: any = [];
     if (
-      selectedRequisitonComparativeInfo &&
-      selectedRequisitonComparativeInfo.length
+      selectedRequisitionComparativeInfo &&
+      selectedRequisitionComparativeInfo.length
     ) {
       copyComparativeInfo = JSON.parse(
-        JSON.stringify(selectedRequisitonComparativeInfo)
+        JSON.stringify(selectedRequisitionComparativeInfo)
       );
     } else {
       toast.error('No rows to add in this requisition No!');
@@ -2396,12 +2396,12 @@ const PurchaseComparativeSheet = ({
                             // onChange={(event, item) => {}} // React-hook-form manages the state
                             onChange={(event, selectedItem) => {
                               console.log(selectedItem);
-                              setSelectedRequisiton(selectedItem);
-                              console.log(selectedRequisiton);
+                              setSelectedRequisition(selectedItem);
+                              console.log(selectedRequisition);
                               // requisitionComparativeInfoRefetch();
                               onChange(selectedItem);
                               if (!selectedItem) {
-                                setSelectedRequisitonComparativeInfo([]);
+                                setSelectedRequisitionComparativeInfo([]);
                               }
                             }}
                             onBlur={onBlur} // Trigger validation on blur

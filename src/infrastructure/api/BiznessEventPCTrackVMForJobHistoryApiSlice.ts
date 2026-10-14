@@ -7,6 +7,11 @@ import {
   IFirstEventNo,
   IPaginatedChainFlowChart,
 } from '../../domain/interfaces/ChainDataInterface';
+import {
+  IElementPermissionStatus,
+  IProductGroupAndBrandByProductId,
+} from '../../domain/interfaces/ElementPermissionStatusInterface';
+import { IApiResult } from '../../domain/interfaces/GlobalInterfaces/ApiResultInterface';
 
 const controllerName: string = `BiznessEvent_PCTrack`;
 const API_BASE_URL = window.API_BASE_URL;
@@ -28,6 +33,8 @@ export const BiznessEventPCTrackVMForJobHistoryApiSlice = createApi({
     'ChainFlowChartData',
     'FirstEventNoData',
     'EventNoData',
+    'ElementPermissionStatus',
+    'ProductGroupAndBrand',
   ],
   endpoints: (builder) => ({
     getBiznessEventPCTrackVMForJobHistoryByFirstEventNo: builder.query<
@@ -86,6 +93,8 @@ export const BiznessEventPCTrackVMForJobHistoryApiSlice = createApi({
         firstEventNo?: string | null;
         eventNo?: string | null;
         fixedTaskTemplateId?: number | null;
+        sequenceNo?: number | null;
+        deniedFilter?: 'all' | 'enabled' | 'denied' | null;
         pageNumber?: number;
         pageSize?: number;
       }
@@ -94,6 +103,8 @@ export const BiznessEventPCTrackVMForJobHistoryApiSlice = createApi({
         firstEventNo,
         eventNo,
         fixedTaskTemplateId,
+        sequenceNo,
+        deniedFilter,
         pageNumber = 1,
         pageSize = 10,
       }) => {
@@ -103,6 +114,10 @@ export const BiznessEventPCTrackVMForJobHistoryApiSlice = createApi({
         params.append('pageSize', String(pageSize));
         if (firstEventNo) params.append('firstEventNo', String(firstEventNo));
         if (eventNo) params.append('eventNo', String(eventNo));
+        if (sequenceNo) params.append('sequenceNo', String(sequenceNo));
+        if (deniedFilter && deniedFilter !== 'all') {
+          params.append('deniedFilter', deniedFilter);
+        }
         return `getChainFlowChart?${params.toString()}`;
       },
       providesTags: ['ChainFlowChartData'],
@@ -131,6 +146,55 @@ export const BiznessEventPCTrackVMForJobHistoryApiSlice = createApi({
       },
       providesTags: ['EventNoData'],
     }),
+    getElementPermissionStatusByEvent: builder.query<
+      IElementPermissionStatus[],
+      {
+        eventNo: string;
+        firstEventNo: string;
+        sequence: number;
+        biznessEventProcessConfigurationId: number;
+        companyId: number;
+      }
+    >({
+      query: ({
+        eventNo,
+        firstEventNo,
+        sequence,
+        biznessEventProcessConfigurationId,
+        companyId,
+      }) => {
+        const params = new URLSearchParams();
+        params.append('eventNo', eventNo);
+        params.append('firstEventNo', firstEventNo);
+        params.append('sequence', String(sequence));
+        params.append(
+          'biznessEventProcessConfigurationId',
+          String(biznessEventProcessConfigurationId)
+        );
+        params.append('companyId', String(companyId));
+        return `getElementPermissionStatusByEvent?${params.toString()}`;
+      },
+      providesTags: ['ElementPermissionStatus'],
+    }),
+    getProductGroupAndBrandByProductId: builder.query<
+      IProductGroupAndBrandByProductId,
+      { productId: number }
+    >({
+      query: ({ productId }) =>
+        `getProductGroupAndBrandByProductId?productId=${productId}`,
+      providesTags: ['ProductGroupAndBrand'],
+    }),
+    clearDenied: builder.mutation<
+      IApiResult<string>,
+      { biznessEventPCTrackIds: number[] }
+    >({
+      query: (body) => ({
+        url: 'clearDenied',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['ChainFlowChartData'],
+    }),
   }),
 });
 
@@ -145,4 +209,7 @@ export const {
   useGetAllFirstEventNoQuery,
   useLazyGetAllEventNoQuery,
   useLazyGetAllFirstEventNoQuery,
+  useLazyGetElementPermissionStatusByEventQuery,
+  useLazyGetProductGroupAndBrandByProductIdQuery,
+  useClearDeniedMutation,
 } = BiznessEventPCTrackVMForJobHistoryApiSlice;

@@ -25,7 +25,7 @@ import TaskReporting from '../../pages/TaskReporting/TaskReporting';
 import ComponentMissing from '../../pages/Status/ComponentMissing/ComponentMissing';
 import { useGetBiznessEventPCTrackVMForJobHistoryByFirstEventNoQuery } from '../../../infrastructure/api/BiznessEventPCTrackVMForJobHistoryApiSlice';
 import TransactionEventVoucher from '../../pages/TransactionEventVoucher/TransactionEventVoucher';
-// import TenderRequisiton from '../../pages/TenderRequisition/TenderRequisiton';
+// import TenderRequisition from '../../pages/TenderRequisition/TenderRequisition';
 import { checkArrayContents } from '../../Utils/Util';
 import { useGetPreviewPageInfoByFixedTaskTemplateIdSequenceQuery } from '../../../infrastructure/api/BiznessEventProcessConigurationApiSlice';
 import TenderWon from '../../pages/TenderWon/TenderWon';
@@ -64,12 +64,12 @@ interface HistoryComponentProps {
 //   // ProcurementTenderTaskReporting1: TaskReporting,
 //   // ProcurementTenderTaskReporting2: TaskReporting,
 //   // // LCVoucher: TransactionLCVoucher,
-//   // ProcurementTender: TenderRequisiton,
+//   // ProcurementTender: TenderRequisition,
 //   // LCVoucher: TransactionEventVoucher,
 //   // TenderVoucher: TransactionEventVoucher,
 
 //   TaskReporting,
-//   TenderRequisiton,
+//   TenderRequisition,
 //   TransactionEventVoucher,
 //   TenderWon,
 //   PurchaseComparativeSheet,

@@ -181,6 +181,8 @@ const TaskReporting = ({
   const [progressSliderVal, setProgressSliderVal] = useState<string | number>(
     0
   );
+  /** Progress from history at page load — Deny always sends this, not the live slider */
+  const initialProgressRef = useRef(0);
   const [loaderSpinner, setLoaderSpinner] = useState(true);
   const {
     data: jsonForTaskReporting, // jsondummy
@@ -371,7 +373,11 @@ const TaskReporting = ({
       // loader bondho kor
       setLoaderSpinner(false);
 
-      if (emailInfoState?.progressPReported === 100) {
+      // Deny never emails next-event users (even if onload progress was 100)
+      if (
+        !emailInfoState?.denied &&
+        emailInfoState?.progressPReported === 100
+      ) {
         triggerSendEmailToNextEventUser({
           companyId: emailInfoState?.companyId || 0,
           fixedTaskTemplateId: emailInfoState?.fixedTaskTemplateId || 0,
@@ -497,6 +503,7 @@ const TaskReporting = ({
     const lastReportsProgress = jsonForTaskReporting?.length
       ? jsonForTaskReporting[jsonForTaskReporting.length - 1].progressPReported
       : 0;
+    initialProgressRef.current = lastReportsProgress;
     setProgressSliderVal(lastReportsProgress); // prothomei slider er default value set kore nilam
     if (jsonForTaskReporting?.length) {
       for (let i = 0; i < jsonForTaskReporting.length; i++) {
@@ -652,7 +659,10 @@ const TaskReporting = ({
     }
   };
 
-  const processDataToSave = (taskEndTimePassed: dayjs.Dayjs) => {
+  const processDataToSave = (
+    taskEndTimePassed: dayjs.Dayjs,
+    options?: { denied?: boolean; progressPReported?: number }
+  ) => {
     const tempTaskDate = dayjs(taskDate).format('YYYY-MM-DD');
     const tempTaskStartTime = dayjs(taskStartTime).format('HH:mm');
     const tempTaskEndTime = dayjs(taskEndTimePassed).format('HH:mm');
@@ -703,13 +713,25 @@ const TaskReporting = ({
       }
     }
 
+    const formNote = getValues().note ? getValues().note : '';
+    // Deny: append " - DENIED" if note exists, else just "DENIED"
+    const noteForSave =
+      options?.denied === true
+        ? formNote
+          ? `${formNote} - DENIED`
+          : 'DENIED'
+        : formNote;
+
     const objToSave: ICreateBiznessEventPCTrackCommand = {
       eventNo: clickedCardInfo.eventNo,
       performedBy: userInfo.securityUserId,
       startDate: taskStartDate,
       endDate: taskEndDate,
-      note: getValues().note ? getValues().note : '',
-      progressPReported: progressSliderVal as number,
+      note: noteForSave,
+      progressPReported:
+        options?.progressPReported !== undefined
+          ? options.progressPReported
+          : (progressSliderVal as number),
       originalSequence: clickedCardInfo.sequence,
       nextSequence: clickedCardInfo.sequence + 1,
       complete: false, // equals to 100 hole true else false
@@ -717,6 +739,8 @@ const TaskReporting = ({
         clickedCardInfo.biznessEventProcessConfigurationId,
       firstEventNo: clickedCardInfo.firstEventNo,
       locationId: clickedCardInfo.eventLocationId,
+      // Save: omit / leave null; Deny: true
+      denied: options?.denied === true ? true : null,
     };
 
     // const processedData: IBiznessEventPCTrackCommandsVM = {
@@ -764,6 +788,7 @@ const TaskReporting = ({
             companyId: userInfo?.companyId,
             progressPReported:
               objForSending.createPCTrackCommand.progressPReported,
+            denied: false,
           };
 
           setEmailInfoState(emailInfo);
@@ -790,6 +815,7 @@ const TaskReporting = ({
         firstEventNo: objForSending.createPCTrackCommand.firstEventNo,
         companyId: userInfo?.companyId,
         progressPReported: objForSending.createPCTrackCommand.progressPReported,
+        denied: false,
       };
 
       setEmailInfoState(emailInfo);
@@ -799,6 +825,61 @@ const TaskReporting = ({
       console.log(emailInfoState);
       // ekhane ajax call fobe for sending....
     }
+  };
+
+  const submitDenyWithEndTime = (endTimeForSave: dayjs.Dayjs) => {
+    const objForSending = processDataToSave(endTimeForSave, {
+      denied: true,
+      progressPReported: initialProgressRef.current,
+    });
+
+    const emailInfo = {
+      fixedTaskTemplateId: clickedCardInfo?.fixedTaskTemplateId,
+      firstEventNo: objForSending.createPCTrackCommand.firstEventNo,
+      companyId: userInfo?.companyId,
+      progressPReported: objForSending.createPCTrackCommand.progressPReported,
+      denied: true,
+    };
+
+    setEmailInfoState(emailInfo);
+    processBiznessEventPCTrackForTRSave(objForSending);
+  };
+
+  const denyTaskProgress = () => {
+    Swal.fire({
+      title: 'Deny this task report?',
+      text: 'This will save a denied entry. Progress will stay at the value from when you opened this page.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Deny',
+      cancelButtonText: 'Cancel',
+      allowOutsideClick: true,
+    }).then((confirmResult) => {
+      if (!confirmResult.isConfirmed) {
+        return;
+      }
+
+      if (!taskEndTime) {
+        Swal.fire({
+          title: `End Time field is empty!`,
+          text: 'Do you want to set "End Time" automatically with the latest time?',
+          showDenyButton: true,
+          allowOutsideClick: true,
+          icon: 'question',
+          showCancelButton: false,
+          confirmButtonText: 'Yes!',
+          denyButtonText: `No, I will set it manually!`,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            const timeNow = dayjs();
+            setTaskEndTime(timeNow);
+            submitDenyWithEndTime(timeNow);
+          }
+        });
+      } else {
+        submitDenyWithEndTime(taskEndTime);
+      }
+    });
   };
 
   // -----------[MRT Table]--------------
@@ -1321,6 +1402,24 @@ const TaskReporting = ({
                         }}
                       >
                         Save Task Progress
+                      </button>
+                      <button
+                        type="button"
+                        data-mdb-ripple="true"
+                        data-mdb-ripple-color="light"
+                        className="inline-block px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight rounded hover:bg-red-700 hover:shadow-lg hover:scale-[1.02] focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 w-full active:-translate-y-1 active:shadow-lg transform-all duration-700 ease-in-out"
+                        onClick={() => {
+                          if (
+                            operationMode === 'preview' ||
+                            operationMode === 'edit'
+                          ) {
+                            // do nothing
+                          } else {
+                            denyTaskProgress();
+                          }
+                        }}
+                      >
+                        Deny
                       </button>
                     </div>
                   </div>

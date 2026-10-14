@@ -50,7 +50,7 @@ import SecretQuestion from '../pages/Login/SecretQuestion';
 import ResetPassword from '../pages/Login/ResetPassword';
 import ChequeBookRegistration from '../pages/ChequeBookRegistration/ChequeBookRegistration';
 import ProcurementTender from '../pages/TenderRequisition/ProcurementTender/ProcurementTender';
-import TenderRequisiton from '../pages/TenderRequisition/TenderRequisiton';
+import TenderRequisition from '../pages/TenderRequisition/TenderRequisition';
 // import TransactionLCVoucher from '../pages/TransactionLCVoucher/TransactionLCVoucher';
 // import TransactionLCVoucherPage from '../pages/TransactionalLCVoucherPage/TransactionalLCVoucherPage';
 import TransactionEventVoucher from '../pages/TransactionEventVoucher/TransactionEventVoucher';
@@ -752,17 +752,17 @@ const App = () => {
                           element={<PrivateRoute element={<ReactFlowExp2 />} />}
                         />
 
-                        {/* <Route
+                        <Route
                           path="tenderRequisition"
                           // element={<ChequeBookRegistration />}
                           element={
-                            <PrivateRoute element={<TenderRequisiton />} />
+                            <PrivateRoute element={<TenderRequisition />} />
                           }
-                        /> */}
-                        <Route
+                        />
+                        {/* <Route
                           path="tenderRequisition"
                           element={
-                            <TenderRequisiton
+                            <TenderRequisition
                               clickedCardInfo={{
                                 biznessEventName: 'ProcurementTender',
                                 extendedBiznessEventName: [
@@ -772,7 +772,7 @@ const App = () => {
                               }}
                             />
                           }
-                        />
+                        /> */}
                         <Route
                           path="salesOrderAdditionalCost"
                           // element={<ChequeBookRegistration />}

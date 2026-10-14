@@ -39,18 +39,21 @@ import {
   useGetPreviewPageInfoByFixedTaskTemplateIdSequenceQuery,
   useLazyGetPermittedUserAndLocationByBiznessEventProcessConfigurationIdQuery,
   useLazyGetPreviewPageInfoByFixedTaskTemplateIdSequenceQuery,
+  useLazyGetSequencesByFixedTaskTemplateIdQuery,
 } from '../../../infrastructure/api/BiznessEventProcessConigurationApiSlice';
 import ComponentMissing from '../Status/ComponentMissing/ComponentMissing';
 import { IUserInfo } from '../../../domain/interfaces/UserInfoInterface';
 import ModalPageOpener from '../../components/biz24Components/ModalPageOpener';
 import { ISANextEvent } from '../../../domain/interfaces/SANextEventInterface';
 import {
+  useClearDeniedMutation,
   useLazyGetAllEventNoQuery,
   useLazyGetAllFirstEventNoQuery,
   useLazyGetChainFlowChartQuery,
 } from '../../../infrastructure/api/BiznessEventPCTrackVMForJobHistoryApiSlice';
 import {
   IChain,
+  IChainSequenceOption,
   IEventNo,
   IEventTask,
   IFirstEventNo,
@@ -58,6 +61,9 @@ import {
 import { IFixedTaskTemplateAutoComp } from '../../../domain/interfaces/FixedTaskTemplateInterface';
 import { useLazyGetFixedTaskTemplateComboOptionsQuery } from '../../../infrastructure/api/FixedTaskTemplateApiSlice';
 import componentMap from '../../Utils/DynamicPageDeclaration';
+import Swal from 'sweetalert2';
+import { useAppSelector } from '../../../application/Redux/store/store';
+import { hexToRgba } from '../../Utils/colorUtils';
 
 const BR2_URL = window.BR2_URL;
 type Props = {};
@@ -71,6 +77,20 @@ const formatEventName = (name?: string) =>
 const CHAIN_PAGE_SIZE = 10;
 const FILTER_DEBOUNCE_MS = 280;
 const EMPTY_TASKS: IEventTask[] = [];
+const ALL_SEQUENCE_OPTION: IChainSequenceOption = {
+  sequence: 0,
+  eventName: 'All',
+};
+
+type DeniedFilterValue = 'all' | 'enabled' | 'denied';
+type DeniedFilterOption = { value: DeniedFilterValue; label: string };
+
+const DENIED_FILTER_OPTIONS: DeniedFilterOption[] = [
+  { value: 'all', label: 'All' },
+  { value: 'enabled', label: 'Only Enabled' },
+  { value: 'denied', label: 'Only Denied' },
+];
+const ALL_DENIED_FILTER = DENIED_FILTER_OPTIONS[0];
 
 type ChainNodeData = {
   biznessEventPCTrackId: number;
@@ -95,8 +115,10 @@ type ChainNodeData = {
   notes: string;
   fixedTaskTemplateId?: number | null;
   fixedTaskTemplateName?: string;
+  denied?: boolean | null;
   onCompletedClick?: (nodeData: ChainNodeData) => void;
   onPendingClick?: (nodeData: ChainNodeData) => void;
+  onEnableDenied?: (biznessEventPCTrackIds: number[]) => void;
 };
 
 // ------------NB: This code has been transfered to Utils/DynamicPageDeclaration------------
@@ -111,12 +133,12 @@ type ChainNodeData = {
 //   // ProcurementTenderTaskReporting1: TaskReporting,
 //   // ProcurementTenderTaskReporting2: TaskReporting,
 //   // // LCVoucher: TransactionLCVoucher,
-//   // ProcurementTender: TenderRequisiton,
+//   // ProcurementTender: TenderRequisition,
 //   // LCVoucher: TransactionEventVoucher,
 //   // TenderVoucher: TransactionEventVoucher,
 
 //   TaskReporting,
-//   TenderRequisiton,
+//   TenderRequisition,
 //   TransactionEventVoucher,
 //   TenderWon,
 //   PurchaseComparativeSheet,
@@ -807,8 +829,13 @@ const CustomNode: React.FC<NodeProps> = ({ data }) => {
   );
 
   if (isDone) {
+    const isDenied = Boolean(nodeData.denied);
     return (
-      <div className="chain-node chain-node--done nodrag nopan">
+      <div
+        className={`chain-node chain-node--done nodrag nopan${
+          isDenied ? ' chain-node--denied' : ''
+        }`}
+      >
         <div className="chain-node-name">
           {formatEventName(nodeData.biznessEventName)}
         </div>
@@ -818,7 +845,27 @@ const CustomNode: React.FC<NodeProps> = ({ data }) => {
         <div className="chain-node-meta">
           Done by {nodeData.performedByName || '—'}
         </div>
-        <div className="chain-node-status">Completed</div>
+        {isDenied ? (
+          <div className="chain-node-denied-row">
+            <span className="chain-node-status chain-node-status--denied">
+              Denied
+            </span>
+            <button
+              type="button"
+              className="chain-enable-btn nodrag nopan"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (nodeData.biznessEventPCTrackId) {
+                  nodeData.onEnableDenied?.([nodeData.biznessEventPCTrackId]);
+                }
+              }}
+            >
+              Enable
+            </button>
+          </div>
+        ) : (
+          <div className="chain-node-status">Completed</div>
+        )}
         {handleNode}
       </div>
     );
@@ -919,7 +966,7 @@ const generateEdges = (tasks: IEventTask[]) => {
         animated: true,
         className: 'chain-flow-edge',
         style: {
-          stroke: '#0e7490',
+          stroke: 'var(--br24-accent, #0d9488)',
           strokeWidth: 2,
         },
       },
@@ -931,7 +978,8 @@ const generateNodes = (
   tasks: IEventTask[],
   chainMeta: { fixedTaskTemplateId: number; fixedTaskTemplateName: string },
   onCompletedClick: (nodeData: ChainNodeData) => void,
-  onPendingClick: (nodeData: ChainNodeData) => void
+  onPendingClick: (nodeData: ChainNodeData) => void,
+  onEnableDenied: (biznessEventPCTrackIds: number[]) => void
 ) =>
   tasks.map((task, index) => ({
     id: task.originalSequence.toString(),
@@ -961,22 +1009,68 @@ const generateNodes = (
       fixedTaskTemplateId:
         task.fixedTaskTemplateId ?? chainMeta.fixedTaskTemplateId,
       fixedTaskTemplateName: chainMeta.fixedTaskTemplateName,
+      denied: task.denied ?? null,
       onCompletedClick,
       onPendingClick,
+      onEnableDenied,
     } satisfies ChainNodeData,
     position: { x: index * 250, y: 12 },
   }));
+
+const ChainListSkeleton = memo(function ChainListSkeleton({
+  count = 3,
+  label = 'Loading chains',
+}: {
+  count?: number;
+  label?: string;
+}) {
+  return (
+    <div
+      className="chain-list-skeleton br24-anim-fade-in"
+      role="status"
+      aria-live="polite"
+      aria-label={label}
+    >
+      {Array.from({ length: count }, (_, i) => (
+        <article
+          key={i}
+          className="chain-flow-card chain-flow-card--skeleton"
+          aria-hidden
+        >
+          <div className="chain-flow-card-head">
+            <div className="chain-skel-head-text">
+              <div className="chain-skel-line chain-skel-line--xs" />
+              <div className="chain-skel-line chain-skel-line--md" />
+              <div className="chain-skel-line chain-skel-line--sm" />
+            </div>
+          </div>
+          <div className="chain-flow-canvas chain-flow-canvas--skeleton">
+            <div className="chain-skel-nodes">
+              <div className="chain-skel-node" />
+              <div className="chain-skel-edge" />
+              <div className="chain-skel-node" />
+              <div className="chain-skel-edge" />
+              <div className="chain-skel-node" />
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+});
 
 type ChainFlowCardProps = {
   event: IChain;
   onCompletedClick: (nodeData: ChainNodeData) => void;
   onPendingClick: (nodeData: ChainNodeData) => void;
+  onEnableDenied: (biznessEventPCTrackIds: number[]) => void;
 };
 
 const ChainFlowCard = memo(function ChainFlowCard({
   event,
   onCompletedClick,
   onPendingClick,
+  onEnableDenied,
 }: ChainFlowCardProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [activated, setActivated] = useState(false);
@@ -999,6 +1093,14 @@ const ChainFlowCard = memo(function ChainFlowCard({
 
   const tasks = event.tasks ?? EMPTY_TASKS;
 
+  const deniedTrackIds = useMemo(
+    () =>
+      tasks
+        .filter((t) => t.denied && t.biznessEventPCTrackId > 0)
+        .map((t) => t.biznessEventPCTrackId),
+    [tasks]
+  );
+
   const nodes = useMemo(
     () =>
       activated
@@ -1009,7 +1111,8 @@ const ChainFlowCard = memo(function ChainFlowCard({
               fixedTaskTemplateName: event.fixedTaskTemplateName,
             },
             onCompletedClick,
-            onPendingClick
+            onPendingClick,
+            onEnableDenied
           )
         : [],
     [
@@ -1019,6 +1122,7 @@ const ChainFlowCard = memo(function ChainFlowCard({
       event.fixedTaskTemplateName,
       onCompletedClick,
       onPendingClick,
+      onEnableDenied,
     ]
   );
 
@@ -1041,6 +1145,21 @@ const ChainFlowCard = memo(function ChainFlowCard({
             {event.fixedTaskTemplateName || 'Chain'}
           </div>
         </div>
+        {deniedTrackIds.length > 0 && (
+          <div className="chain-flow-card-denied-actions">
+            <span className="chain-denied-indicator">
+              Denied
+              {deniedTrackIds.length > 1 ? ` · ${deniedTrackIds.length}` : ''}
+            </span>
+            <button
+              type="button"
+              className="chain-enable-btn"
+              onClick={() => onEnableDenied(deniedTrackIds)}
+            >
+              Enable
+            </button>
+          </div>
+        )}
       </div>
       <div className="chain-flow-canvas">
         {activated ? (
@@ -1101,6 +1220,8 @@ type FormValues = {
   fixedTaskTemplate: IFixedTaskTemplateAutoComp | null;
   firstEventNo: IFirstEventNo | null;
   eventNo: IEventNo | null;
+  sequence: IChainSequenceOption | null;
+  deniedFilter: DeniedFilterOption | null;
 };
 
 const ReactFlowExp2 = (props: Props) => {
@@ -1122,10 +1243,14 @@ const ReactFlowExp2 = (props: Props) => {
       fixedTaskTemplate: null,
       firstEventNo: null,
       eventNo: null,
+      sequence: ALL_SEQUENCE_OPTION,
+      deniedFilter: ALL_DENIED_FILTER,
     },
   });
   // Watch for changes in the entire form
   const watchedFields = useWatch({ control });
+  const currentColor = useAppSelector((state) => state.currentColor.color);
+  const accentSoft = hexToRgba(currentColor, 0.06);
   const navigate = useNavigate();
   let userInfo: IUserInfo = {};
   const jsonUserInfo = localStorage.getItem('userInfo');
@@ -1158,9 +1283,7 @@ const ReactFlowExp2 = (props: Props) => {
   };
 
   const [chainDataState, setChainDataState] = useState<IChain[]>([]);
-  const [chainPage, setChainPage] = useState(1);
   const [hasNextPage, setHasNextPage] = useState(false);
-  const [totalChainCount, setTotalChainCount] = useState(0);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const chainPageRef = useRef(1);
   const hasNextPageRef = useRef(false);
@@ -1193,9 +1316,12 @@ const ReactFlowExp2 = (props: Props) => {
     },
   ] = useLazyGetChainFlowChartQuery(); // RTK Query lazy fetch
 
+  const [clearDenied] = useClearDeniedMutation();
+
   const fetchChainPage = useCallback(
     async (pageNumber: number, append: boolean) => {
-      const { fixedTaskTemplate, firstEventNo, eventNo } = getValues();
+      const { fixedTaskTemplate, firstEventNo, eventNo, sequence, deniedFilter } =
+        getValues();
       if (append) {
         setIsLoadingMore(true);
         loadingMoreRef.current = true;
@@ -1206,6 +1332,8 @@ const ReactFlowExp2 = (props: Props) => {
           fixedTaskTemplateId: fixedTaskTemplate?.fixedTaskTemplateId || null,
           firstEventNo: normalizeFilterValue(firstEventNo?.firstEventNo),
           eventNo: normalizeFilterValue(eventNo?.eventNo),
+          sequenceNo: sequence?.sequence || null,
+          deniedFilter: deniedFilter?.value || 'all',
           pageNumber,
           pageSize: CHAIN_PAGE_SIZE,
         }).unwrap();
@@ -1220,9 +1348,7 @@ const ReactFlowExp2 = (props: Props) => {
 
         chainPageRef.current = current;
         hasNextPageRef.current = nextHasNext;
-        setChainPage(current);
         setHasNextPage(nextHasNext);
-        setTotalChainCount(result?.totalCount || 0);
         setChainDataState((prev) =>
           append ? [...prev, ...pageData] : pageData
         );
@@ -1242,7 +1368,6 @@ const ReactFlowExp2 = (props: Props) => {
   const refetchChainFlowchart = useCallback(() => {
     chainPageRef.current = 1;
     hasNextPageRef.current = false;
-    setChainPage(1);
     setHasNextPage(false);
     setChainDataState([]);
     fetchChainPage(1, false);
@@ -1336,6 +1461,52 @@ const ReactFlowExp2 = (props: Props) => {
     [triggerGetPreviewPageInfo]
   );
 
+  const handleEnableDenied = useCallback(
+    async (biznessEventPCTrackIds: number[]) => {
+      const ids = (biznessEventPCTrackIds || []).filter((id) => id > 0);
+      if (ids.length === 0) {
+        toast.error('No denied track id to enable.');
+        return;
+      }
+
+      const result = await Swal.fire({
+        title: 'Enable denied step?',
+        text:
+          ids.length === 1
+            ? 'This step was denied. Are you sure you want to enable it?'
+            : `${ids.length} steps were denied. Are you sure you want to enable them all?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, enable',
+        cancelButtonText: 'Cancel',
+      });
+
+      if (!result.isConfirmed) return;
+
+      try {
+        const response = await clearDenied({
+          biznessEventPCTrackIds: ids,
+        }).unwrap();
+        if (response?.succeeded === false) {
+          toast.error(
+            response?.messages?.[0] || 'Could not enable denied step(s).'
+          );
+          return;
+        }
+        toast.success(
+          ids.length === 1
+            ? 'Denied step enabled.'
+            : `${ids.length} denied steps enabled.`
+        );
+        refetchChainFlowchart();
+      } catch (error) {
+        console.log(error);
+        toast.error('Could not enable denied step(s).');
+      }
+    },
+    [clearDenied, refetchChainFlowchart]
+  );
+
   useEffect(() => {
     if (chainFlowchartIsError) {
       toast.error(
@@ -1363,9 +1534,43 @@ const ReactFlowExp2 = (props: Props) => {
     watchedFields.fixedTaskTemplate?.fixedTaskTemplateId,
     watchedFields.firstEventNo?.firstEventNo,
     watchedFields.eventNo?.eventNo,
+    watchedFields.sequence?.sequence,
+    watchedFields.deniedFilter?.value,
   ]);
 
   // ------------------------- API CALLS and with associated useEffects --------------------------------------
+
+  const [
+    triggerGetSequences,
+    {
+      data: sequenceOptionsData,
+      isLoading: sequenceOptionsIsLoading,
+      isFetching: sequenceOptionsIsFetching,
+      isError: sequenceOptionsIsError,
+      error: sequenceOptionsError,
+    },
+  ] = useLazyGetSequencesByFixedTaskTemplateIdQuery();
+
+  useEffect(() => {
+    if (sequenceOptionsIsError) {
+      toast.error('Could not load Step/Sequence options.');
+      console.log(sequenceOptionsError);
+    }
+  }, [sequenceOptionsIsError, sequenceOptionsError]);
+
+  // Chain Type change → reset Step/Sequence to All + load options (or clear)
+  useEffect(() => {
+    const templateId =
+      watchedFields.fixedTaskTemplate?.fixedTaskTemplateId || 0;
+    setValue('sequence', ALL_SEQUENCE_OPTION);
+    if (templateId > 0) {
+      triggerGetSequences({ fixedTaskTemplateId: templateId });
+    }
+  }, [
+    watchedFields.fixedTaskTemplate?.fixedTaskTemplateId,
+    setValue,
+    triggerGetSequences,
+  ]);
 
   const [
     triggerGetFixedTaskTemplate,
@@ -1548,29 +1753,27 @@ const ReactFlowExp2 = (props: Props) => {
   };
 
   return (
-    <div className="chain-status-page mt-16 md:mt-2">
+    <div
+      className="chain-status-page mt-16 md:mt-2"
+      style={
+        {
+          '--cs-page-accent': currentColor,
+          '--cs-page-accent-soft': accentSoft,
+        } as React.CSSProperties
+      }
+    >
       <div className="flex justify-center">
-        <div className="w-[98%]">
+        <div className="block w-[98%]">
           <form>
-            <div className="chain-status-shell text-start">
+            <div className="chain-status-shell block rounded-lg shadow-md bg-white dark:bg-secondary-dark-bg text-start overflow-hidden border border-gray-100 dark:border-gray-700">
               <header className="chain-status-header">
-                <div>
+                <div className="chain-status-header-left">
+                  <div
+                    className="chain-status-accent-bar"
+                    style={{ background: currentColor }}
+                    aria-hidden
+                  />
                   <h1 className="chain-status-title">Available Chain Status</h1>
-                  <p className="chain-status-subtitle">
-                    Browse live process chains. Completed steps open preview;
-                    pending steps continue the workflow.
-                  </p>
-                </div>
-                <div className="chain-status-meta">
-                  <span className="chain-status-pill">
-                    Loaded <strong>{chainDataState.length}</strong>
-                  </span>
-                  <span className="chain-status-pill">
-                    Total <strong>{totalChainCount || '—'}</strong>
-                  </span>
-                  <span className="chain-status-pill">
-                    Page <strong>{chainPage}</strong>
-                  </span>
                 </div>
               </header>
 
@@ -1729,46 +1932,134 @@ const ReactFlowExp2 = (props: Props) => {
                     />
                   )}
                 />
+                <Controller
+                  name="sequence"
+                  control={control}
+                  render={({
+                    field: { onChange, onBlur, value, ref },
+                    fieldState: { error },
+                  }) => {
+                    const templateId =
+                      watchedFields.fixedTaskTemplate?.fixedTaskTemplateId ||
+                      0;
+                    const stepOptions: IChainSequenceOption[] =
+                      templateId > 0
+                        ? [
+                            ALL_SEQUENCE_OPTION,
+                            ...(sequenceOptionsData || []),
+                          ]
+                        : [ALL_SEQUENCE_OPTION];
+                    return (
+                      <Autocomplete
+                        size="small"
+                        loading={
+                          templateId > 0 &&
+                          (sequenceOptionsIsLoading ||
+                            sequenceOptionsIsFetching)
+                        }
+                        options={stepOptions}
+                        value={value || ALL_SEQUENCE_OPTION}
+                        onChange={(_event, selectedItem) =>
+                          onChange(selectedItem || ALL_SEQUENCE_OPTION)
+                        }
+                        onBlur={onBlur}
+                        getOptionLabel={(option) =>
+                          !option || option.sequence === 0
+                            ? 'All'
+                            : `${option.sequence} — ${formatEventName(option.eventName)}`
+                        }
+                        isOptionEqualToValue={(option, selectedValue) =>
+                          option.sequence === selectedValue?.sequence
+                        }
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Step / Sequence"
+                            variant="outlined"
+                            error={!!error}
+                            helperText={error ? error.message : null}
+                            inputRef={ref}
+                            sx={filterFieldSx}
+                          />
+                        )}
+                      />
+                    );
+                  }}
+                />
+                <Controller
+                  name="deniedFilter"
+                  control={control}
+                  render={({
+                    field: { onChange, onBlur, value, ref },
+                    fieldState: { error },
+                  }) => (
+                    <Autocomplete
+                      size="small"
+                      options={DENIED_FILTER_OPTIONS}
+                      value={value || ALL_DENIED_FILTER}
+                      onChange={(_event, selectedItem) =>
+                        onChange(selectedItem || ALL_DENIED_FILTER)
+                      }
+                      onBlur={onBlur}
+                      getOptionLabel={(option) => option?.label || 'All'}
+                      isOptionEqualToValue={(option, selectedValue) =>
+                        option.value === selectedValue?.value
+                      }
+                      disableClearable
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Denied status"
+                          variant="outlined"
+                          error={!!error}
+                          helperText={error ? error.message : null}
+                          inputRef={ref}
+                          sx={filterFieldSx}
+                        />
+                      )}
+                    />
+                  )}
+                />
               </div>
 
               <div
                 className="chain-status-list"
                 onScroll={handleChainListScroll}
               >
-                {chainFlowchartIsLoading && chainDataState.length === 0 && (
-                  <div className="br24-anim-fade-in flex justify-center py-14">
-                    <div className="br24-spinner" aria-label="Loading" />
-                  </div>
-                )}
-                {!chainFlowchartIsLoading && chainDataState.length === 0 && (
-                  <div className="chain-status-empty">
-                    No chains match these filters. Try widening Chain Type or
-                    clearing Event No.
-                  </div>
-                )}
+                {(chainFlowchartIsLoading || chainFlowchartIsFetching) &&
+                  chainDataState.length === 0 && (
+                    <ChainListSkeleton count={3} label="Loading chains" />
+                  )}
+                {!chainFlowchartIsLoading &&
+                  !chainFlowchartIsFetching &&
+                  chainDataState.length === 0 && (
+                    <div className="chain-status-empty">
+                      No chains match these filters. Try widening Chain Type or
+                      clearing Event No.
+                    </div>
+                  )}
                 {chainDataState.map((event) => (
                   <ChainFlowCard
                     key={`${event.fixedTaskTemplateId}-${event.firstEventNo}`}
                     event={event}
                     onCompletedClick={handleCompletedNodeClick}
                     onPendingClick={handlePendingNodeClick}
+                    onEnableDenied={handleEnableDenied}
                   />
                 ))}
                 {(isLoadingMore ||
                   (chainFlowchartIsFetching &&
                     chainDataState.length > 0)) && (
-                  <div className="br24-anim-fade-in flex justify-center py-4">
-                    <div
-                      className="br24-spinner"
-                      aria-label="Loading more"
-                    />
-                  </div>
+                  <ChainListSkeleton count={1} label="Loading more chains" />
                 )}
-                {!hasNextPage && chainDataState.length > 0 && (
-                  <div className="chain-status-footer-note">
-                    End of results · page {chainPage}
-                  </div>
-                )}
+                {!hasNextPage &&
+                  chainDataState.length > 0 &&
+                  !isLoadingMore &&
+                  !chainFlowchartIsFetching && (
+                    <div className="chain-status-footer-note">
+                      End of results
+                    </div>
+                  )}
               </div>
             </div>
           </form>

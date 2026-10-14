@@ -1,34 +1,25 @@
 # Task Identity
 
-- **Task ID:** TASK-20261010-chain-flowchart-pagination
-- **Task title:** Available Chain Status — paginated getChainFlowChart + infinite scroll
-- **Started date:** 2026-10-10
-- **Last updated:** 2026-10-10
+- **Task ID:** TASK-20261013-chain-denied-filter-header
+- **Task title:** Chain Status — TE header + deniedFilter
+- **Started date:** 2026-10-13
+- **Last updated:** 2026-10-13
 
 # Objective
 
-Paginate `getChainFlowChart` (BE) and load chains on scroll (FE) to fix Transaction Timeout on `fixedTaskTemplateId=0`.
+Match Available Chain Status header to Tender Expense For SP; add `deniedFilter=all|enabled|denied` on `getChainFlowChart`.
 
 # Current State
 
-**Backend (done):**
+**Backend (done):** `getChainFlowChart?deniedFilter=` — all (omit/null), enabled (no Denied==true on chain), denied (at least one Denied==true)
 
-- `GetChainFlowChart` returns `PaginatedResult<GetChainFlowChartDto>`
-- Params: `pageNumber` (default 1), `pageSize` (default 10, max 50)
-- Page-then-load: distinct chain keys → Skip/Take → load tasks only for page
-- Removed `TransactionScope` on this read-only service method
-
-**Frontend (done):**
-
-- API slice sends `pageNumber`/`pageSize`, expects `IPaginatedChainFlowChart`
-- `ReactFlowExp2`: page 1 on mount/filter change; append on scroll near bottom
+**Frontend (done):** TE-style header (accent bar + title, no subtitle); 5th filter Denied status; RTK passes `deniedFilter`
 
 # Next Action
 
-1. Restart IIS Express / API so new BE DLL loads (file lock blocked full Api build copy).
-2. Smoke: `getChainFlowChart?fixedTaskTemplateId=0&pageNumber=1&pageSize=10` → 200 + `hasNextPage`.
-3. UI: open `/reactFlowExp2`, scroll list, confirm page 2+ loads.
+1. Restart API (DLL lock if IIS Express running).
+2. Smoke: header looks like TE; Only Denied / Only Enabled / All.
 
 # Notes
 
-- Restart backend host after pull — IIS Express had locked Api output during build.
+- Related: TASK-20261013-chain-denied-enable

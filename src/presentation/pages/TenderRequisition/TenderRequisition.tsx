@@ -43,7 +43,7 @@ import { useLazySendEmailToNextEventUserQuery } from '../../../infrastructure/ap
 
 type Props = {};
 
-const TenderRequisiton = ({ modalPageOpenerClose, clickedCardInfo }: any) => {
+const TenderRequisition = ({ modalPageOpenerClose, clickedCardInfo }: any) => {
   const {
     register,
     getValues,
@@ -391,7 +391,7 @@ const TenderRequisiton = ({ modalPageOpenerClose, clickedCardInfo }: any) => {
           )}T${dayjs(getValues('tenderSubmissionDate')).format('HH:mm')}:00`
         : `${dayjs().format('YYYY-MM-DD')}T${dayjs().format('HH:mm')}:00`,
       schedulePrice: parseFloat(getValues('schedulePrice')),
-      earnestMoney: getValues('earnestMoney').optionName,
+      earnestMoney: getValues('earnestMoney')?.optionName ?? null,
       earnestMoneyAmount: parseFloat(getValues('earnestMoneyAmount')),
     };
 
@@ -1137,4 +1137,4 @@ const TenderRequisiton = ({ modalPageOpenerClose, clickedCardInfo }: any) => {
   );
 };
 
-export default TenderRequisiton;
+export default TenderRequisition;

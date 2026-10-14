@@ -12,6 +12,7 @@ import {
 } from '../../domain/interfaces/BiznessEventProcessConfigurationInterfaces';
 import { getToken } from '../Auth/JWTSecurity/jwtTokenManager';
 import { ISANextEvent } from '../../domain/interfaces/SANextEventInterface';
+import { IChainSequenceOption } from '../../domain/interfaces/ChainDataInterface';
 // import { IBiznessEventProcessConfigurationInfo } from '../../domain/interfaces/FixedTaskTemplateInterface';
 // Import the JSON file directly
 
@@ -56,6 +57,7 @@ export const BiznessEventProcessConfigurationApiSlice = createApi({
     'BiznessEventProcessConfigurationPreviewPage',
     'BiznessEventProcessConfigurationInfo',
     'BiznessEventProcessConfigurationButtons',
+    'ChainSequenceOptions',
   ],
   endpoints: (builder) => ({
     getBiznessEventProcessConfigurationsByFixedTaskTemplateId: builder.query<
@@ -66,6 +68,15 @@ export const BiznessEventProcessConfigurationApiSlice = createApi({
         `getByFixedTaskTemplateId?fixedTaskTemplateId=${fixedTaskTemplateId}`,
       // providesTags: () => [], // Disable caching by always providing an empty array of tags
       providesTags: ['BiznessEventProcessConfiguration'],
+    }),
+
+    getSequencesByFixedTaskTemplateId: builder.query<
+      IChainSequenceOption[],
+      { fixedTaskTemplateId: number }
+    >({
+      query: ({ fixedTaskTemplateId }) =>
+        `getSequencesByFixedTaskTemplateId?fixedTaskTemplateId=${fixedTaskTemplateId}`,
+      providesTags: ['ChainSequenceOptions'],
     }),
 
     getFirstPageOfChainByFixedTaskTemplateId: builder.query<
@@ -189,6 +200,8 @@ export const {
   useGetFirstPageOfChainByFixedTaskTemplateIdQuery,
   useGetPreviewPageInfoByFixedTaskTemplateIdSequenceQuery,
   useLazyGetPreviewPageInfoByFixedTaskTemplateIdSequenceQuery,
+  useGetSequencesByFixedTaskTemplateIdQuery,
+  useLazyGetSequencesByFixedTaskTemplateIdQuery,
   useProcessBiznessEventProcessConfigurationsMutation,
   useGetBiznessEventProcessConfigurationInfoByFixedTaskTemplateIdQuery,
   useGetAllButtonListQuery,

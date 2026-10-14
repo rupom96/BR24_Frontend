@@ -1,16 +1,16 @@
 # Session checkpoint
 
-**Last updated:** 2026-10-10
+**Last updated:** 2026-10-13
 
 ## Current task
 
-Available Chain Status — pagination + FE perf/premium UI polish.
+Chain Status TE header + `deniedFilter` (BE + FE).
 
 ## Completed this session
 
-- Paginated `getChainFlowChart` (BE) + infinite scroll (FE).
-- ReactFlowExp2: visibility-gated ReactFlow mount, memo cards, debounced filters, premium shell/nodes CSS.
+- Header: accent bar + title only (TE style)
+- `deniedFilter=all|enabled|denied` on getChainFlowChart + FE autocomplete
 
 ## Exact next action
 
-Restart API if needed; open `/reactFlowExp2` and confirm smooth scroll + deferred graph mounts.
+Restart API; smoke Denied status filter + header on `/reactFlowExp2`.

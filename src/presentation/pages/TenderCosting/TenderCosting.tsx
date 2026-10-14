@@ -1535,10 +1535,18 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
   // FOB: editable only when productSource === FOB; otherwise empty read-only
   const fobCell = ({ row }: any) => {
     const detail = rows[row.index];
+    const source = detail?.productSource || 'unknown';
     const editable = isFobSource(detail?.productSource);
     if (!editable) {
       return (
-        <div className="w-full py-1 flex justify-between items-center">
+        <div
+          className="w-full py-1 flex justify-between items-center cursor-not-allowed"
+          onClick={() =>
+            toast.info(
+              `FOB is editable only when ProductSource is FOB (current: ${source}).`
+            )
+          }
+        >
           <span style={{ fontSize: '0.8125rem' }} />
         </div>
       );
@@ -1613,11 +1621,19 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
   // Dist Margin %: editable only when productSource === FOB
   const distMarginPercentCell = ({ row }: any) => {
     const detail = rows[row.index];
+    const source = detail?.productSource || 'unknown';
     const editable = isFobSource(detail?.productSource);
     const val = detail?.distMarginPercent;
     if (!editable) {
       return (
-        <div className="w-full py-1 flex justify-between items-center">
+        <div
+          className="w-full py-1 flex justify-between items-center cursor-not-allowed"
+          onClick={() =>
+            toast.info(
+              `Dist Margin % is editable only when ProductSource is FOB (current: ${source}).`
+            )
+          }
+        >
           <span style={{ fontSize: '0.8125rem' }}>
             {val == null || val === 0 ? '' : Number(val).toFixed(2)}
           </span>
