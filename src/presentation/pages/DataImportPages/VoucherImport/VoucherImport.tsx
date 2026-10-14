@@ -83,7 +83,10 @@ import {
   ISDEAccMapping,
   IUpdateSDEAccMapping,
 } from '../../../../domain/interfaces/SDEAccMappingInterface';
-import { useLazyGetAllAccountsNameByCompanyIdQuery } from '../../../../infrastructure/api/AccountsNameApiSlice';
+import {
+  useLazyGetAllAccountsNameByCompanyIdQuery,
+  useLazyGetAllAccountsNameByCompanyIdFromDestinationQuery,
+} from '../../../../infrastructure/api/AccountsNameApiSlice';
 
 type Props = {};
 
@@ -240,6 +243,42 @@ const VoucherImport = ({
     accountsOptionsIsError,
     accountsOptionsIsFetching,
     accountsOptionsIsSuccess,
+  ]);
+
+  const [
+    triggerGetDestinationAccountsOptions,
+    {
+      data: destinationAccountsOptionsData,
+      error: destinationAccountsOptionsError,
+      isError: destinationAccountsOptionsIsError,
+      isSuccess: destinationAccountsOptionsIsSuccess,
+      isLoading: destinationAccountsOptionsIsLoading,
+      isFetching: destinationAccountsOptionsIsFetching,
+    },
+  ] = useLazyGetAllAccountsNameByCompanyIdFromDestinationQuery(); // RTK Query lazy fetch
+
+  useEffect(() => {
+    if (destinationAccountsOptionsIsError) {
+      toast.error(
+        'Something wrong from backend while fetching destinationAccountsOptionsData, see console!'
+      );
+      console.log(
+        'Something wrong from backend while fetching destinationAccountsOptionsData, see console--->:'
+      );
+      console.log(destinationAccountsOptionsError);
+    }
+    if (destinationAccountsOptionsIsSuccess) {
+      console.log('destinationAccountsOptionsIsSuccess');
+
+      console.log(destinationAccountsOptionsData);
+    }
+  }, [
+    destinationAccountsOptionsData,
+    destinationAccountsOptionsIsLoading,
+    destinationAccountsOptionsError,
+    destinationAccountsOptionsIsError,
+    destinationAccountsOptionsIsFetching,
+    destinationAccountsOptionsIsSuccess,
   ]);
 
   const [
@@ -610,6 +649,10 @@ const VoucherImport = ({
     triggerGetAccountsOptions({
       companyId: userInfo?.companyId,
       // locationId: userInfo?.locationId || null,
+    });
+
+    triggerGetDestinationAccountsOptions({
+      companyId: userInfo?.companyId,
     });
 
     triggerGetBiznessEventsOptions();
@@ -1489,7 +1532,7 @@ const VoucherImport = ({
         Cell: ({ row }) => {
           //  resolve the real option object by id (so it shows)
           const currentAccount =
-            (accountsOptionsData ?? []).find(
+            (destinationAccountsOptionsData ?? []).find(
               (a: any) =>
                 a?.accountsId === Number(row.original.destinationAccId)
             ) ??
@@ -1506,7 +1549,7 @@ const VoucherImport = ({
               options={
                 Array.from(
                   new Map(
-                    (accountsOptionsData ?? []).map((a: any) => [
+                    (destinationAccountsOptionsData ?? []).map((a: any) => [
                       a.accountsId,
                       a,
                     ])
@@ -1567,6 +1610,7 @@ const VoucherImport = ({
       checkAndSetSdeAccMappingTableValues,
       sdeAccMappingGrid,
       accountsOptionsData,
+      destinationAccountsOptionsData,
       deletedRowSdeAccMapping,
     ]
   );
