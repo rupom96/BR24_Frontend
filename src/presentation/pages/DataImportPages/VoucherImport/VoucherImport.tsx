@@ -488,21 +488,34 @@ const VoucherImport = ({
 
     // populating the table
 
+    const emptySdeAccMappingRow: ISDEAccMapping = {
+      sdeAccMappingId: null,
+      sourceCompanyId: null,
+      sourceAccId: null,
+      sourceAccName: null,
+      destinationAccId: null,
+      destinationAccName: null,
+      selectedDataExportConfigurationId: null,
+    };
+
     const copyOfSdeAccMappingRow = sdeConfigSaved?.sdeAccMappingRows
       ? JSON.parse(JSON.stringify(sdeConfigSaved?.sdeAccMappingRows))
       : [];
 
+    // Pad sparse grids for a usable empty UI
     while (copyOfSdeAccMappingRow.length < 10) {
-      copyOfSdeAccMappingRow.push({
-        sdeAccMappingId: null,
-        sourceCompanyId: null,
-        sourceAccId: null,
-        sourceAccName: null,
-        destinationAccId: null,
-        destinationAccName: null,
-        selectedDataExportConfigurationId: null,
-      });
+      copyOfSdeAccMappingRow.push({ ...emptySdeAccMappingRow });
     }
+
+    // Always keep one trailing empty row so new mappings can be entered
+    // (pad-to-10 alone fails when API returns >= 10 filled rows)
+    const lastRow =
+      copyOfSdeAccMappingRow[copyOfSdeAccMappingRow.length - 1];
+    const lastIsEmpty = !lastRow?.sourceAccId;
+    if (!lastIsEmpty) {
+      copyOfSdeAccMappingRow.push({ ...emptySdeAccMappingRow });
+    }
+
     setSdeAccMappingGrid([...copyOfSdeAccMappingRow]);
   }, [
     sdeConfigSavedIsSuccess,
@@ -1201,12 +1214,24 @@ const VoucherImport = ({
                     deletedRowSdeAccMapping?.push(tempDeletedObj);
                   }
                   sdeAccMappingGrid?.splice(row.index, 1);
-                  if (sdeAccMappingGrid) {
-                    setSdeAccMappingGrid([...sdeAccMappingGrid]);
-                    setDeletedRowSdeAccMapping([...deletedRowSdeAccMapping]);
-                  } else {
-                    setSdeAccMappingGrid([]);
+                  const nextGrid = sdeAccMappingGrid
+                    ? [...sdeAccMappingGrid]
+                    : [];
+                  const last = nextGrid[nextGrid.length - 1];
+                  // Keep one trailing empty row for new input
+                  if (nextGrid.length === 0 || last?.sourceAccId) {
+                    nextGrid.push({
+                      sdeAccMappingId: null,
+                      sourceCompanyId: null,
+                      sourceAccId: null,
+                      sourceAccName: null,
+                      destinationAccId: null,
+                      destinationAccName: null,
+                      selectedDataExportConfigurationId: null,
+                    });
                   }
+                  setSdeAccMappingGrid(nextGrid);
+                  setDeletedRowSdeAccMapping([...deletedRowSdeAccMapping]);
                 }}
               >
                 <Delete />

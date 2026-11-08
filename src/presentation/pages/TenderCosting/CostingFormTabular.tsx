@@ -309,7 +309,7 @@ export const CostingForm: React.FC<CostingFormProps> = ({
               </Cell>
               <PlainCell>BDT {fmt(state?.sdTotalYearsA)}</PlainCell>
 
-              {/* Margin — % editable; amount = (sdMarginP/100)*sdTotalYearsA (display+save only) */}
+              {/* Margin — % editable; amount = (sdMarginP/100)*sdTotalYearsA */}
               <Cell label="Margin">
                 <TextField
                   variant="standard"
@@ -326,7 +326,13 @@ export const CostingForm: React.FC<CostingFormProps> = ({
               </Cell>
               <PlainCell>BDT {fmt(state?.sdMarginAmount)}</PlainCell>
 
-              {/* No. of Unit — LAST ROW */}
+              {/* Total SD Expense — virtual: Margin amount + No. Year amount */}
+              <Cell label="Total SD Expense">
+                <span className="text-right w-full" />
+              </Cell>
+              <PlainCell>BDT {fmt(state?.totalSdExpense)}</PlainCell>
+
+              {/* No. of Unit — LAST ROW; amount = totalSdExpense / QTY */}
               <Cell label="No. of Unit" lastRow>
                 <span className="font-semibold">
                   {sumOfUnit ? sumOfUnit.toFixed(2) : ''}

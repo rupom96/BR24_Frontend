@@ -29,6 +29,10 @@ export interface GetTenderExpenseForSalesPersonDto {
   preShipmentInspectionP?: number | null;
   bufferA?: number | null;
   bufferP?: number | null;
+  distMarginA?: number | null;
+  distMarginP?: number | null;
+  profitA?: number | null;
+  profitP?: number | null;
 }
 
 /** Body.tenderExpenseForSalesPersonData for ProcessTenderExpenseForSalesPerson */

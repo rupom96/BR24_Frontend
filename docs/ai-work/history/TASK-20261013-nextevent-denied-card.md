@@ -31,6 +31,12 @@ Surface `BiznessEvent_PCTrack.Denied` on `GET api/SA_NextEvent/getByCompanyLocat
 - No new table column (already existed)
 - Verified: EXEC result columns include single `Denied`
 
+## DB follow-up 2026-11-02 (`cor_test555`)
+
+- Problem: `##LastEvents` only includes `ProgressPReported = 100`, so Deny saves (`Denied=1`, progress 0) never fed NextEvent `Denied` → API always `null`.
+- Fix: added `##ChainDenied` = `MAX(Denied=1)` per `FirstEventNo` + `FixedTaskTemplateId` (any progress). `CTE_NextEventWithoutUser` uses `cd.ChainDenied AS Denied` (old `le.Denied` commented, dated).
+- Verified: `Hridoy Test` / Seq 11 → SP `Denied=True`.
+
 ## Smoke
 
 1. Restart API.

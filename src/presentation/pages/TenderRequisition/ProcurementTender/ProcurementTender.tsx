@@ -641,9 +641,16 @@ const ProcurementTender: React.FC<ProcurementTenderComponentProps> = ({
               id=""
               size="small"
               // disabled={}
-              readOnly={!!clickedCardInfo?.biznessEventProcessConfigurationId}
-              // options={tenderComboOptions || []} // Make sure tenderComboOptions is defined
-              options={tenderComboOptions || []} // Make sure tenderComboOptions is defined
+              readOnly={
+                !!clickedCardInfo?.biznessEventProcessConfigurationId &&
+                clickedCardInfo?.sequence !== 1
+              }
+              // sequence 1 → no existing tender list (create-only); Add "…" still via filterOptions
+              options={
+                clickedCardInfo?.sequence === 1
+                  ? []
+                  : tenderComboOptions || []
+              }
               value={value || null}
               selectOnFocus
               clearOnBlur

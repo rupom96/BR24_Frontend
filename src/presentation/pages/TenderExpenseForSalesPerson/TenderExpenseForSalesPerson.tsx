@@ -13,6 +13,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 import dayjs from 'dayjs';
+import ExcelJS from 'exceljs';
 
 import { ITenderNoComboBox } from '../../../domain/interfaces/ProcurementTenderInterface';
 import { ICreateBiznessEventPCTrackCommand } from '../../../domain/interfaces/BiznessEventPCTrackVMInterface';
@@ -85,6 +86,10 @@ const emptyExpense = (
   preShipmentInspectionP: null,
   bufferA: null,
   bufferP: null,
+  distMarginA: null,
+  distMarginP: null,
+  profitA: null,
+  profitP: null,
 });
 
 const toNum = (v: unknown): number => {
@@ -105,6 +110,181 @@ const detectSalesExpenseMode = (
     toNum(dto.salesExpenseDueA) > 0 ||
     toNum(dto.salesExpenseBufferA) > 0;
   return anyAmount ? 'amount' : 'percentage';
+};
+
+/** Amount/number cells: truthy → value, falsy/0 → empty. */
+const cellDisp = (v: number | null | undefined): number | string =>
+  v ? v : '';
+
+/** Percentage cells: truthy → `n%`, falsy → empty. */
+const pctDisp = (v: number | null | undefined): string => (v ? `${v}%` : '');
+
+/** Time-period cells: truthy → `n years`, falsy → empty. */
+const yearsDisp = (v: number | null | undefined): string =>
+  v ? `${v} years` : '';
+
+const downloadBlob = (blob: Blob, fileName: string) => {
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+};
+
+/** Client-side A4 report from last GET snapshot (not live form edits). */
+const buildTenderExpenseSheetWorkbook = async (
+  tenderNo: string,
+  dto: GetTenderExpenseForSalesPersonDto
+): Promise<ExcelJS.Workbook> => {
+  const workbook = new ExcelJS.Workbook();
+  workbook.creator = 'TenderExpenseForSalesPerson';
+  workbook.created = new Date();
+
+  const ws = workbook.addWorksheet('Expense Report', {
+    properties: { defaultRowHeight: 18 },
+    pageSetup: {
+      paperSize: 9, // A4
+      orientation: 'portrait',
+      fitToPage: true,
+      fitToWidth: 1,
+      fitToHeight: 0,
+    },
+  });
+
+  ws.columns = [
+    { width: 28 },
+    { width: 16 },
+    { width: 16 },
+  ];
+
+  const thin = { style: 'thin' as const };
+  const boxBorder = { top: thin, left: thin, bottom: thin, right: thin };
+
+  const addTitle = (text: string) => {
+    const row = ws.addRow([text]);
+    row.font = { bold: true, size: 14 };
+    ws.mergeCells(row.number, 1, row.number, 3);
+  };
+
+  const addSection = (text: string) => {
+    const row = ws.addRow([text]);
+    row.font = { bold: true, size: 11 };
+    row.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFE8EEF5' },
+    };
+    ws.mergeCells(row.number, 1, row.number, 3);
+    [1, 2, 3].forEach((c) => {
+      row.getCell(c).border = boxBorder;
+    });
+  };
+
+  const addHeader = (c1: string, c2: string, c3: string) => {
+    const row = ws.addRow([c1, c2, c3]);
+    row.font = { bold: true, size: 9 };
+    row.alignment = { horizontal: 'center', vertical: 'middle' };
+    [1, 2, 3].forEach((c) => {
+      row.getCell(c).border = boxBorder;
+    });
+  };
+
+  const addRow = (
+    label: string,
+    c2: number | string = '',
+    c3: number | string = ''
+  ) => {
+    const row = ws.addRow([label, c2, c3]);
+    row.getCell(1).alignment = { vertical: 'middle' };
+    row.getCell(2).alignment = { horizontal: 'right', vertical: 'middle' };
+    row.getCell(3).alignment = { horizontal: 'right', vertical: 'middle' };
+    [1, 2, 3].forEach((c) => {
+      row.getCell(c).border = boxBorder;
+    });
+  };
+
+  const blank = () => {
+    ws.addRow([]);
+  };
+
+  addTitle('Tender Expense For Sales Person Report');
+  addRow('Tender No', tenderNo, '');
+  blank();
+
+  // —— Securities, VAT & Tax ——
+  addSection('Securities, VAT & Tax');
+  addRow('Tender Security (BG Amount)', cellDisp(dto.bgAmount), '');
+  addHeader('', 'Percentage', 'Time Period');
+  addRow(
+    'SD (Security Deposit)',
+    pctDisp(dto.securityDepositP),
+    yearsDisp(dto.securityDepositT)
+  );
+  addRow(
+    'Performance Security (PG)',
+    pctDisp(dto.performanceGuaranteeP),
+    yearsDisp(dto.performanceGuaranteeT)
+  );
+  addRow('PG Mode', dto.earnestMoney || '', '');
+  addRow('VAT', pctDisp(dto.vat), '');
+  addRow('Tax', pctDisp(dto.tax), '');
+  blank();
+
+  // —— Sales Expense ——
+  const salesMode = detectSalesExpenseMode(dto);
+  const salesTotalA =
+    toNum(dto.salesExpenseAdvanceA) +
+    toNum(dto.salesExpenseDueA) +
+    toNum(dto.salesExpenseBufferA);
+  const salesTotalP =
+    toNum(dto.salesExpenseAdvanceP) +
+    toNum(dto.salesExpenseDueP) +
+    toNum(dto.salesExpenseBufferP);
+
+  addSection('Sales Expense');
+  addHeader('', 'Amount', 'Percentage');
+  addRow(
+    'Advance',
+    cellDisp(dto.salesExpenseAdvanceA),
+    pctDisp(dto.salesExpenseAdvanceP)
+  );
+  addRow(
+    'Due',
+    cellDisp(dto.salesExpenseDueA),
+    pctDisp(dto.salesExpenseDueP)
+  );
+  addRow(
+    'Buffer (Others)',
+    cellDisp(dto.salesExpenseBufferA),
+    pctDisp(dto.salesExpenseBufferP)
+  );
+  const totalRow = ws.addRow([
+    'Total',
+    salesMode === 'amount' ? cellDisp(salesTotalA) : '',
+    salesMode === 'percentage' ? pctDisp(salesTotalP) : '',
+  ]);
+  totalRow.font = { bold: true };
+  [1, 2, 3].forEach((c) => {
+    totalRow.getCell(c).border = boxBorder;
+  });
+  totalRow.getCell(2).alignment = { horizontal: 'right' };
+  totalRow.getCell(3).alignment = { horizontal: 'right' };
+  blank();
+
+  // —— AG & Additional Costs ——
+  addSection('AG & Additional Costs');
+  addHeader('', 'Amount', 'Percentage');
+  addRow('AG', cellDisp(dto.agExpenseA), pctDisp(dto.agExpenseP));
+  addRow('Delivery', cellDisp(dto.deliveryA), '');
+  addRow('Installation', cellDisp(dto.installationA), '');
+  addRow('Training', cellDisp(dto.trainingA), '');
+  addRow('Pre Shipment Insp.', cellDisp(dto.preShipmentInspectionA), '');
+  addRow('Buffer / Others', cellDisp(dto.bufferA), '');
+
+  return workbook;
 };
 
 const inputFont = { fontSize: '0.78rem' };
@@ -328,7 +508,7 @@ const SectionSkeleton: React.FC<{ rows?: number }> = ({ rows = 6 }) => (
 
 const TenderExpenseForSalesPerson: React.FC<
   TenderExpenseForSalesPersonProps
-> = ({ modalPageOpenerClose, clickedCardInfo, operationMode }) => {
+> = ({ clickedCardInfo, operationMode }) => {
   const isViewMode = operationMode === 'view';
   const currentColor = useAppSelector((state) => state.currentColor.color);
   const accentSoft = hexToRgba(currentColor, 0.06);
@@ -437,6 +617,10 @@ const TenderExpenseForSalesPerson: React.FC<
 
   useEffect(() => {
     if (processIsSuccess) {
+      const tenderId = getValues('tenderNo')?.procurementTenderId;
+      if (tenderId) {
+        triggerGetExpense({ procurementTenderId: tenderId });
+      }
       Swal.fire({
         title: 'Tender Expense For SP has been saved successfully!',
         text: '',
@@ -460,6 +644,8 @@ const TenderExpenseForSalesPerson: React.FC<
     processData,
     processError,
     processLoading,
+    getValues,
+    triggerGetExpense,
   ]);
 
   const setField = (
@@ -625,7 +811,41 @@ const TenderExpenseForSalesPerson: React.FC<
       preShipmentInspectionP: 0,
       bufferA: toNum(expense.bufferA),
       bufferP: 0,
+      distMarginA: toNum(expense.distMarginA),
+      distMarginP: toNum(expense.distMarginP),
+      profitA: toNum(expense.profitA),
+      profitP: toNum(expense.profitP),
     };
+  };
+
+  const handleExpenseReportDownload = async () => {
+    const tender = getValues('tenderNo');
+    if (!tender?.tenderNo) {
+      toast.warn('Select a Tender No first!');
+      requestAnimationFrame(() => tenderNoInputRef.current?.focus());
+      return;
+    }
+    if (!expenseData) {
+      toast.warn('Expense data not loaded yet');
+      return;
+    }
+
+    try {
+      const workbook = await buildTenderExpenseSheetWorkbook(
+        tender.tenderNo,
+        { ...emptyExpense(), ...expenseData }
+      );
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+      const safeNo = tender.tenderNo.replace(/[^\w.-]+/g, '_');
+      downloadBlob(blob, `TenderExpenseSheet_${safeNo}.xlsx`);
+      toast.success('Report downloaded');
+    } catch (error) {
+      console.log('Expense Report excel error ➜', error);
+      toast.error('Report download failed');
+    }
   };
 
   const saveFunct = () => {
@@ -1298,12 +1518,30 @@ const TenderExpenseForSalesPerson: React.FC<
                 )}
                 <button
                   type="button"
-                  className="te-btn-ghost"
+                  className="te-btn-primary"
+                  style={{
+                    background: currentColor,
+                    ...(!formReady || expenseFetching
+                      ? { opacity: 0.45 }
+                      : {}),
+                  }}
+                  disabled={expenseFetching}
                   onClick={() => {
-                    modalPageOpenerClose?.();
+                    if (expenseFetching) {
+                      toast.warning('Please wait until the report is ready!');
+                      return;
+                    }
+                    if (!formReady) {
+                      toast.warn('Select a Tender No first!');
+                      requestAnimationFrame(() =>
+                        tenderNoInputRef.current?.focus()
+                      );
+                      return;
+                    }
+                    handleExpenseReportDownload();
                   }}
                 >
-                  Close
+                  {expenseFetching ? 'Please wait…' : 'Expense Report'}
                 </button>
               </div>
             </div>

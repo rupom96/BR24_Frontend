@@ -314,213 +314,213 @@ const Sidebar = () => {
         { ...staticMenuObject },
 
         //  ------------From here hard coded menu starts--------------
-        {
-          title: 'Bizness Roots',
-          links: [
+        // {
+        //   title: 'Bizness Roots',
+        //   links: [
             
-            {
-              name: 'Cost Sheet Detail',
-              path: 'costSheetDetail',
-              icon: <FiShoppingBag />,
-            },
-            {
-              name: 'Cheque Book Management',
-              path: 'chequeBookManagement',
-              icon: <FiShoppingBag />,
-            },
-            {
-              name: 'LC Voucher',
-              path: 'transactionalLcVoucher',
-              icon: <FiShoppingBag />,
-            },
-            {
-              name: 'Tender Voucher',
-              path: 'transactionalTenderVoucher',
-              icon: <FiShoppingBag />,
-            },
-            {
-              name: 'Tender Won',
-              path: 'tenderWonStatic',
-              icon: <FiShoppingBag />,
-            },
-            {
-              name: 'Tender Requisition',
-              path: 'tenderRequisition',
-              icon: <FiShoppingBag />,
-            },
+        //     {
+        //       name: 'Cost Sheet Detail',
+        //       path: 'costSheetDetail',
+        //       icon: <FiShoppingBag />,
+        //     },
+        //     {
+        //       name: 'Cheque Book Management',
+        //       path: 'chequeBookManagement',
+        //       icon: <FiShoppingBag />,
+        //     },
+        //     {
+        //       name: 'LC Voucher',
+        //       path: 'transactionalLcVoucher',
+        //       icon: <FiShoppingBag />,
+        //     },
+        //     {
+        //       name: 'Tender Voucher',
+        //       path: 'transactionalTenderVoucher',
+        //       icon: <FiShoppingBag />,
+        //     },
+        //     {
+        //       name: 'Tender Won',
+        //       path: 'tenderWonStatic',
+        //       icon: <FiShoppingBag />,
+        //     },
+        //     {
+        //       name: 'Tender Requisition',
+        //       path: 'tenderRequisition',
+        //       icon: <FiShoppingBag />,
+        //     },
 
-            {
-              name: 'Purchase Comparative',
-              path: 'purchaseComparartiveSheetStatic',
-              icon: <FiShoppingBag />,
-            },
-            {
-              name: 'Chain Configuration',
-              path: 'chainConfiguration',
-              icon: <FiShoppingBag />,
-            },
+        //     {
+        //       name: 'Purchase Comparative',
+        //       path: 'purchaseComparartiveSheetStatic',
+        //       icon: <FiShoppingBag />,
+        //     },
+        //     {
+        //       name: 'Chain Configuration',
+        //       path: 'chainConfiguration',
+        //       icon: <FiShoppingBag />,
+        //     },
            
-            {
-              name: 'Team and Target',
-              path: 'teamAndTarget',
-              icon: <FiShoppingBag />,
-            },
-            {
-              name: 'Buyer Sales Report',
-              path: 'buyerSalesReport',
-              icon: <FiShoppingBag />,
-            },
-            {
-              name: 'Region And Target',
-              path: 'regionTree',
-              icon: <FiShoppingBag />,
-            },
-            {
-              name: 'Buyer And Target',
-              path: 'regionBuyerTree',
-              icon: <FiShoppingBag />,
-            },
-            {
-              name: 'Incentive Report',
-              path: 'incentiveReport',
-              icon: <FiShoppingBag />,
-            },
-            {
-              name: 'Daily Sales Report',
-              path: 'dailySalesReport',
-              icon: <FiShoppingBag />,
-            },
-            {
-              name: 'Commission Management',
-              path: 'commissionManagement',
-              icon: <FiShoppingBag />,
-            },
+        //     {
+        //       name: 'Team and Target',
+        //       path: 'teamAndTarget',
+        //       icon: <FiShoppingBag />,
+        //     },
+        //     {
+        //       name: 'Buyer Sales Report',
+        //       path: 'buyerSalesReport',
+        //       icon: <FiShoppingBag />,
+        //     },
+        //     {
+        //       name: 'Region And Target',
+        //       path: 'regionTree',
+        //       icon: <FiShoppingBag />,
+        //     },
+        //     {
+        //       name: 'Buyer And Target',
+        //       path: 'regionBuyerTree',
+        //       icon: <FiShoppingBag />,
+        //     },
+        //     {
+        //       name: 'Incentive Report',
+        //       path: 'incentiveReport',
+        //       icon: <FiShoppingBag />,
+        //     },
+        //     {
+        //       name: 'Daily Sales Report',
+        //       path: 'dailySalesReport',
+        //       icon: <FiShoppingBag />,
+        //     },
+        //     {
+        //       name: 'Commission Management',
+        //       path: 'commissionManagement',
+        //       icon: <FiShoppingBag />,
+        //     },
 
-            {
-              name: 'Available Chain Status',
-              path: 'reactFlowExp2',
-              icon: <FiShoppingBag />,
-            },
+        //     {
+        //       name: 'Available Chain Status',
+        //       path: 'reactFlowExp2',
+        //       icon: <FiShoppingBag />,
+        //     },
 
-            {
-              name: 'Tender Costing',
-              path: 'tenderCosting',
-              icon: <FiShoppingBag />,
-            },
+        //     {
+        //       name: 'Tender Costing',
+        //       path: 'tenderCosting',
+        //       icon: <FiShoppingBag />,
+        //     },
 
-            {
-              name: 'Tender Expense For SP',
-              path: 'tenderExpenseForSalesPerson',
-              icon: <FiShoppingBag />,
-            },
-            {
-              name: 'Tender Approval TopSheet Rpt',
-              path: 'tenderApprovalTopSheetRpt',
-              icon: <FiShoppingBag />,
-            },
-            {
-              name: 'Current Stock View',
-              path: 'currentStockPreview',
-              icon: <FiShoppingBag />,
-            },
+        //     {
+        //       name: 'Tender Expense For SP',
+        //       path: 'tenderExpenseForSalesPerson',
+        //       icon: <FiShoppingBag />,
+        //     },
+        //     {
+        //       name: 'Tender Approval TopSheet Rpt',
+        //       path: 'tenderApprovalTopSheetRpt',
+        //       icon: <FiShoppingBag />,
+        //     },
+        //     {
+        //       name: 'Current Stock View',
+        //       path: 'currentStockPreview',
+        //       icon: <FiShoppingBag />,
+        //     },
            
-          ],
-        },
+        //   ],
+        // },
 
-        {
-          title: 'Edit Pages',
-          links: [
-            {
-              name: 'Sales Order Edit',
-              path: 'salesOrderEdit',
-              icon: <FiShoppingBag />,
-            },
-            {
-              name: 'Sales Return Edit',
-              path: 'salesReturnEdit',
-              icon: <FiShoppingBag />,
-            },
-            {
-              name: 'Local Purchase Edit',
-              path: 'lPurchaseInEdit',
-              icon: <FiShoppingBag />,
-            },
+        // {
+        //   title: 'Edit Pages',
+        //   links: [
+        //     {
+        //       name: 'Sales Order Edit',
+        //       path: 'salesOrderEdit',
+        //       icon: <FiShoppingBag />,
+        //     },
+        //     {
+        //       name: 'Sales Return Edit',
+        //       path: 'salesReturnEdit',
+        //       icon: <FiShoppingBag />,
+        //     },
+        //     {
+        //       name: 'Local Purchase Edit',
+        //       path: 'lPurchaseInEdit',
+        //       icon: <FiShoppingBag />,
+        //     },
 
-            {
-              name: 'Purchase Return Edit',
-              path: 'purchaseReturnEdit',
-              icon: <FiShoppingBag />,
-            },
+        //     {
+        //       name: 'Purchase Return Edit',
+        //       path: 'purchaseReturnEdit',
+        //       icon: <FiShoppingBag />,
+        //     },
 
-            // {
-            //   name: 'Collection Manipulation',
-            //   path: 'collectionEditGh',
-            //   icon: <FiShoppingBag />,
-            // },
-            {
-              name: 'Collection Edit',
-              path: 'collectionEdit',
-              icon: <FiShoppingBag />,
-            },
-            {
-              name: 'Payment Edit',
-              path: 'paymentEdit',
-              icon: <FiShoppingBag />,
-            },
+        //     // {
+        //     //   name: 'Collection Manipulation',
+        //     //   path: 'collectionEditGh',
+        //     //   icon: <FiShoppingBag />,
+        //     // },
+        //     {
+        //       name: 'Collection Edit',
+        //       path: 'collectionEdit',
+        //       icon: <FiShoppingBag />,
+        //     },
+        //     {
+        //       name: 'Payment Edit',
+        //       path: 'paymentEdit',
+        //       icon: <FiShoppingBag />,
+        //     },
 
-            {
-              name: 'Import In Edit',
-              path: 'importInEdit',
-              icon: <FiShoppingBag />,
-            },
-          ],
-        },
+        //     {
+        //       name: 'Import In Edit',
+        //       path: 'importInEdit',
+        //       icon: <FiShoppingBag />,
+        //     },
+        //   ],
+        // },
 
-        {
-          title: 'Data Migration',
-          links: [
-            {
-              name: 'Sales Migrate',
-              path: 'salesImport',
-              icon: <FiShoppingBag />,
-            },
-            {
-              name: 'Sales Return Migrate',
-              path: 'salesReturnImport',
-              icon: <FiShoppingBag />,
-            },
-            {
-              name: 'Purchase Migrate',
-              path: 'purchaseImport',
-              icon: <FiShoppingBag />,
-            },
-            {
-              name: 'Purchase Return Migrate',
-              path: 'purchaseReturnImport',
-              icon: <FiShoppingBag />,
-            },
-            {
-              name: 'Collection Migrate',
-              path: 'collectionImport',
-              icon: <FiShoppingBag />,
-            },
-            {
-              name: 'Payment Migrate',
-              path: 'paymentImport',
-              icon: <FiShoppingBag />,
-            },
-            {
-              name: 'Voucher Migrate',
-              path: 'voucherImport',
-              icon: <FiShoppingBag />,
-            },
-            {
-              name: 'Import In Migrate',
-              path: 'importLCImport',
-              icon: <FiShoppingBag />,
-            },
-          ],
-        },
+        // {
+        //   title: 'Data Migration',
+        //   links: [
+        //     {
+        //       name: 'Sales Migrate',
+        //       path: 'salesImport',
+        //       icon: <FiShoppingBag />,
+        //     },
+        //     {
+        //       name: 'Sales Return Migrate',
+        //       path: 'salesReturnImport',
+        //       icon: <FiShoppingBag />,
+        //     },
+        //     {
+        //       name: 'Purchase Migrate',
+        //       path: 'purchaseImport',
+        //       icon: <FiShoppingBag />,
+        //     },
+        //     {
+        //       name: 'Purchase Return Migrate',
+        //       path: 'purchaseReturnImport',
+        //       icon: <FiShoppingBag />,
+        //     },
+        //     {
+        //       name: 'Collection Migrate',
+        //       path: 'collectionImport',
+        //       icon: <FiShoppingBag />,
+        //     },
+        //     {
+        //       name: 'Payment Migrate',
+        //       path: 'paymentImport',
+        //       icon: <FiShoppingBag />,
+        //     },
+        //     {
+        //       name: 'Voucher Migrate',
+        //       path: 'voucherImport',
+        //       icon: <FiShoppingBag />,
+        //     },
+        //     {
+        //       name: 'Import In Migrate',
+        //       path: 'importLCImport',
+        //       icon: <FiShoppingBag />,
+        //     },
+        //   ],
+        // },
         //  ------------Here hard coded menu ends--------------
         { ...reportsObject },
       ];

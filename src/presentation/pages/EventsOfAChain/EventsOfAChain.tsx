@@ -538,9 +538,9 @@ const EventsOfAChain = ({
                                         Sequence: {item.sequence}
                                       </span>
                                       {item.eventNo &&
-                                      item.controllerPathType === 'component' &&
-                                      item.controllerPath ===
-                                        'TenderRequisition' ? (
+                                      (item.fixedTaskTemplateName || '')
+                                        .toLowerCase()
+                                        .includes('tender') ? (
                                         <span
                                           onClick={(e) => e.stopPropagation()}
                                           onKeyDown={(e) => e.stopPropagation()}

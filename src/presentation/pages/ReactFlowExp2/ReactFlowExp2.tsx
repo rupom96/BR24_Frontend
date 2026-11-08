@@ -33,6 +33,7 @@ import {
   TextField,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import StickyNote2OutlinedIcon from '@mui/icons-material/StickyNote2Outlined';
 import { useNavigate } from 'react-router-dom';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import {
@@ -116,9 +117,25 @@ type ChainNodeData = {
   fixedTaskTemplateId?: number | null;
   fixedTaskTemplateName?: string;
   denied?: boolean | null;
+  showSequenceBadge?: boolean;
   onCompletedClick?: (nodeData: ChainNodeData) => void;
   onPendingClick?: (nodeData: ChainNodeData) => void;
   onEnableDenied?: (biznessEventPCTrackIds: number[]) => void;
+};
+
+const NOTE_PREVIEW_MAX = 8;
+
+const formatNotePreview = (note: string) => {
+  const trimmed = note.trim();
+  if (trimmed.length <= NOTE_PREVIEW_MAX) return trimmed;
+  return `${trimmed.slice(0, NOTE_PREVIEW_MAX)}...`;
+};
+
+const chainFlowNodeId = (task: IEventTask) => {
+  if (task.biznessEventPCTrackId > 0) {
+    return String(task.biznessEventPCTrackId);
+  }
+  return `pending-${task.biznessEventProcessConfigurationId}-${task.originalSequence}-${task.firstEventNo}`;
 };
 
 // ------------NB: This code has been transfered to Utils/DynamicPageDeclaration------------
@@ -828,66 +845,104 @@ const CustomNode: React.FC<NodeProps> = ({ data }) => {
     </>
   );
 
+  const sequenceBadge = nodeData.showSequenceBadge ? (
+    <div className="chain-node-seq-badge" aria-hidden>
+      {nodeData.originalSequence}
+    </div>
+  ) : null;
+
+  const noteText = (nodeData.note || '').trim();
+  const noteLine =
+    isDone && noteText ? (
+      <div className="chain-node-note" title={noteText}>
+        <StickyNote2OutlinedIcon
+          className="chain-node-note-icon"
+          fontSize="inherit"
+          aria-hidden
+        />
+        <span className="chain-node-note-text">
+          {formatNotePreview(noteText)}
+        </span>
+      </div>
+    ) : null;
+
   if (isDone) {
     const isDenied = Boolean(nodeData.denied);
+    const isFullyDone = Number(nodeData.progressPReported) === 100;
+    const progressStatus = isFullyDone
+      ? 'Completed'
+      : `In Progress- ${nodeData.progressPReported} %`;
     return (
-      <div
-        className={`chain-node chain-node--done nodrag nopan${
-          isDenied ? ' chain-node--denied' : ''
-        }`}
-      >
-        <div className="chain-node-name">
-          {formatEventName(nodeData.biznessEventName)}
-        </div>
-        <div className="chain-node-meta">
-          Event <span>{nodeData.eventNo || '—'}</span>
-        </div>
-        <div className="chain-node-meta">
-          Done by {nodeData.performedByName || '—'}
-        </div>
-        {isDenied ? (
-          <div className="chain-node-denied-row">
-            <span className="chain-node-status chain-node-status--denied">
-              Denied
-            </span>
-            <button
-              type="button"
-              className="chain-enable-btn nodrag nopan"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (nodeData.biznessEventPCTrackId) {
-                  nodeData.onEnableDenied?.([nodeData.biznessEventPCTrackId]);
-                }
-              }}
-            >
-              Enable
-            </button>
+      <div className="chain-node-wrap">
+        {sequenceBadge}
+        <div
+          className={`chain-node chain-node--done nodrag nopan${
+            isDenied ? ' chain-node--denied' : ''
+          }${!isFullyDone && !isDenied ? ' chain-node--in-progress' : ''}`}
+        >
+          <div className="chain-node-name">
+            {formatEventName(nodeData.biznessEventName)}
           </div>
-        ) : (
-          <div className="chain-node-status">Completed</div>
-        )}
-        {handleNode}
+          <div className="chain-node-meta">
+            Event <span>{nodeData.eventNo || '—'}</span>
+          </div>
+          <div className="chain-node-meta">
+            Done by {nodeData.performedByName || '—'}
+          </div>
+          {noteLine}
+          {isDenied ? (
+            <div className="chain-node-denied-row">
+              <span className="chain-node-status chain-node-status--denied">
+                Denied
+              </span>
+              <button
+                type="button"
+                className="chain-enable-btn nodrag nopan"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (nodeData.biznessEventPCTrackId) {
+                    nodeData.onEnableDenied?.([nodeData.biznessEventPCTrackId]);
+                  }
+                }}
+              >
+                Enable
+              </button>
+            </div>
+          ) : (
+            <div
+              className={`chain-node-status${
+                isFullyDone ? '' : ' chain-node-status--in-progress'
+              }`}
+            >
+              {progressStatus}
+            </div>
+          )}
+          {handleNode}
+        </div>
       </div>
     );
   }
 
   return (
     <div>
-      <div
-        aria-describedby={popoverId}
-        className="chain-node chain-node--pending nodrag nopan"
-        onMouseEnter={(e) => {
-          setHoveredData(nodeData);
-          setAnchorEl(e.currentTarget);
-        }}
-        onMouseLeave={() => setAnchorEl(null)}
-      >
-        <div className="chain-node-name">
-          {formatEventName(nodeData.biznessEventName)}
+      <div className="chain-node-wrap">
+        {sequenceBadge}
+        <div
+          aria-describedby={popoverId}
+          className="chain-node chain-node--pending nodrag nopan"
+          onMouseEnter={(e) => {
+            setHoveredData(nodeData);
+            setAnchorEl(e.currentTarget);
+          }}
+          onMouseLeave={() => setAnchorEl(null)}
+        >
+          <div className="chain-node-name">
+            {formatEventName(nodeData.biznessEventName)}
+          </div>
+          <div className="chain-node-meta">Awaiting action</div>
+          <div className="chain-node-status">Pending</div>
+          {handleNode}
         </div>
-        <div className="chain-node-meta">Awaiting action</div>
-        <div className="chain-node-status">Pending</div>
-        {handleNode}
       </div>
       <Popover
         id={popoverId}
@@ -947,31 +1002,27 @@ const nodeTypes = { customNode: CustomNode };
 const edgeTypes = { smoothstep: SmoothStepEdge };
 
 const generateEdges = (tasks: IEventTask[]) => {
-  const taskIds = new Set(
-    tasks.map((task) => task.originalSequence.toString())
-  );
-  return tasks.flatMap((task) => {
-    const targetId = task.nextSequence?.toString();
-    if (!targetId || !taskIds.has(targetId)) {
-      return [];
-    }
-    return [
-      {
-        id: `${task.originalSequence}-${task.nextSequence}-${task.firstEventNo}`,
-        source: task.originalSequence.toString(),
-        sourceHandle: 'output1',
-        target: targetId,
-        targetHandle: 'input1',
-        type: 'smoothstep',
-        animated: true,
-        className: 'chain-flow-edge',
-        style: {
-          stroke: 'var(--br24-accent, #0d9488)',
-          strokeWidth: 2,
-        },
+  const edges = [];
+  for (let i = 0; i < tasks.length - 1; i += 1) {
+    const source = chainFlowNodeId(tasks[i]);
+    const target = chainFlowNodeId(tasks[i + 1]);
+    edges.push({
+      id: `${source}->${target}`,
+      source,
+      sourceHandle: 'output1',
+      target,
+      targetHandle: 'input1',
+      type: 'smoothstep',
+      animated: true,
+      className: 'chain-flow-edge',
+      style: {
+        stroke: 'var(--br24-accent, #0d9488)',
+        strokeWidth: 2,
+        strokeDasharray: '6 4',
       },
-    ];
-  });
+    });
+  }
+  return edges;
 };
 
 const generateNodes = (
@@ -980,42 +1031,52 @@ const generateNodes = (
   onCompletedClick: (nodeData: ChainNodeData) => void,
   onPendingClick: (nodeData: ChainNodeData) => void,
   onEnableDenied: (biznessEventPCTrackIds: number[]) => void
-) =>
-  tasks.map((task, index) => ({
-    id: task.originalSequence.toString(),
-    type: 'customNode',
-    data: {
-      biznessEventPCTrackId: task.biznessEventPCTrackId,
-      biznessEventProcessConfigurationId:
-        task.biznessEventProcessConfigurationId,
-      eventNo: task.eventNo,
-      biznessEventId: task.biznessEventId,
-      biznessEventName: task.biznessEventName,
-      performedById: task.performedById,
-      performedByName: task.performedByName,
-      performedByImage: task.performedByImage,
-      startDate: task.startDate,
-      endDate: task.endDate,
-      firstEventNo: task.firstEventNo,
-      biznessEventFrequency: task.biznessEventFrequency,
-      note: task.note,
-      progressPReported: task.progressPReported,
-      originalSequence: task.originalSequence,
-      nextSequence: task.nextSequence,
-      attachmentList: task.attachmentList,
-      extendedBiznessEventId: task.extendedBiznessEventId,
-      extendedBiznessEventName: task.extendedBiznessEventName,
-      notes: task.notes,
-      fixedTaskTemplateId:
-        task.fixedTaskTemplateId ?? chainMeta.fixedTaskTemplateId,
-      fixedTaskTemplateName: chainMeta.fixedTaskTemplateName,
-      denied: task.denied ?? null,
-      onCompletedClick,
-      onPendingClick,
-      onEnableDenied,
-    } satisfies ChainNodeData,
-    position: { x: index * 250, y: 12 },
-  }));
+) => {
+  const seenSequences = new Set<number>();
+  return tasks.map((task, index) => {
+    const seq = Number(task.originalSequence);
+    const showSequenceBadge = !seenSequences.has(seq);
+    if (showSequenceBadge) seenSequences.add(seq);
+
+    return {
+      id: chainFlowNodeId(task),
+      type: 'customNode',
+      data: {
+        biznessEventPCTrackId: task.biznessEventPCTrackId,
+        biznessEventProcessConfigurationId:
+          task.biznessEventProcessConfigurationId,
+        eventNo: task.eventNo,
+        biznessEventId: task.biznessEventId,
+        biznessEventName: task.biznessEventName,
+        performedById: task.performedById,
+        performedByName: task.performedByName,
+        performedByImage: task.performedByImage,
+        startDate: task.startDate,
+        endDate: task.endDate,
+        firstEventNo: task.firstEventNo,
+        biznessEventFrequency: task.biznessEventFrequency,
+        note: task.note,
+        progressPReported: task.progressPReported,
+        originalSequence: task.originalSequence,
+        nextSequence: task.nextSequence,
+        attachmentList: task.attachmentList,
+        extendedBiznessEventId: task.extendedBiznessEventId,
+        extendedBiznessEventName: task.extendedBiznessEventName,
+        notes: task.notes,
+        fixedTaskTemplateId:
+          task.fixedTaskTemplateId ?? chainMeta.fixedTaskTemplateId,
+        fixedTaskTemplateName: chainMeta.fixedTaskTemplateName,
+        denied: task.denied ?? null,
+        showSequenceBadge,
+        onCompletedClick,
+        onPendingClick,
+        onEnableDenied,
+      } satisfies ChainNodeData,
+      // Extra top padding so sequence badge is not clipped by the canvas
+      position: { x: index * 250, y: 28 },
+    };
+  });
+};
 
 const ChainListSkeleton = memo(function ChainListSkeleton({
   count = 3,

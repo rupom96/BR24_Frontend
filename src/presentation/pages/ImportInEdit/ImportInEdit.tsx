@@ -90,6 +90,7 @@ import {
   useLazyGetProductGroupByCompanyIdQuery,
 } from '../../../infrastructure/api/ProductApiSlice';
 import { useLazyGetBanksComboOptionsQuery } from '../../../infrastructure/api/GetBanksForChequeBookApiSlice';
+import { useAppSelector } from '../../../application/Redux/store/store';
 
 type Props = {};
 
@@ -98,6 +99,7 @@ const ImportInEdit = ({
   clickedCardInfo,
   operationMode,
 }: any) => {
+  const currentColor = useAppSelector((state) => state.currentColor.color);
   const biznessEventName = clickedCardInfo?.biznessEventName.replace(
     /([A-Z])(?=[A-Z][a-z])/g,
     '$1 '
@@ -2517,11 +2519,40 @@ const ImportInEdit = ({
         </>
       ),
 
-      //   renderTopToolbarCustomActions: ({ table }) => (
-      //     <div className=" w-[30%] mt-1 flex gap-3 justify-center items-center">
+      renderTopToolbarCustomActions: ({ table }) => {
+        const selectedRows = table.getSelectedRowModel().rows;
+        const selectedCount = selectedRows.length;
+        if (selectedCount === 0) return null;
 
-      //     </div>
-      //   ),
+        const selectedAmountSum = selectedRows.reduce((sum, row) => {
+          const amount = Number(row.original.totalAmount);
+          return sum + (Number.isFinite(amount) ? amount : 0);
+        }, 0);
+
+        return (
+          <div className="mt-1 flex items-center gap-2 rounded-md bg-slate-100/90 px-2.5 py-1 text-[0.8125rem] text-slate-600 ring-1 ring-slate-200/80">
+            <span>
+              Selected{' '}
+              <span className="font-semibold text-slate-800">
+                {selectedCount}
+              </span>
+            </span>
+            <span className="h-3 w-px bg-slate-300" aria-hidden />
+            <span>
+              Total Amount{' '}
+              <span
+                className="font-semibold tabular-nums"
+                style={{ color: currentColor }}
+              >
+                {selectedAmountSum.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </span>
+            </span>
+          </div>
+        );
+      },
       onSortingChange: setSortingImportInGrid,
       rowVirtualizerInstanceRef, // optional
       rowVirtualizerOptions: { overscan: 10 }, // optionally customize the row virtualizer

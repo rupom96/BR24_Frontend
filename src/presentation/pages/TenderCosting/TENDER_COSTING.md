@@ -114,7 +114,7 @@ Uses `sumOfUnit` and `totalAmountOneT`:
 |-------|----------------|
 | **BG** | Editable `bgAmount`. UI also shows read-only **BG/Pay Order/Schedule Purchase Expense** = `bgAmount + schedulePrice + bgPayOrderExpense` (sisters on same GET DTO; BE may add later). Pricing still uses `bgValuePerUnit = bgAmount / sumOfUnit` only. |
 | **PG** | `performanceGuaranteeA = (performanceGuaranteeP/100) × totalAmountOneT` → margin amount → bank finance charge × years; quarterly charges from `pgPerQtChargeP`; `pgTotalQuarter = pgTotalYears × 4 + 1`; fixed expense folded in → `pgValuePerUnit` |
-| **SD** | Total (`securityDeposit`) always = `totalAmountOneT` (Option B; UI read-only). Then `securityDepositA = (securityDepositP/100) × securityDeposit` → BFC × years → `sdValuePerUnit`. **Margin** (`sdMarginP` editable): `sdMarginAmount = (sdMarginP/100) × sdTotalYearsA` — display + save only; does not feed `sdValuePerUnit` / `bgAndPgAndSd`. |
+| **SD** | Total (`securityDeposit`) always = `totalAmountOneT` (Option B; UI read-only). Then `securityDepositA = (securityDepositP/100) × securityDeposit` → BFC × years → `sdTotalYearsA`. **Margin** (`sdMarginP` editable): `sdMarginAmount = (sdMarginP/100) × sdTotalYearsA` (saved). **Total SD Expense** (virtual): `totalSdExpense = sdMarginAmount + sdTotalYearsA`. **No. of Unit amount:** `sdValuePerUnit = totalSdExpense / sumOfUnit`. |
 | **Combined** | `bgAndPgAndSd = bgValuePerUnit + pgValuePerUnit + sdValuePerUnit` |
 
 ### 4.4 Pass 2 (final price)
@@ -124,7 +124,7 @@ Uses `sumOfUnit` and `totalAmountOneT`:
 | Tax & VAT 3 / product | `bgAndPgAndSd × (taxAndVATThreeP / 100)` |
 | Calculated Price | `unitPriceWithTv2SeAg + bgAndPgAndSd + taxAndVATThree` |
 | Total Amount Two (row) | `qty × calculatedPrice` |
-| Ratio (row, virtual) | `totalAmountOnePerProduct / totalAmountOneT` (read-only; no footer; not saved) |
+| Ratio (row, virtual) | `Math.round((totalAmountOnePerProduct / totalAmountOneT) * 100)` — integer %; no footer; not saved |
 | Calculated Profit (row) | `qty × profitPerProduct` |
 
 ---
@@ -297,6 +297,7 @@ Operational meaning: completing Tender Costing records that the process step was
    - Else: FOB+LP read-only; save keeps loaded `Price` unchanged.  
    Backend save handlers need no ProductSource field updates.
 10. **Per-row Dist Margin & Profit %** — header % inputs removed. Each row has Dist Margin % / Dist Margin value and Profit % / Profit value. Only % is editable; values are formula-derived (`price×%` for Dist on FOB rows; `(L/C+LP)×%` for Profit). Dist Margin % editable only when `productSource === "FOB"`; Profit % editable on all rows. Footers sum row % and row values. Persist via existing detail `Cost` + header `Percentage`/`Amount` (header P = sum of row %).
+11. **GET null Cost → header % fallback (load only)** — `getTenderCosting` returns Dist/Profit `*PerProduct` as DB `Cost` without `?? 0`. In `buildInitialStateFromDto`: if Dist Cost is `null` (and not LOCAL/STOCK), seed row Dist % from header `distMarginP`; if Profit Cost is `null`, seed row Profit % from header `profitP`. Genuine `0` does not trigger fallback. FOB vs non-FOB Dist recompute/edit rules unchanged. Save still writes numeric costs (no null round-trip required).
 
 ---
 

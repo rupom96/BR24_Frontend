@@ -1,25 +1,28 @@
 # Task Identity
 
-- **Task ID:** TASK-20261013-chain-denied-filter-header
-- **Task title:** Chain Status — TE header + deniedFilter
-- **Started date:** 2026-10-13
-- **Last updated:** 2026-10-13
+- **Task ID:** TASK-20261104-chain-flow-all-tracks
+- **Task title:** Chain flow chart — all PCTrack rows + sequence badge + Note
+- **Started date:** 2026-11-04
+- **Last updated:** 2026-11-04
 
 # Objective
 
-Match Available Chain Status header to Tender Expense For SP; add `deniedFilter=all|enabled|denied` on `getChainFlowChart`.
+Change existing `getChainFlowChart` + `reactFlowExp2`: list chains from any PCTrack; return all tracks; sequence badge on first of each OriginalSequence; Note on boxes; pending kept with dedupe; sequenceNo filter still last-completed==N.
 
 # Current State
 
-**Backend (done):** `getChainFlowChart?deniedFilter=` — all (omit/null), enabled (no Denied==true on chain), denied (at least one Denied==true)
+**Done (this session):**
 
-**Frontend (done):** TE-style header (accent bar + title, no subtitle); 5th filter Denied status; RTK passes `deniedFilter`
+- BE: discovery without requiring 100%; sequenceNo still 100%-only last-completed; Step C all tracks + pending dedupe; denied filter any progress; task order helper.
+- FE: unique node ids, consecutive edges, sequence badge, Note (truncate/hover), In Progress status, Denied+Enable unchanged.
+- Docs: history task file.
 
 # Next Action
 
-1. Restart API (DLL lock if IIS Express running).
-2. Smoke: header looks like TE; Only Denied / Only Enabled / All.
+1. Rebuild/restart API (Persistence).
+2. Smoke per `docs/ai-work/history/TASK-20261104-chain-flow-all-tracks.md`.
 
 # Notes
 
-- Related: TASK-20261013-chain-denied-enable
+- Prior: TASK-20261104-tender-costing-null-cost-fallback (done earlier same day).
+- History: `docs/ai-work/history/TASK-20261104-chain-flow-all-tracks.md`

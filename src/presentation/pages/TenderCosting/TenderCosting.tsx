@@ -76,7 +76,7 @@ type TenderCostingDetailRow = GetTenderCostingDetailDto & {
   // Tax & VAT Three + final pricing
   taxAndVATThreePerProduct: number; // percentage driven from Tax&VATThreeP
   totalAmountTwoPerProduct: number; // virtual
-  /** Virtual: totalAmountOnePerProduct / sum(totalAmountOne) */
+  /** Virtual %: Math.round((totalAmountOnePerProduct / totalAmountOneT) * 100) */
   ratio: number;
 
   /** DB Price at load — used on save when productSource is not FOB/LOCAL/STOCK */
@@ -125,6 +125,8 @@ export type TenderCostingState = Omit<
   securityDepositA: number;
   sdBankFinanceChargeA: number;
   sdTotalYearsA: number;
+  /** Virtual: sdMarginAmount + sdTotalYearsA (not saved) */
+  totalSdExpense: number;
   sdValuePerUnit: number;
 
   // Combined BG + PG + SD
@@ -564,11 +566,12 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
     (sdBankFinanceChargeP / 100) * securityDepositA
   );
   const sdTotalYearsA = round2(sdTotalYears * sdBankFinanceChargeA);
-  // Margin: display + save only — does not feed sdValuePerUnit / bgAndPgAndSd
+  // Margin: % editable; amount saved. Total SD Expense virtual = Margin + No.Year amounts
   const sdMarginP = state.sdMarginP ?? 0;
   const sdMarginAmount = round2((sdMarginP / 100) * sdTotalYearsA);
+  const totalSdExpense = round2((sdMarginAmount || 0) + (sdTotalYearsA || 0));
   const sdValuePerUnit = sumOfUnitSafe
-    ? round2(sdTotalYearsA / sumOfUnitSafe)
+    ? round2(totalSdExpense / sumOfUnitSafe)
     : 0;
 
   // Combined BG + PG + SD
@@ -597,7 +600,9 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
     const calculatedProfit = round2(quantity * (row.profitPerProduct || 0));
 
     const ratio = totalAmountOneTSafe
-      ? round2((row.totalAmountOnePerProduct || 0) / totalAmountOneTSafe)
+      ? Math.round(
+          ((row.totalAmountOnePerProduct || 0) / totalAmountOneTSafe) * 100
+        )
       : 0;
 
     sumTaxAndVATThree += taxAndVATThreePerProduct || 0;
@@ -681,6 +686,7 @@ const recomputeAll = (state: TenderCostingState): TenderCostingState => {
     sdMarginAmount,
     sdBankFinanceChargeA,
     sdTotalYearsA,
+    totalSdExpense,
     sdValuePerUnit,
 
     // Combined
@@ -698,8 +704,9 @@ const buildInitialStateFromDto = (
       const originalPrice = d.price ?? null;
       const productSource = d.productSource ?? null;
       const apiPrice = d.price ?? 0;
-      const distCost = d.distMarginPerProduct ?? 0;
-      const profitCost = d.profitPerProduct ?? 0;
+      // Keep null from GET (Dist/Profit); 0 = genuine zero — do not coalesce
+      const distCost = d.distMarginPerProduct;
+      const profitCost = d.profitPerProduct;
       const factor = d.initialFactor ?? 0;
 
       // LOCAL/STOCK: Price displays & calculates as LP; FOB-side price = 0
@@ -712,13 +719,17 @@ const buildInitialStateFromDto = (
         price = 0;
       }
 
-      // Dist %: reverse from Cost/price when price > 0 (API price before LOCAL remap)
+      // Dist %: reverse from Cost when present; null → header DistMarginP.
+      // LOCAL/STOCK still forced to 0 (FOB/other recompute rules unchanged).
       let distMarginPercent = 0;
-      if (apiPrice > 0 && distCost) {
-        distMarginPercent = round2((distCost / apiPrice) * 100);
-      }
       if (isLpSource(productSource)) {
         distMarginPercent = 0;
+      } else if (distCost != null) {
+        if (apiPrice > 0) {
+          distMarginPercent = round2((distCost / apiPrice) * 100);
+        }
+      } else {
+        distMarginPercent = dto.distMarginP ?? 0;
       }
 
       // Provisional Dist for Profit % reverse (FOB uses %; else keep API cost)
@@ -726,12 +737,13 @@ const buildInitialStateFromDto = (
         ? price && distMarginPercent
           ? round2(price * (distMarginPercent / 100))
           : 0
-        : distCost;
+        : distCost ?? 0;
       const provisionalLc =
         price && factor ? round2((price + provisionalDist) * factor) : 0;
       const profitBase = (provisionalLc || 0) + (lpPerProduct || 0);
+      // Profit %: reverse when Cost present; null → header ProfitP (all sources)
       let profitPercent = dto.profitP ?? 0;
-      if (profitBase > 0 && profitCost) {
+      if (profitBase > 0 && profitCost != null) {
         profitPercent = round2((profitCost / profitBase) * 100);
       }
 
@@ -742,11 +754,11 @@ const buildInitialStateFromDto = (
         lpPerProduct,
         originalPrice,
         distMarginPercent,
-        distMarginPerProduct: distCost,
+        distMarginPerProduct: distCost ?? 0,
         profitPercent,
         totalFob: 0,
         lc: 0,
-        profitPerProduct: profitCost,
+        profitPerProduct: profitCost ?? 0,
         unitCostPerProduct: 0,
         unitPriceWithoutVTOtherExpPerProduct: 0,
         unitPriceWithVTPerProduct: 0,
@@ -850,6 +862,7 @@ const buildInitialStateFromDto = (
     securityDepositA: 0,
     sdBankFinanceChargeA: 0,
     sdTotalYearsA: 0,
+    totalSdExpense: 0,
     sdValuePerUnit: 0,
     // Combined
     bgAndPgAndSd: 0,
@@ -1074,11 +1087,17 @@ const handleExportAllData = (
         : val;
   });
 
+  // export-to-csv requires showLabels + headers (or useKeysAsHeaders);
+  // otherwise _getHeaders() returns undefined and crashes on .length
   const exporter = new ExportToCsv({
     fieldSeparator: ',',
+    quoteStrings: '"',
     decimalSeparator: '.',
     filename: 'tender-costing',
+    showLabels: true,
+    useBom: true,
     useKeysAsHeaders: false,
+    headers: leafColumns.map((col) => col.id),
   });
 
   const exportData = [headerRow, subHeaderRow, ...dataRows, totalsRow];
@@ -2259,9 +2278,18 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
       },
       {
         accessorKey: 'ratio',
-        header: 'Ratio',
+        header: 'Ratio %',
         size: 100,
-        Cell: readonlyNumberCell('ratio'),
+        Cell: ({ row }: any) => {
+          const val = rows[row.index]?.ratio;
+          return (
+            <div className="w-full py-1 flex justify-between items-center">
+              <span style={{ fontSize: '0.8125rem' }}>
+                {val == null ? '' : String(Math.round(Number(val)))}
+              </span>
+            </div>
+          );
+        },
         enableEditing: false,
         Footer: () => null,
       },
@@ -2415,6 +2443,7 @@ const TenderCosting: React.FC<TenderCostingProps> = ({
         securityDepositA,
         sdBankFinanceChargeA,
         sdTotalYearsA,
+        totalSdExpense,
         sdValuePerUnit,
 
         bgAndPgAndSd,
