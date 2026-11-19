@@ -61,9 +61,13 @@ import {
 } from '../../../domain/interfaces/ChainDataInterface';
 import { IFixedTaskTemplateAutoComp } from '../../../domain/interfaces/FixedTaskTemplateInterface';
 import { useLazyGetFixedTaskTemplateComboOptionsQuery } from '../../../infrastructure/api/FixedTaskTemplateApiSlice';
+import { SANextEventApiSlice } from '../../../infrastructure/api/SANextEventApiSlice';
 import componentMap from '../../Utils/DynamicPageDeclaration';
 import Swal from 'sweetalert2';
-import { useAppSelector } from '../../../application/Redux/store/store';
+import {
+  useAppDispatch,
+  useAppSelector,
+} from '../../../application/Redux/store/store';
 import { hexToRgba } from '../../Utils/colorUtils';
 
 const BR2_URL = window.BR2_URL;
@@ -1310,6 +1314,7 @@ const ReactFlowExp2 = (props: Props) => {
   });
   // Watch for changes in the entire form
   const watchedFields = useWatch({ control });
+  const dispatch = useAppDispatch();
   const currentColor = useAppSelector((state) => state.currentColor.color);
   const accentSoft = hexToRgba(currentColor, 0.06);
   const navigate = useNavigate();
@@ -1560,12 +1565,14 @@ const ReactFlowExp2 = (props: Props) => {
             : `${ids.length} denied steps enabled.`
         );
         refetchChainFlowchart();
+        // Cross-slice: EventsOfAChain SA_NextEvent cache still has Denied
+        dispatch(SANextEventApiSlice.util.invalidateTags(['SANextEvent']));
       } catch (error) {
         console.log(error);
         toast.error('Could not enable denied step(s).');
       }
     },
-    [clearDenied, refetchChainFlowchart]
+    [clearDenied, dispatch, refetchChainFlowchart]
   );
 
   useEffect(() => {
